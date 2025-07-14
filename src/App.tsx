@@ -6,7 +6,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import Dashboard from "./pages/Dashboard";
+import AppLayout from "@/components/layout/AppLayout";
+import Feed from "./pages/Feed";
+import InstantPodcasts from "./pages/InstantPodcasts";
+import Notebooks from "./pages/Notebooks";
 import Notebook from "./pages/Notebook";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
@@ -20,15 +23,29 @@ const AppContent = () => {
         path="/" 
         element={
           <ProtectedRoute fallback={<Auth />}>
-            <Dashboard />
+            <AppLayout>
+              <Feed />
+            </AppLayout>
           </ProtectedRoute>
         } 
       />
       <Route 
-        path="/notebook" 
+        path="/instant-podcasts" 
         element={
           <ProtectedRoute fallback={<Auth />}>
-            <Notebook />
+            <AppLayout>
+              <InstantPodcasts />
+            </AppLayout>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/notebooks" 
+        element={
+          <ProtectedRoute fallback={<Auth />}>
+            <AppLayout>
+              <Notebooks />
+            </AppLayout>
           </ProtectedRoute>
         } 
       />
