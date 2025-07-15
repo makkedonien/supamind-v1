@@ -2,7 +2,7 @@ import React from 'react';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import { useAuth } from '@/contexts/AuthContext';
 
-const InstantPodcasts = () => {
+const Micros = () => {
   const { user } = useAuth();
 
   return (
@@ -11,7 +11,7 @@ const InstantPodcasts = () => {
       
       <main className="max-w-7xl mx-auto px-6 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-medium text-gray-900 mb-2">Instant Podcasts</h1>
+          <h1 className="text-4xl font-medium text-gray-900 mb-2">Micros</h1>
           <p className="text-gray-600">Generate AI-powered podcast conversations from any content</p>
         </div>
 
@@ -29,4 +29,4 @@ const InstantPodcasts = () => {
   );
 };
 
-export default InstantPodcasts;
+export default Micros; 

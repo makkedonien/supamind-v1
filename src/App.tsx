@@ -8,7 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import AppLayout from "@/components/layout/AppLayout";
 import Feed from "./pages/Feed";
-import InstantPodcasts from "./pages/InstantPodcasts";
+import Micros from "./pages/Micros";
 import Notebooks from "./pages/Notebooks";
 import Notebook from "./pages/Notebook";
 import Auth from "./pages/Auth";
@@ -30,11 +30,11 @@ const AppContent = () => {
         } 
       />
       <Route 
-        path="/instant-podcasts" 
+        path="/micros" 
         element={
           <ProtectedRoute fallback={<Auth />}>
             <AppLayout>
-              <InstantPodcasts />
+              <Micros />
             </AppLayout>
           </ProtectedRoute>
         } 

@@ -22,9 +22,9 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
     },
     {
       icon: Mic,
-      label: 'Instant Podcasts',
-      path: '/instant-podcasts',
-      isActive: location.pathname === '/instant-podcasts'
+      label: 'Micros',
+      path: '/micros',
+      isActive: location.pathname === '/micros'
     },
     {
       icon: BookOpen,
