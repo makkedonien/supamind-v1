@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Rss, Mic, BookOpen } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Rss, Mic, BookOpen, User, LogOut } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { useLogout } from '@/services/authService';
+import { useAuth } from '@/contexts/AuthContext';
 import Logo from '@/components/ui/Logo';
 import { cn } from '@/lib/utils';
 
@@ -12,6 +15,8 @@ interface SidebarProps {
 
 const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
   const location = useLocation();
+  const { logout } = useLogout();
+  const { user } = useAuth();
 
   const menuItems = [
     {
@@ -87,6 +92,43 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
           })}
         </ul>
       </nav>
+
+      {/* User Section at Bottom */}
+      <div className="p-4 border-t border-gray-200">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button 
+              variant="ghost" 
+              className={cn(
+                "w-full justify-start p-3 h-auto hover:bg-gray-100",
+                isCollapsed && "justify-center"
+              )}
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center cursor-pointer hover:bg-purple-600 transition-colors">
+                  <User className="h-4 w-4 text-white" />
+                </div>
+                {!isCollapsed && (
+                  <div className="flex flex-col items-start text-left min-w-0">
+                    <span className="text-sm font-medium text-gray-900 truncate max-w-[140px]">
+                      {user?.email?.split('@')[0] || 'User'}
+                    </span>
+                    <span className="text-xs text-gray-500 truncate max-w-[140px]">
+                      {user?.email || ''}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem onClick={logout} className="cursor-pointer">
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </div>
   );
 };

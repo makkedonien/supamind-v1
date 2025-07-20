@@ -4,7 +4,6 @@ import { useParams } from 'react-router-dom';
 import { useNotebooks } from '@/hooks/useNotebooks';
 import { useSources } from '@/hooks/useSources';
 import { useIsDesktop } from '@/hooks/useIsDesktop';
-import NotebookHeader from '@/components/notebook/NotebookHeader';
 import SourcesSidebar from '@/components/notebook/SourcesSidebar';
 import ChatArea from '@/components/notebook/ChatArea';
 import StudioSidebar from '@/components/notebook/StudioSidebar';
@@ -37,11 +36,6 @@ const Notebook = () => {
 
   return (
     <div className="h-screen bg-white flex flex-col overflow-hidden">
-      <NotebookHeader 
-        title={notebook?.title || 'Untitled Notebook'} 
-        notebookId={notebookId} 
-      />
-      
       {isDesktop ? (
         // Desktop layout (3-column)
         <div className="flex-1 flex overflow-hidden">
