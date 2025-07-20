@@ -50,7 +50,7 @@ const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
           <div className="flex items-center space-x-3">
             <Logo size="md" />
             {!isCollapsed && (
-              <span className="text-xl font-medium text-gray-900">InsightsLM</span>
+              <span className="text-xl font-medium text-gray-900">Supamind</span>
             )}
           </div>
           <Button
