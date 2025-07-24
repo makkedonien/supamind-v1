@@ -11,6 +11,7 @@ import Feed from "./pages/Feed";
 import Microcasts from "./pages/Microcasts";
 import Notebooks from "./pages/Notebooks";
 import Notebook from "./pages/Notebook";
+import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -54,6 +55,16 @@ const AppContent = () => {
         element={
           <ProtectedRoute fallback={<Auth />}>
             <Notebook />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/settings" 
+        element={
+          <ProtectedRoute fallback={<Auth />}>
+            <AppLayout>
+              <Settings />
+            </AppLayout>
           </ProtectedRoute>
         } 
       />

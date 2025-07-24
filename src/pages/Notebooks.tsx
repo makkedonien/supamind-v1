@@ -47,11 +47,6 @@ const Notebooks = () => {
 
   return (
     <main className="max-w-7xl mx-auto px-6 py-[60px]">
-      <div className="mb-8">
-        <h1 className="font-medium text-gray-900 mb-2 text-5xl">Notebooks</h1>
-        <p className="text-gray-600">Create and manage your AI-powered research notebooks</p>
-      </div>
-
       {hasNotebooks ? <NotebookGrid /> : <EmptyDashboard />}
     </main>
   );
