@@ -136,12 +136,7 @@ export const useFeedSources = () => {
   const updateSource = useMutation({
     mutationFn: async ({ sourceId, updates }: { 
       sourceId: string; 
-      updates: { 
-        title?: string;
-        file_path?: string;
-        processing_status?: string;
-        metadata?: any;
-      }
+      updates: Record<string, any>;
     }) => {
       const { data, error } = await supabase
         .from('sources')

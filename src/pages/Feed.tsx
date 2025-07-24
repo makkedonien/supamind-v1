@@ -9,7 +9,11 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ExternalLink, LayoutGrid, List, Check, X, Share, Bookmark, Star, Clock, Calendar } from 'lucide-react';
+import { ExternalLink, LayoutGrid, List, Check, X, Share, Bookmark, Star, Clock, Calendar, Plus } from 'lucide-react';
+import { useFeedSources } from '@/hooks/useFeedSources';
+import FeedSourceCard from '@/components/feed/FeedSourceCard';
+import AddFeedSourceDialog from '@/components/feed/AddFeedSourceDialog';
+import SourceCategoryDialog from '@/components/feed/SourceCategoryDialog';
 
 // Enhanced Types
 interface ContentItem {
@@ -437,10 +441,19 @@ const Feed = () => {
   const [viewMode, setViewMode] = useState<'list' | 'card'>('list');
   const [isMobile, setIsMobile] = useState(false);
   
-  // New state for hover interactions
+  // Feed sources state
+  const [showAddSourceDialog, setShowAddSourceDialog] = useState(false);
+  const [showCategoryDialog, setShowCategoryDialog] = useState(false);
+  const [selectedSourceForCategory, setSelectedSourceForCategory] = useState<any>(null);
+  const [selectedSourceForEdit, setSelectedSourceForEdit] = useState<any>(null);
+  
+  // New state for hover interactions (keeping for future detail view)
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [detailItem, setDetailItem] = useState<ContentItem | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+
+  // Feed sources data
+  const { sources, isLoading, error } = useFeedSources();
 
   // Mobile detection
   useEffect(() => {
@@ -498,70 +511,134 @@ const Feed = () => {
     setDetailItem(null);
   };
 
+  // Feed source handlers
+  const handleEditSource = (source: any) => {
+    setSelectedSourceForEdit(source);
+    // For now, just show a placeholder - could implement title editing
+    console.log('Edit source:', source);
+  };
+
+  const handleCategorizeSource = (source: any) => {
+    setSelectedSourceForCategory(source);
+    setShowCategoryDialog(true);
+  };
+
+  const handleCloseCategoryDialog = () => {
+    setShowCategoryDialog(false);
+    setSelectedSourceForCategory(null);
+  };
+
   return (
     <main className="w-full px-6 py-8 2xl:max-w-[1480px] 2xl:mx-auto">
       {/* Content Feed Section */}
       <div className="space-y-6">
-        {/* View Toggle */}
+        {/* Header with Add Source Button */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold">Content Feed</h2>
-          {!isMobile && (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">View:</span>
-              <div className="flex border rounded-md p-1 bg-muted/50">
-                <Button
-                  variant={viewMode === 'list' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode('list')}
-                  className="h-8 px-3"
-                >
-                  <List className="h-4 w-4 mr-1" />
-                  List
-                </Button>
-                <Button
-                  variant={viewMode === 'card' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode('card')}
-                  className="h-8 px-3"
-                >
-                  <LayoutGrid className="h-4 w-4 mr-1" />
-                  Cards
-                </Button>
+          <div>
+            <h2 className="text-xl font-semibold">Your Feed</h2>
+            <p className="text-sm text-gray-600 mt-1">
+              {sources?.length || 0} source{sources?.length !== 1 ? 's' : ''} in your feed
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button onClick={() => setShowAddSourceDialog(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Source
+            </Button>
+            {!isMobile && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">View:</span>
+                <div className="flex border rounded-md p-1 bg-muted/50">
+                  <Button
+                    variant={viewMode === 'list' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('list')}
+                    className="h-8 px-3"
+                  >
+                    <List className="h-4 w-4 mr-1" />
+                    List
+                  </Button>
+                  <Button
+                    variant={viewMode === 'card' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('card')}
+                    className="h-8 px-3"
+                  >
+                    <LayoutGrid className="h-4 w-4 mr-1" />
+                    Cards
+                  </Button>
+                </div>
               </div>
+            )}
+          </div>
+        </div>
+
+        {/* Loading State */}
+        {isLoading && (
+          <div className="text-center py-8">
+            <p className="text-sm text-gray-600">Loading your feed sources...</p>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-8">
+            <p className="text-sm text-red-600">Error loading feed sources. Please try again.</p>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!isLoading && !error && (!sources || sources.length === 0) && (
+          <div className="text-center py-12">
+            <div className="w-16 h-16 bg-gray-200 rounded-lg mx-auto mb-4 flex items-center justify-center">
+              <span className="text-gray-400 text-2xl">📄</span>
             </div>
-          )}
-        </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No sources in your feed yet</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Add PDFs, articles, websites, or text content to start building your personal knowledge feed.
+            </p>
+            <Button onClick={() => setShowAddSourceDialog(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Your First Source
+            </Button>
+          </div>
+        )}
 
-        {/* Content Feed Items */}
-        <div className={viewMode === 'list' 
-          ? "space-y-4 w-full" 
-          : "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-        }>
-          {placeholderItems.map(item => (
-            <ContentFeedItem 
-              key={item.id} 
-              item={item} 
-              viewMode={viewMode}
-              isSelected={selectedItems.has(item.id)}
-              onToggleSelection={handleToggleSelection}
-              onOpenDetail={handleOpenDetail}
-            />
-          ))}
-        </div>
-
-        {/* Load More Section */}
-        <div className="flex justify-center mt-8">
-          <Button variant="outline" className="px-8">
-            Load More Content
-          </Button>
-        </div>
+        {/* Feed Sources Grid */}
+        {!isLoading && !error && sources && sources.length > 0 && (
+          <div className={viewMode === 'list' 
+            ? "space-y-4 w-full" 
+            : "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+          }>
+            {sources.map(source => (
+              <FeedSourceCard 
+                key={source.id} 
+                source={source}
+                onEdit={handleEditSource}
+                onCategorize={handleCategorizeSource}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Detail View */}
+      {/* Detail View - Keep for future enhancement */}
       <DetailView
         item={detailItem}
         isOpen={isDetailOpen}
         onClose={handleCloseDetail}
+      />
+
+      {/* Feed Source Dialogs */}
+      <AddFeedSourceDialog 
+        open={showAddSourceDialog} 
+        onOpenChange={setShowAddSourceDialog} 
+      />
+
+      <SourceCategoryDialog 
+        open={showCategoryDialog} 
+        onOpenChange={handleCloseCategoryDialog} 
+        source={selectedSourceForCategory}
       />
     </main>
   );
