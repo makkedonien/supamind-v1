@@ -106,6 +106,7 @@ export const useSources = (notebookId?: string) => {
       file_size?: number;
       processing_status?: string;
       metadata?: any;
+      image_url?: string;
     }) => {
       if (!user) throw new Error('User not authenticated');
 
@@ -113,6 +114,7 @@ export const useSources = (notebookId?: string) => {
         .from('sources')
         .insert({
           notebook_id: sourceData.notebookId,
+          user_id: user.id, // Add user_id for notebook sources
           title: sourceData.title,
           type: sourceData.type,
           content: sourceData.content,
@@ -121,6 +123,7 @@ export const useSources = (notebookId?: string) => {
           file_size: sourceData.file_size,
           processing_status: sourceData.processing_status,
           metadata: sourceData.metadata || {},
+          image_url: sourceData.image_url,
         })
         .select()
         .single();

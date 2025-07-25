@@ -174,66 +174,78 @@ export type Database = {
       }
       sources: {
         Row: {
+          category: string[] | null
           content: string | null
           created_at: string
           display_name: string | null
           file_path: string | null
           file_size: number | null
           id: string
+          image_url: string | null
+          is_favorite: boolean
           metadata: Json | null
-          notebook_id: string
+          notebook_id: string | null
           processing_status: string | null
           summary: string | null
           title: string
           type: Database["public"]["Enums"]["source_type"]
           updated_at: string
           url: string | null
+          user_id: string
         }
         Insert: {
+          category?: string[] | null
           content?: string | null
           created_at?: string
           display_name?: string | null
           file_path?: string | null
           file_size?: number | null
           id?: string
+          image_url?: string | null
+          is_favorite?: boolean
           metadata?: Json | null
-          notebook_id: string
+          notebook_id?: string | null
           processing_status?: string | null
           summary?: string | null
           title: string
           type: Database["public"]["Enums"]["source_type"]
           updated_at?: string
           url?: string | null
+          user_id: string
         }
         Update: {
+          category?: string[] | null
           content?: string | null
           created_at?: string
           display_name?: string | null
           file_path?: string | null
           file_size?: number | null
           id?: string
+          image_url?: string | null
+          is_favorite?: boolean
           metadata?: Json | null
-          notebook_id?: string
+          notebook_id?: string | null
           processing_status?: string | null
           summary?: string | null
           title?: string
           type?: Database["public"]["Enums"]["source_type"]
           updated_at?: string
           url?: string | null
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "fk_sources_notebook_id"
+            foreignKeyName: "sources_notebook_id_fkey"
             columns: ["notebook_id"]
             isOneToOne: false
             referencedRelation: "notebooks"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "sources_notebook_id_fkey"
-            columns: ["notebook_id"]
+            foreignKeyName: "sources_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "notebooks"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]

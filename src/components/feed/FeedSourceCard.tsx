@@ -3,9 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { MoreVertical, ExternalLink, Edit, Trash2, Tag, FileText, Link as LinkIcon, Youtube, Volume2, Clock, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { ExternalLink, Tag, FileText, Link as LinkIcon, Youtube, Volume2, Clock, CheckCircle, XCircle, Loader2, Star, Trash2 } from 'lucide-react';
 import { useFeedSources } from '@/hooks/useFeedSources';
 import { useToast } from '@/hooks/use-toast';
 
@@ -23,6 +22,8 @@ interface FeedSource {
   category?: string[];
   processing_status?: string;
   metadata?: any;
+  image_url?: string;
+  is_favorite?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -31,13 +32,15 @@ interface FeedSourceCardProps {
   source: FeedSource;
   onEdit?: (source: FeedSource) => void;
   onCategorize?: (source: FeedSource) => void;
+  viewMode?: 'list' | 'card';
 }
 
-const FeedSourceCard = ({ source, onEdit, onCategorize }: FeedSourceCardProps) => {
+const FeedSourceCard = ({ source, onEdit, onCategorize, viewMode = 'card' }: FeedSourceCardProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
-  const { deleteSourceAsync } = useFeedSources();
+  const { deleteSourceAsync, toggleFavoriteAsync, isTogglingFavorite } = useFeedSources();
   const { toast } = useToast();
 
   const getSourceIcon = () => {
@@ -96,6 +99,23 @@ const FeedSourceCard = ({ source, onEdit, onCategorize }: FeedSourceCardProps) =
     }
   };
 
+  const getPlaceholderImage = (sourceType: string) => {
+    switch (sourceType) {
+      case 'pdf':
+        return '/file-types/PDF (1).svg';
+      case 'website':
+        return '/file-types/WEB (1).svg';
+      case 'youtube':
+        return '/file-types/WEB (1).svg';
+      case 'audio':
+        return '/file-types/MP3 (1).png';
+      case 'text':
+        return '/file-types/TXT (1).png';
+      default:
+        return '/file-types/DOC (1).png';
+    }
+  };
+
   const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
@@ -137,86 +157,263 @@ const FeedSourceCard = ({ source, onEdit, onCategorize }: FeedSourceCardProps) =
     }
   };
 
+  const handleToggleFavorite = async () => {
+    try {
+      await toggleFavoriteAsync(source.id);
+      toast({
+        title: source.is_favorite ? "Removed from favorites" : "Added to favorites",
+        description: `"${source.title}" has been ${source.is_favorite ? 'removed from' : 'added to'} your favorites.`,
+      });
+    } catch (error) {
+      console.error('Error toggling favorite status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update favorite status. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleExternalLinkClick = () => {
     if (source.url) {
       window.open(source.url, '_blank');
     }
   };
 
-  return (
-    <>
-      <Card className="overflow-hidden transition-all duration-200 hover:shadow-lg">
-        {/* Card Header */}
-        <CardHeader className="pb-3">
-          <div className="flex items-start justify-between">
-            <div className="flex items-start space-x-3 flex-1 min-w-0">
-              <div className="flex-shrink-0 mt-1">
-                {getSourceIcon()}
-              </div>
-              <div className="flex-1 min-w-0">
-                <CardTitle className="text-base line-clamp-2 mb-1">
-                  {source.title}
-                </CardTitle>
-                <div className="flex items-center space-x-2 text-sm text-gray-500">
-                  {source.url && (
-                    <>
-                      <Avatar className="h-4 w-4">
-                        <AvatarImage src={`https://www.google.com/s2/favicons?domain=${getDomain(source.url)}&sz=32`} />
-                        <AvatarFallback>{getDomain(source.url)[0].toUpperCase()}</AvatarFallback>
-                      </Avatar>
-                      <span className="truncate">{getDomain(source.url)}</span>
-                      <span>•</span>
-                    </>
-                  )}
-                  <span>{formatDate(source.created_at)}</span>
+  const handlePublisherClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (source.url) {
+      window.open(source.url, '_blank');
+    }
+  };
+
+  // Hover Action Buttons Component
+  const HoverActions = () => (
+    <div 
+      className={`absolute top-3 right-3 flex gap-2 transition-opacity duration-200 ${
+        isHovered ? 'opacity-100' : 'opacity-0'
+      }`}
+    >
+      <Button
+        variant="secondary"
+        size="icon"
+        className="h-8 w-8 bg-white/90 hover:bg-white shadow-sm"
+        onClick={(e) => {
+          e.stopPropagation();
+          handleToggleFavorite();
+        }}
+        disabled={isTogglingFavorite}
+      >
+        <Star 
+          className={`h-4 w-4 ${source.is_favorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-600'}`} 
+        />
+      </Button>
+      
+      {onCategorize && (
+        <Button
+          variant="secondary"
+          size="icon"
+          className="h-8 w-8 bg-white/90 hover:bg-white shadow-sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            onCategorize(source);
+          }}
+        >
+          <Tag className="h-4 w-4 text-gray-600" />
+        </Button>
+      )}
+      
+      <Button
+        variant="secondary"
+        size="icon"
+        className="h-8 w-8 bg-white/90 hover:bg-white shadow-sm"
+        onClick={(e) => {
+          e.stopPropagation();
+          setShowDeleteDialog(true);
+        }}
+      >
+        <Trash2 className="h-4 w-4 text-red-600" />
+      </Button>
+    </div>
+  );
+
+  if (viewMode === 'list') {
+    return (
+      <>
+        <div
+          className="flex transition-all duration-200 hover:shadow-lg bg-white rounded-lg overflow-hidden relative"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+                     {/* Left Side - Image */}
+           <div className="flex-shrink-0 w-48">
+             <div className="w-full h-32 bg-gray-100 relative rounded-lg overflow-hidden">
+               <img 
+                 src={source.image_url || getPlaceholderImage(source.type)}
+                 alt={source.title}
+                 className={`w-full h-full ${source.image_url ? 'object-cover' : 'object-contain p-4'}`}
+                 onError={(e) => {
+                   const imgElement = e.currentTarget as HTMLImageElement;
+                   if (imgElement.src !== getPlaceholderImage(source.type)) {
+                     imgElement.src = getPlaceholderImage(source.type);
+                     imgElement.className = 'w-full h-full object-contain p-4';
+                   }
+                 }}
+               />
+               <HoverActions />
+             </div>
+           </div>
+          
+          {/* Right Side - Content */}
+          <div className="flex-1 p-4 flex flex-col justify-between">
+            {/* Header */}
+            <div className="flex-1">
+              <CardTitle className="text-base line-clamp-2 mb-2">
+                {source.title}
+              </CardTitle>
+              
+              {/* Publisher */}
+              {source.url && (
+                <div className="flex items-center space-x-2 text-sm text-gray-500 mb-2">
+                  <Avatar className="h-4 w-4">
+                    <AvatarImage src={`https://www.google.com/s2/favicons?domain=${getDomain(source.url)}&sz=32`} />
+                    <AvatarFallback>{getDomain(source.url)[0].toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                  <button
+                    onClick={handlePublisherClick}
+                    className="truncate hover:text-blue-600 hover:underline"
+                  >
+                    {getDomain(source.url)}
+                  </button>
                 </div>
+              )}
+              
+              {/* Description */}
+              {(source.short_description || source.summary) && (
+                <CardDescription className="line-clamp-2 mb-3">
+                  {source.short_description || source.summary}
+                </CardDescription>
+              )}
+            </div>
+
+            {/* Bottom Row */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                {/* Status */}
+                <div className="flex items-center space-x-2">
+                  {getStatusIcon()}
+                  <span className="text-sm text-gray-600">{getStatusText()}</span>
+                </div>
+                
+                {/* Categories */}
+                {source.category && source.category.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {source.category.slice(0, 2).map((cat, index) => (
+                      <Badge key={index} variant="secondary" className="text-xs">
+                        {cat}
+                      </Badge>
+                    ))}
+                    {source.category.length > 2 && (
+                      <Badge variant="secondary" className="text-xs">
+                        +{source.category.length - 2}
+                      </Badge>
+                    )}
+                  </div>
+                )}
+              </div>
+              
+              {/* Time with Icon - Only show icon for non-URL sources */}
+              <div className="flex items-center space-x-2">
+                {source.type !== 'website' && getSourceIcon()}
+                <span className="text-sm text-gray-500">{formatDate(source.created_at)}</span>
               </div>
             </div>
-            
-            {/* Actions Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="flex-shrink-0">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {source.url && (
-                  <>
-                    <DropdownMenuItem onClick={handleExternalLinkClick}>
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      Open original
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                  </>
-                )}
-                {onEdit && (
-                  <DropdownMenuItem onClick={() => onEdit(source)}>
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit title
-                  </DropdownMenuItem>
-                )}
-                {onCategorize && (
-                  <DropdownMenuItem onClick={() => onCategorize(source)}>
-                    <Tag className="h-4 w-4 mr-2" />
-                    Manage categories
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem 
-                  onClick={() => setShowDeleteDialog(true)}
-                  className="text-red-600 hover:text-red-700"
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
-        </CardHeader>
+        </div>
 
-        {/* Card Content */}
-        <CardContent className="pt-0">
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete {source.title}?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will permanently remove this source from your feed. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={handleDelete} 
+                className="bg-red-600 hover:bg-red-700" 
+                disabled={isDeleting}
+              >
+                {isDeleting ? 'Deleting...' : 'Delete'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </>
+    );
+  }
+
+  // Card View Layout - Vertical
+  return (
+    <>
+      <Card 
+        className="overflow-hidden transition-all duration-200 hover:shadow-lg relative"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        {/* Featured Image */}
+        <div className="relative">
+          <div className="aspect-video bg-gray-100 relative">
+            <img 
+              src={source.image_url || getPlaceholderImage(source.type)}
+              alt={source.title}
+              className={`w-full h-full ${source.image_url ? 'object-cover' : 'object-contain p-8'}`}
+              onError={(e) => {
+                const imgElement = e.currentTarget as HTMLImageElement;
+                if (imgElement.src !== getPlaceholderImage(source.type)) {
+                  imgElement.src = getPlaceholderImage(source.type);
+                  imgElement.className = 'w-full h-full object-contain p-8';
+                }
+              }}
+            />
+            <HoverActions />
+          </div>
+        </div>
+
+        {/* Card Content - Title and time moved below image */}
+        <CardContent className="p-4">
+          {/* Title and Time */}
+          <div className="mb-3">
+            <CardTitle className="text-base line-clamp-2 mb-2">
+              {source.title}
+            </CardTitle>
+            
+            {/* Time with Icon - Only show icon for non-URL sources */}
+            <div className="flex items-center space-x-2 text-sm text-gray-500">
+              {source.type !== 'website' && getSourceIcon()}
+              <span>{formatDate(source.created_at)}</span>
+            </div>
+          </div>
+          
+          {/* Publisher */}
+          {source.url && (
+            <div className="flex items-center space-x-2 text-sm text-gray-500 mb-3">
+              <Avatar className="h-4 w-4">
+                <AvatarImage src={`https://www.google.com/s2/favicons?domain=${getDomain(source.url)}&sz=32`} />
+                <AvatarFallback>{getDomain(source.url)[0].toUpperCase()}</AvatarFallback>
+              </Avatar>
+              <button
+                onClick={handlePublisherClick}
+                className="truncate hover:text-blue-600 hover:underline"
+              >
+                {getDomain(source.url)}
+              </button>
+            </div>
+          )}
+
           {/* Description */}
           {(source.short_description || source.summary) && (
             <CardDescription className="line-clamp-3 mb-3">
@@ -235,25 +432,10 @@ const FeedSourceCard = ({ source, onEdit, onCategorize }: FeedSourceCardProps) =
             </div>
           )}
 
-          {/* Publisher */}
-          {source.publisher_name && (
-            <div className="text-sm text-gray-600 mb-2">
-              Published by {source.publisher_name}
-            </div>
-          )}
-
           {/* Status */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              {getStatusIcon()}
-              <span className="text-sm text-gray-600">{getStatusText()}</span>
-            </div>
-            
-            {source.type && (
-              <Badge variant="outline" className="text-xs">
-                {source.type.toUpperCase()}
-              </Badge>
-            )}
+          <div className="flex items-center space-x-2">
+            {getStatusIcon()}
+            <span className="text-sm text-gray-600">{getStatusText()}</span>
           </div>
         </CardContent>
       </Card>

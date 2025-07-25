@@ -104,6 +104,8 @@ export const useFeedSources = () => {
       file_size?: number;
       processing_status?: string;
       metadata?: any;
+      image_url?: string;
+      is_favorite?: boolean;
     }) => {
       if (!user) throw new Error('User not authenticated');
 
@@ -120,6 +122,8 @@ export const useFeedSources = () => {
           file_size: sourceData.file_size,
           processing_status: sourceData.processing_status,
           metadata: sourceData.metadata || {},
+          image_url: sourceData.image_url,
+          is_favorite: sourceData.is_favorite || false,
         })
         .select()
         .single();
@@ -218,6 +222,36 @@ export const useFeedSources = () => {
     },
   });
 
+  const toggleFavorite = useMutation({
+    mutationFn: async (sourceId: string) => {
+      // First get the current favorite status
+      const { data: currentSource, error: fetchError } = await supabase
+        .from('sources')
+        .select('is_favorite')
+        .eq('id', sourceId)
+        .eq('user_id', user?.id)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // Toggle the favorite status
+      const { data, error } = await supabase
+        .from('sources')
+        .update({ is_favorite: !currentSource.is_favorite })
+        .eq('id', sourceId)
+        .eq('user_id', user?.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      console.log('Feed source favorite status toggled successfully');
+      // The Realtime subscription will handle updating the cache
+    },
+  });
+
   return {
     sources,
     isLoading,
@@ -231,5 +265,8 @@ export const useFeedSources = () => {
     deleteSource: deleteSource.mutate,
     deleteSourceAsync: deleteSource.mutateAsync,
     isDeleting: deleteSource.isPending,
+    toggleFavorite: toggleFavorite.mutate,
+    toggleFavoriteAsync: toggleFavorite.mutateAsync,
+    isTogglingFavorite: toggleFavorite.isPending,
   };
 }; 

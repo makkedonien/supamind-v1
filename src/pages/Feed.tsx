@@ -614,6 +614,7 @@ const Feed = () => {
               <FeedSourceCard 
                 key={source.id} 
                 source={source}
+                viewMode={viewMode}
                 onEdit={handleEditSource}
                 onCategorize={handleCategorizeSource}
               />

@@ -16,7 +16,7 @@ serve(async (req) => {
     const payload = await req.json()
     console.log('Document processing callback received:', payload);
 
-    const { source_id, content, summary, display_name, title, status, error } = payload
+    const { source_id, content, summary, display_name, title, status, error, image_url } = payload
 
     if (!source_id) {
       return new Response(
@@ -50,6 +50,12 @@ serve(async (req) => {
       updateData.title = title
     } else if (display_name) {
       updateData.title = display_name
+    }
+
+    // Store image URL if provided (typically from web articles)
+    if (image_url) {
+      updateData.image_url = image_url
+      console.log('Setting image URL for source:', image_url);
     }
 
     if (error) {
