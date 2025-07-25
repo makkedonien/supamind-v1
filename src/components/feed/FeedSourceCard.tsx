@@ -428,7 +428,7 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, viewMode = 'card', isSel
   return (
     <>
       <Card 
-        className="overflow-hidden transition-all duration-200 hover:shadow-lg relative"
+        className="overflow-hidden transition-all duration-200 relative"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
