@@ -32,20 +32,27 @@ interface FeedSourceCardProps {
   source: FeedSource;
   onEdit?: (source: FeedSource) => void;
   onCategorize?: (source: FeedSource) => void;
+  onOpenDetail?: (source: FeedSource) => void;
   viewMode?: 'list' | 'card';
   isSelected?: boolean;
   onSelectionChange?: (sourceId: string, selected: boolean) => void;
 }
 
-const FeedSourceCard = ({ source, onEdit, onCategorize, viewMode = 'card', isSelected = false, onSelectionChange }: FeedSourceCardProps) => {
+const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode = 'card', isSelected = false, onSelectionChange }: FeedSourceCardProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [showStatus, setShowStatus] = useState(true);
   const [statusOpacity, setStatusOpacity] = useState(1);
+  const [isFavorite, setIsFavorite] = useState(source.is_favorite || false);
 
   const { deleteSourceAsync, toggleFavoriteAsync, isTogglingFavorite } = useFeedSources();
   const { toast } = useToast();
+
+  // Sync local state when source changes
+  useEffect(() => {
+    setIsFavorite(source.is_favorite || false);
+  }, [source.id, source.is_favorite]);
 
   // Handle status visibility and fade-out animation
   useEffect(() => {
@@ -185,9 +192,11 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, viewMode = 'card', isSel
   const handleToggleFavorite = async () => {
     try {
       await toggleFavoriteAsync(source.id);
+      // Update local state immediately for instant feedback
+      setIsFavorite(!isFavorite);
       toast({
-        title: source.is_favorite ? "Removed from favorites" : "Added to favorites",
-        description: `"${source.title}" has been ${source.is_favorite ? 'removed from' : 'added to'} your favorites.`,
+        title: isFavorite ? "Removed from favorites" : "Added to favorites",
+        description: `"${source.title}" has been ${isFavorite ? 'removed from' : 'added to'} your favorites.`,
       });
     } catch (error) {
       console.error('Error toggling favorite status:', error);
@@ -209,6 +218,12 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, viewMode = 'card', isSel
     e.stopPropagation();
     if (source.url) {
       window.open(source.url, '_blank');
+    }
+  };
+
+  const handleCardClick = () => {
+    if (onOpenDetail) {
+      onOpenDetail(source);
     }
   };
 
@@ -260,7 +275,7 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, viewMode = 'card', isSel
         disabled={isTogglingFavorite}
       >
         <Star 
-          className={`h-4 w-4 ${source.is_favorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-600'}`} 
+          className={`h-4 w-4 ${isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-600'}`} 
         />
       </Button>
       
@@ -296,9 +311,10 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, viewMode = 'card', isSel
     return (
       <>
         <div
-          className="flex transition-all duration-200 bg-white rounded-lg overflow-hidden relative"
+          className="flex transition-all duration-200 bg-white rounded-lg overflow-hidden relative cursor-pointer"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
+          onClick={handleCardClick}
         >
           {/* Select Button for List View - Top Left of Card */}
           <SelectButton isListView={true} />
@@ -428,9 +444,10 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, viewMode = 'card', isSel
   return (
     <>
       <Card 
-        className="overflow-hidden transition-all duration-200 relative"
+        className="overflow-hidden transition-all duration-200 relative cursor-pointer"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
+        onClick={handleCardClick}
       >
         {/* Featured Image */}
         <div className="relative">

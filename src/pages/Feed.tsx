@@ -9,8 +9,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ExternalLink, LayoutGrid, List, Check, X, Share, Bookmark, Star, Clock, Calendar, Plus } from 'lucide-react';
+import { ExternalLink, LayoutGrid, List, Check, X, Share, Bookmark, Star, Clock, Calendar, Plus, Bot } from 'lucide-react';
 import { useFeedSources } from '@/hooks/useFeedSources';
+import { useToast } from '@/hooks/use-toast';
 import FeedSourceCard from '@/components/feed/FeedSourceCard';
 import AddFeedSourceDialog from '@/components/feed/AddFeedSourceDialog';
 import SourceCategoryDialog from '@/components/feed/SourceCategoryDialog';
@@ -27,6 +28,9 @@ interface ContentItem {
   url: string;
   publishedAt?: string;
   readTime?: number;
+  summary?: string;
+  deep_summary?: string;
+  is_favorite?: boolean;
 }
 
 // Updated placeholder data
@@ -79,8 +83,8 @@ const DetailView: React.FC<{
   if (isMobile) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-full max-h-full m-0 p-0">
-          <DetailContent item={item} onClose={onClose} />
+        <DialogContent className="max-w-full h-[100dvh] m-0 p-0 flex flex-col">
+          <DetailContent item={item} onClose={onClose} isMobile={true} />
         </DialogContent>
       </Dialog>
     );
@@ -94,7 +98,7 @@ const DetailView: React.FC<{
         className="p-0"
         style={{ width: '800px', maxWidth: '90vw' }}
       >
-        <DetailContent item={item} onClose={onClose} />
+        <DetailContent item={item} onClose={onClose} isMobile={false} />
       </SheetContent>
     </Sheet>
   );
@@ -103,9 +107,37 @@ const DetailView: React.FC<{
 const DetailContent: React.FC<{
   item: ContentItem;
   onClose: () => void;
-}> = ({ item, onClose }) => {
+  isMobile?: boolean;
+}> = ({ item, onClose, isMobile = false }) => {
+  const { toggleFavoriteAsync, isTogglingFavorite } = useFeedSources();
+  const { toast } = useToast();
+  const [isFavorite, setIsFavorite] = useState(item.is_favorite || false);
+
+  // Sync local state when item changes
+  useEffect(() => {
+    setIsFavorite(item.is_favorite || false);
+  }, [item.id, item.is_favorite]);
+
+  const handleToggleFavorite = async () => {
+    try {
+      await toggleFavoriteAsync(item.id);
+      // Update local state immediately for instant feedback
+      setIsFavorite(!isFavorite);
+      toast({
+        title: isFavorite ? "Removed from favorites" : "Added to favorites",
+        description: `"${item.title}" has been ${isFavorite ? 'removed from' : 'added to'} your favorites.`,
+      });
+    } catch (error) {
+      console.error('Error toggling favorite status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update favorite status. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
   return (
-    <div className="flex flex-col h-full">
+    <div className={`flex flex-col ${isMobile ? 'min-h-full' : 'h-full'}`}>
       {/* Header */}
       <div className="flex items-center justify-between p-6 border-b">
         <div className="flex items-center gap-3">
@@ -119,11 +151,14 @@ const DetailContent: React.FC<{
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon">
-            <Share className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="icon">
-            <Bookmark className="h-4 w-4" />
+          <Button 
+            variant="ghost" 
+            size="icon"
+            className="hover:bg-transparent shadow-none hover:shadow-none"
+            onClick={handleToggleFavorite}
+            disabled={isTogglingFavorite}
+          >
+            <Star className={`h-4 w-4 ${isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-600'}`} />
           </Button>
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-4 w-4" />
@@ -131,7 +166,7 @@ const DetailContent: React.FC<{
         </div>
       </div>
 
-      {/* Content */}
+            {/* Content */}
       <ScrollArea className="flex-1 p-6">
         <div className="space-y-6">
           {/* Featured Image */}
@@ -144,51 +179,79 @@ const DetailContent: React.FC<{
           </div>
 
           {/* Metadata */}
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
               <span>{item.publishedAt || "2 hours ago"}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              <span>{item.readTime || 5} min read</span>
-            </div>
-          </div>
-
-          {/* Categories */}
-          <div className="flex flex-wrap gap-2">
-            {item.categories.map(category => (
-              <Badge key={category} variant="default">
-                {category}
-              </Badge>
-            ))}
+            {item.categories && item.categories.length > 0 && (
+              <>
+                <span>•</span>
+                <div className="flex flex-wrap gap-1">
+                  {item.categories.map(category => (
+                    <Badge key={category} variant="default">
+                      {category}
+                    </Badge>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
 
           <Separator />
 
-          {/* Article Content */}
+          {/* Content */}
           <div className="prose prose-sm max-w-none">
-            <p className="text-base leading-relaxed mb-4">
-              {item.description}
-            </p>
+            {item.summary && (
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <Bot className="h-5 w-5 text-blue-600" />
+                  <h3 className="text-lg font-semibold text-gray-900 m-0">Summary</h3>
+                </div>
+                <div className="text-base leading-relaxed">
+                  {item.summary}
+                </div>
+              </div>
+            )}
             
-            <h3 className="text-lg font-semibold mb-3">Key Highlights</h3>
-            <p className="mb-4">
-              This development represents a significant advancement with widespread implications. 
-              Industry experts consider this a pivotal moment that could reshape the landscape.
-            </p>
-
-            <h3 className="text-lg font-semibold mb-3">Technical Overview</h3>
-            <p className="mb-4">
-              The implementation uses cutting-edge methodologies and advanced algorithms to achieve 
-              unprecedented accuracy. The system architecture prioritizes scalability and reliability.
-            </p>
-
-            <h3 className="text-lg font-semibold mb-3">Market Impact</h3>
-            <p className="mb-4">
-              Early indicators show positive market reception with analysts projecting significant 
-              growth potential. This addresses longstanding challenges while opening new possibilities.
-            </p>
+            {item.deep_summary && (
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <Bot className="h-5 w-5 text-blue-600" />
+                  <h3 className="text-lg font-semibold text-gray-900 m-0">Deep Dive</h3>
+                </div>
+                <div className="text-base leading-relaxed">
+                  {item.deep_summary}
+                </div>
+              </div>
+            )}
+            
+            {!item.summary && !item.deep_summary && (
+              <div className="text-base leading-relaxed mb-6">
+                {item.description}
+              </div>
+            )}
+            
+            {/* Show placeholder content for actual feed sources since they contain real content */}
+            {(item.summary || item.description !== 'No description available') && (
+              <div className="space-y-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold mb-2 text-blue-900">📄 Source Content</h3>
+                  <p className="text-blue-800 text-sm">
+                    This source has been processed and added to your knowledge base. You can use it in your notebooks for chat and analysis.
+                  </p>
+                </div>
+                
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold mb-2 text-gray-900">💡 How to Use</h3>
+                  <ul className="text-gray-700 text-sm space-y-1">
+                    <li>• Create a notebook and add this source to start chatting with the content</li>
+                    <li>• Use the original link below to view the full source material</li>
+                    <li>• Organize sources with categories for better discovery</li>
+                  </ul>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </ScrollArea>
@@ -200,8 +263,9 @@ const DetailContent: React.FC<{
             <ExternalLink className="h-4 w-4 mr-2" />
             View Original
           </Button>
-          <Button variant="outline" size="icon">
-            <Star className="h-4 w-4" />
+          <Button variant="outline">
+            <Plus className="h-4 w-4 mr-2" />
+            Add to Notebook
           </Button>
         </div>
       </div>
@@ -531,6 +595,40 @@ const Feed = () => {
     setSelectedSourceForCategory(null);
   };
 
+  // Convert FeedSource to ContentItem for detail view
+  const convertFeedSourceToContentItem = (source: any): ContentItem => {
+    const getDomain = (url: string) => {
+      try {
+        return new URL(url).hostname.replace('www.', '');
+      } catch {
+        return 'Unknown';
+      }
+    };
+
+    return {
+      id: source.id,
+      title: source.title,
+      description: source.short_description || source.summary || source.content || 'No description available',
+      image: source.image_url || '/placeholder.svg',
+      domain: source.url ? getDomain(source.url) : source.type,
+      favicon: source.url ? `https://www.google.com/s2/favicons?domain=${getDomain(source.url)}&sz=32` : undefined,
+      categories: source.category || [],
+      url: source.url || '#',
+      publishedAt: source.created_at ? new Date(source.created_at).toLocaleDateString() : undefined,
+      readTime: 5, // Default read time, could be calculated based on content length
+      summary: source.summary,
+      deep_summary: source.deep_summary,
+      is_favorite: source.is_favorite
+    };
+  };
+
+  // Handle opening detail view for feed source
+  const handleOpenFeedSourceDetail = (source: any) => {
+    const contentItem = convertFeedSourceToContentItem(source);
+    setDetailItem(contentItem);
+    setIsDetailOpen(true);
+  };
+
   // Feed source selection handlers
   const handleSourceSelection = (sourceId: string, selected: boolean) => {
     setSelectedSources(prev => {
@@ -651,6 +749,7 @@ const Feed = () => {
                 viewMode={viewMode}
                 onEdit={handleEditSource}
                 onCategorize={handleCategorizeSource}
+                onOpenDetail={handleOpenFeedSourceDetail}
                 isSelected={selectedSources.has(source.id)}
                 onSelectionChange={handleSourceSelection}
               />
