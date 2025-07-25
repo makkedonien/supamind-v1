@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ExternalLink, LayoutGrid, List, Check, X, Share, Bookmark, Star, Clock, Calendar, Plus, Bot } from 'lucide-react';
+import { ExternalLink, LayoutGrid, List, Check, X, Share, Bookmark, Star, Clock, Calendar, Plus, Bot, Tag } from 'lucide-react';
 import { useFeedSources } from '@/hooks/useFeedSources';
 import { useToast } from '@/hooks/use-toast';
 import FeedSourceCard from '@/components/feed/FeedSourceCard';
@@ -64,7 +64,8 @@ const DetailView: React.FC<{
   item: ContentItem | null;
   isOpen: boolean;
   onClose: () => void;
-}> = ({ item, isOpen, onClose }) => {
+  onCategorize?: (item: ContentItem) => void;
+}> = ({ item, isOpen, onClose, onCategorize }) => {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -84,7 +85,7 @@ const DetailView: React.FC<{
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="max-w-full h-[100dvh] m-0 p-0 flex flex-col">
-          <DetailContent item={item} onClose={onClose} isMobile={true} />
+          <DetailContent item={item} onClose={onClose} onCategorize={onCategorize} isMobile={true} />
         </DialogContent>
       </Dialog>
     );
@@ -98,7 +99,7 @@ const DetailView: React.FC<{
         className="p-0"
         style={{ width: '800px', maxWidth: '90vw' }}
       >
-        <DetailContent item={item} onClose={onClose} isMobile={false} />
+        <DetailContent item={item} onClose={onClose} onCategorize={onCategorize} isMobile={false} />
       </SheetContent>
     </Sheet>
   );
@@ -107,8 +108,9 @@ const DetailView: React.FC<{
 const DetailContent: React.FC<{
   item: ContentItem;
   onClose: () => void;
+  onCategorize?: (item: ContentItem) => void;
   isMobile?: boolean;
-}> = ({ item, onClose, isMobile = false }) => {
+}> = ({ item, onClose, onCategorize, isMobile = false }) => {
   const { toggleFavoriteAsync, isTogglingFavorite } = useFeedSources();
   const { toast } = useToast();
   const [isFavorite, setIsFavorite] = useState(item.is_favorite || false);
@@ -160,6 +162,16 @@ const DetailContent: React.FC<{
           >
             <Star className={`h-4 w-4 ${isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-600'}`} />
           </Button>
+          {onCategorize && (
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="hover:bg-transparent shadow-none hover:shadow-none"
+              onClick={() => onCategorize(item)}
+            >
+              <Tag className="h-4 w-4 text-gray-600" />
+            </Button>
+          )}
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-4 w-4" />
           </Button>
@@ -189,7 +201,7 @@ const DetailContent: React.FC<{
                 <span>•</span>
                 <div className="flex flex-wrap gap-1">
                   {item.categories.map(category => (
-                    <Badge key={category} variant="default">
+                    <Badge key={category} variant="secondary" className="text-xs px-1.5 py-0.5">
                       {category}
                     </Badge>
                   ))}
@@ -590,6 +602,15 @@ const Feed = () => {
     setShowCategoryDialog(true);
   };
 
+  const handleCategorizeContentItem = (item: ContentItem) => {
+    // Find the original source by ID to ensure we have all the necessary data
+    const originalSource = sources.find(source => source.id === item.id);
+    if (originalSource) {
+      setSelectedSourceForCategory(originalSource);
+      setShowCategoryDialog(true);
+    }
+  };
+
   const handleCloseCategoryDialog = () => {
     setShowCategoryDialog(false);
     setSelectedSourceForCategory(null);
@@ -763,6 +784,7 @@ const Feed = () => {
         item={detailItem}
         isOpen={isDetailOpen}
         onClose={handleCloseDetail}
+        onCategorize={handleCategorizeContentItem}
       />
 
       {/* Feed Source Dialogs */}
