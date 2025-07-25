@@ -452,6 +452,9 @@ const Feed = () => {
   const [detailItem, setDetailItem] = useState<ContentItem | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
+  // Feed source selection state
+  const [selectedSources, setSelectedSources] = useState<Set<string>>(new Set());
+
   // Feed sources data
   const { sources, isLoading, error } = useFeedSources();
 
@@ -528,6 +531,19 @@ const Feed = () => {
     setSelectedSourceForCategory(null);
   };
 
+  // Feed source selection handlers
+  const handleSourceSelection = (sourceId: string, selected: boolean) => {
+    setSelectedSources(prev => {
+      const newSelected = new Set(prev);
+      if (selected) {
+        newSelected.add(sourceId);
+      } else {
+        newSelected.delete(sourceId);
+      }
+      return newSelected;
+    });
+  };
+
   return (
     <main className="w-full px-6 py-8 2xl:max-w-[1480px] 2xl:mx-auto">
       {/* Content Feed Section */}
@@ -537,10 +553,28 @@ const Feed = () => {
           <div>
             <h2 className="text-xl font-semibold">Your Feed</h2>
             <p className="text-sm text-gray-600 mt-1">
-              {sources?.length || 0} source{sources?.length !== 1 ? 's' : ''} in your feed
+              {selectedSources.size > 0 ? (
+                <>
+                  {selectedSources.size} source{selectedSources.size !== 1 ? 's' : ''} selected
+                  <span className="mx-2">•</span>
+                  {sources?.length || 0} total
+                </>
+              ) : (
+                <>
+                  {sources?.length || 0} source{sources?.length !== 1 ? 's' : ''} in your feed
+                </>
+              )}
             </p>
           </div>
           <div className="flex items-center gap-3">
+            {selectedSources.size > 0 && (
+              <Button 
+                variant="outline" 
+                onClick={() => setSelectedSources(new Set())}
+              >
+                Clear Selection
+              </Button>
+            )}
             <Button onClick={() => setShowAddSourceDialog(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Add Source
@@ -617,6 +651,8 @@ const Feed = () => {
                 viewMode={viewMode}
                 onEdit={handleEditSource}
                 onCategorize={handleCategorizeSource}
+                isSelected={selectedSources.has(source.id)}
+                onSelectionChange={handleSourceSelection}
               />
             ))}
           </div>

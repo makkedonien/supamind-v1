@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { ExternalLink, Tag, FileText, Link as LinkIcon, Youtube, Volume2, Clock, CheckCircle, XCircle, Loader2, Star, Trash2 } from 'lucide-react';
+import { ExternalLink, Tag, FileText, Link as LinkIcon, Youtube, Volume2, Clock, CheckCircle, XCircle, Loader2, Star, Trash2, Check } from 'lucide-react';
 import { useFeedSources } from '@/hooks/useFeedSources';
 import { useToast } from '@/hooks/use-toast';
 
@@ -33,9 +33,11 @@ interface FeedSourceCardProps {
   onEdit?: (source: FeedSource) => void;
   onCategorize?: (source: FeedSource) => void;
   viewMode?: 'list' | 'card';
+  isSelected?: boolean;
+  onSelectionChange?: (sourceId: string, selected: boolean) => void;
 }
 
-const FeedSourceCard = ({ source, onEdit, onCategorize, viewMode = 'card' }: FeedSourceCardProps) => {
+const FeedSourceCard = ({ source, onEdit, onCategorize, viewMode = 'card', isSelected = false, onSelectionChange }: FeedSourceCardProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -210,6 +212,36 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, viewMode = 'card' }: Fee
     }
   };
 
+  const handleSelectionChange = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onSelectionChange) {
+      onSelectionChange(source.id, !isSelected);
+    }
+  };
+
+  // Select Button Component
+  const SelectButton = ({ isListView = false }: { isListView?: boolean }) => (
+    <div className={`absolute ${isListView ? 'top-3 left-3' : 'top-3 left-3'} z-10 transition-opacity duration-200 ${
+      isHovered || isSelected ? 'opacity-100' : 'opacity-0'
+    }`}>
+      <Button
+        variant="secondary"
+        size="icon"
+        className={isListView 
+          ? `h-6 w-6 ${isSelected ? 'bg-blue-600 hover:bg-blue-700 border-blue-600' : 'bg-white/90 hover:bg-white border-gray-300'} shadow-sm`
+          : `h-6 w-6 ${isSelected ? 'bg-blue-600 hover:bg-blue-700 border-blue-600' : 'bg-white/90 hover:bg-white border-gray-300'} shadow-sm`
+        }
+        onClick={handleSelectionChange}
+      >
+        {isSelected ? (
+          <Check className="h-3 w-3 text-white" />
+        ) : (
+          <div className="h-3 w-3" />
+        )}
+      </Button>
+    </div>
+  );
+
   // Hover Action Buttons Component
   const HoverActions = ({ isListView = false }: { isListView?: boolean }) => (
     <div 
@@ -220,7 +252,7 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, viewMode = 'card' }: Fee
       <Button
         variant="secondary"
         size="icon"
-        className="h-8 w-8 bg-white/90 hover:bg-white shadow-sm"
+        className={isListView ? "h-8 w-8 bg-transparent hover:bg-transparent border-none shadow-none p-0" : "h-8 w-8 bg-white/90 hover:bg-white shadow-sm"}
         onClick={(e) => {
           e.stopPropagation();
           handleToggleFavorite();
@@ -236,7 +268,7 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, viewMode = 'card' }: Fee
         <Button
           variant="secondary"
           size="icon"
-          className="h-8 w-8 bg-white/90 hover:bg-white shadow-sm"
+          className={isListView ? "h-8 w-8 bg-transparent hover:bg-transparent border-none shadow-none p-0" : "h-8 w-8 bg-white/90 hover:bg-white shadow-sm"}
           onClick={(e) => {
             e.stopPropagation();
             onCategorize(source);
@@ -249,7 +281,7 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, viewMode = 'card' }: Fee
       <Button
         variant="secondary"
         size="icon"
-        className="h-8 w-8 bg-white/90 hover:bg-white shadow-sm"
+        className={isListView ? "h-8 w-8 bg-transparent hover:bg-transparent border-none shadow-none p-0" : "h-8 w-8 bg-white/90 hover:bg-white shadow-sm"}
         onClick={(e) => {
           e.stopPropagation();
           setShowDeleteDialog(true);
@@ -264,10 +296,13 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, viewMode = 'card' }: Fee
     return (
       <>
         <div
-          className="flex transition-all duration-200 hover:shadow-lg bg-white rounded-lg overflow-hidden relative"
+          className="flex transition-all duration-200 bg-white rounded-lg overflow-hidden relative"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
+          {/* Select Button for List View - Top Left of Card */}
+          <SelectButton isListView={true} />
+          
           {/* Hover Actions for List View - Top Right of Card */}
           <HoverActions isListView={true} />
           
@@ -412,6 +447,7 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, viewMode = 'card' }: Fee
                 }
               }}
             />
+            <SelectButton />
             <HoverActions />
           </div>
         </div>
