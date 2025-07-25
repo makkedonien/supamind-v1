@@ -6,9 +6,11 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { Tag, Plus, X, Check } from 'lucide-react';
+import { Tag, Plus, X, Check, Settings, Loader2 } from 'lucide-react';
 import { useFeedSources } from '@/hooks/useFeedSources';
+import { useUserCategories } from '@/hooks/useUserCategories';
 import { useToast } from '@/hooks/use-toast';
+import { Link } from 'react-router-dom';
 
 interface FeedSource {
   id: string;
@@ -22,36 +24,19 @@ interface SourceCategoryDialogProps {
   source: FeedSource | null;
 }
 
-// Predefined categories that users can choose from
-const PREDEFINED_CATEGORIES = [
-  'Technology',
-  'Business',
-  'Science',
-  'Health',
-  'Education',
-  'Entertainment',
-  'Sports',
-  'Politics',
-  'Finance',
-  'Marketing',
-  'Design',
-  'Research',
-  'News',
-  'Documentation',
-  'Tutorial',
-  'Analysis',
-  'Report',
-  'Opinion',
-  'Review',
-  'Guide'
-];
-
 const SourceCategoryDialog = ({ open, onOpenChange, source }: SourceCategoryDialogProps) => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [newCategory, setNewCategory] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
   const { updateSourceAsync } = useFeedSources();
+  const { 
+    categories: userCategories, 
+    isLoading: categoriesLoading, 
+    isCreating, 
+    createCategory,
+    categoryNameExists
+  } = useUserCategories();
   const { toast } = useToast();
 
   // Initialize categories when source changes
@@ -82,10 +67,13 @@ const SourceCategoryDialog = ({ open, onOpenChange, source }: SourceCategoryDial
     setSelectedCategories(selectedCategories.filter(cat => cat !== categoryToRemove));
   };
 
-  const handleAddNewCategory = () => {
-    if (newCategory.trim()) {
-      handleAddCategory(newCategory.trim());
-      setNewCategory('');
+  const handleAddNewCategory = async () => {
+    if (newCategory.trim() && !categoryNameExists(newCategory.trim())) {
+      const result = await createCategory({ name: newCategory.trim() });
+      if (result) {
+        handleAddCategory(newCategory.trim());
+        setNewCategory('');
+      }
     }
   };
 
@@ -136,9 +124,9 @@ const SourceCategoryDialog = ({ open, onOpenChange, source }: SourceCategoryDial
     }
   };
 
-  // Get suggested categories that aren't already selected
-  const suggestedCategories = PREDEFINED_CATEGORIES.filter(
-    cat => !selectedCategories.includes(cat)
+  // Get user categories that aren't already selected
+  const suggestedCategories = userCategories.filter(
+    cat => !selectedCategories.includes(cat.name)
   );
 
   if (!source) return null;
@@ -196,38 +184,66 @@ const SourceCategoryDialog = ({ open, onOpenChange, source }: SourceCategoryDial
                 onChange={(e) => setNewCategory(e.target.value)}
                 onKeyPress={handleKeyPress}
                 className="flex-1"
+                disabled={isCreating}
               />
               <Button 
                 onClick={handleAddNewCategory}
-                disabled={!newCategory.trim()}
+                disabled={!newCategory.trim() || categoryNameExists(newCategory.trim()) || isCreating}
                 size="icon"
                 variant="outline"
               >
-                <Plus className="h-4 w-4" />
+                {isCreating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
               </Button>
             </div>
+            {newCategory.trim() && categoryNameExists(newCategory.trim()) && (
+              <p className="text-sm text-red-600">Category already exists</p>
+            )}
           </div>
 
           <Separator />
 
           {/* Suggested Categories */}
           <div className="space-y-3">
-            <Label className="text-sm font-medium">Suggested Categories</Label>
-            <ScrollArea className="h-32">
-              <div className="flex flex-wrap gap-2">
-                {suggestedCategories.map((category) => (
-                  <Badge 
-                    key={category}
-                    variant="outline"
-                    className="cursor-pointer hover:bg-gray-100 px-3 py-1 flex items-center space-x-1"
-                    onClick={() => handleAddCategory(category)}
-                  >
-                    <span>{category}</span>
-                    <Plus className="h-3 w-3" />
-                  </Badge>
-                ))}
+            <div className="flex items-center justify-between">
+              <Label className="text-sm font-medium">Your Categories</Label>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/settings" className="text-xs">
+                  <Settings className="h-3 w-3 mr-1" />
+                  Manage
+                </Link>
+              </Button>
+            </div>
+            {categoriesLoading ? (
+              <div className="flex items-center justify-center h-32">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="ml-2 text-sm text-muted-foreground">Loading categories...</span>
               </div>
-            </ScrollArea>
+            ) : (
+              <ScrollArea className="h-32">
+                <div className="flex flex-wrap gap-2">
+                  {suggestedCategories.map((category) => (
+                    <Badge 
+                      key={category.id}
+                      variant="outline"
+                      className="cursor-pointer hover:bg-gray-100 px-3 py-1 flex items-center space-x-1"
+                      style={{ borderColor: category.color, color: category.color }}
+                      onClick={() => handleAddCategory(category.name)}
+                    >
+                      <span>{category.name}</span>
+                      <Plus className="h-3 w-3" />
+                    </Badge>
+                  ))}
+                  {suggestedCategories.length === 0 && (
+                    <p className="text-sm text-muted-foreground">
+                      All your categories are already selected. 
+                      <Link to="/settings" className="text-blue-600 hover:underline ml-1">
+                        Create more categories
+                      </Link>
+                    </p>
+                  )}
+                </div>
+              </ScrollArea>
+            )}
           </div>
 
           {/* Actions */}

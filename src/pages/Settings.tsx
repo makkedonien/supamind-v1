@@ -8,31 +8,42 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Key, Trash2, Plus, X } from 'lucide-react';
+import { Key, Trash2, Plus, X, Loader2 } from 'lucide-react';
+import { useUserCategories } from '@/hooks/useUserCategories';
 
 const Settings = () => {
   const { user } = useAuth();
+  const { 
+    categories, 
+    isLoading: categoriesLoading, 
+    isCreating,
+    isDeleting,
+    createCategory, 
+    deleteCategory,
+    categoryNameExists 
+  } = useUserCategories();
   
   // Form state
   const [name, setName] = useState(user?.email?.split('@')[0] || '');
   const [email, setEmail] = useState(user?.email || '');
-  const [categories, setCategories] = useState(['Technology', 'Business', 'Design']);
   const [newCategory, setNewCategory] = useState('');
   const [aiSummaryPrompt, setAiSummaryPrompt] = useState('');
   const [aiDeepSummaryPrompt, setAiDeepSummaryPrompt] = useState('');
   const [isDarkMode, setIsDarkMode] = useState(false);
 
-  const handleAddCategory = () => {
+  const handleAddCategory = async () => {
     if (newCategory.trim() && 
         categories.length < 10 && 
-        !categories.includes(newCategory.trim())) {
-      setCategories([...categories, newCategory.trim()]);
-      setNewCategory('');
+        !categoryNameExists(newCategory.trim())) {
+      const result = await createCategory({ name: newCategory.trim() });
+      if (result) {
+        setNewCategory('');
+      }
     }
   };
 
-  const handleRemoveCategory = (categoryToRemove: string) => {
-    setCategories(categories.filter(category => category !== categoryToRemove));
+  const handleRemoveCategory = async (categoryId: string) => {
+    await deleteCategory(categoryId);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -136,31 +147,44 @@ const Settings = () => {
                 />
                 <Button 
                   onClick={handleAddCategory}
-                  disabled={!newCategory.trim() || categories.length >= 10 || categories.includes(newCategory.trim())}
+                  disabled={!newCategory.trim() || categories.length >= 10 || categoryNameExists(newCategory.trim()) || isCreating}
                   size="icon"
                 >
-                  <Plus className="h-4 w-4" />
+                  {isCreating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
                 </Button>
               </div>
               
-              <div className="flex items-center justify-between">
-                <div className="flex flex-wrap gap-2">
-                  {categories.map((category, index) => (
-                    <Badge key={index} variant="secondary" className="flex items-center gap-1">
-                      {category}
-                      <button
-                        onClick={() => handleRemoveCategory(category)}
-                        className="ml-1 hover:text-destructive"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
+              {categoriesLoading ? (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Loading categories...
                 </div>
-                <span className="text-sm text-muted-foreground">
-                  {categories.length}/10 categories used
-                </span>
-              </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap gap-2">
+                    {categories.map((category) => (
+                      <Badge 
+                        key={category.id} 
+                        variant="secondary" 
+                        className="flex items-center gap-1"
+                        style={{ backgroundColor: category.color + '20', borderColor: category.color }}
+                      >
+                        {category.name}
+                        <button
+                          onClick={() => handleRemoveCategory(category.id)}
+                          disabled={isDeleting}
+                          className="ml-1 hover:text-destructive disabled:opacity-50"
+                        >
+                          {isDeleting ? <Loader2 className="h-3 w-3 animate-spin" /> : <X className="h-3 w-3" />}
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                  <span className="text-sm text-muted-foreground">
+                    {categories.length}/10 categories used
+                  </span>
+                </div>
+              )}
             </div>
 
             <Separator />

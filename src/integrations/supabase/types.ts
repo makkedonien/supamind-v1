@@ -226,12 +226,37 @@ export type Database = {
           metadata?: Json | null
           notebook_id?: string | null
           processing_status?: string | null
-          summary?: string | null
           title?: string
           type?: Database["public"]["Enums"]["source_type"]
           updated_at?: string
           url?: string | null
           user_id?: string
+        }
+      }
+      user_categories: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          color: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          name: string
+          color?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          name?: string
+          color?: string
+          created_at?: string
+          updated_at?: string
         }
         Relationships: [
           {
