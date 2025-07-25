@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -39,9 +39,28 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, viewMode = 'card' }: Fee
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [showStatus, setShowStatus] = useState(true);
+  const [statusOpacity, setStatusOpacity] = useState(1);
 
   const { deleteSourceAsync, toggleFavoriteAsync, isTogglingFavorite } = useFeedSources();
   const { toast } = useToast();
+
+  // Handle status visibility and fade-out animation
+  useEffect(() => {
+    if (source.processing_status === 'completed') {
+      // Start fade out animation after a brief delay
+      const timer = setTimeout(() => {
+        setStatusOpacity(0);
+        // Hide completely after fade animation completes
+        setTimeout(() => setShowStatus(false), 2000);
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    } else if (source.processing_status === 'processing' || source.processing_status === 'uploading') {
+      setShowStatus(true);
+      setStatusOpacity(1);
+    }
+  }, [source.processing_status]);
 
   const getSourceIcon = () => {
     switch (source.type) {
@@ -89,6 +108,10 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, viewMode = 'card' }: Fee
       default:
         return 'Unknown';
     }
+  };
+
+  const shouldShowStatus = () => {
+    return showStatus && (source.processing_status === 'processing' || source.processing_status === 'uploading' || source.processing_status === 'completed');
   };
 
   const getDomain = (url: string) => {
@@ -188,9 +211,9 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, viewMode = 'card' }: Fee
   };
 
   // Hover Action Buttons Component
-  const HoverActions = () => (
+  const HoverActions = ({ isListView = false }: { isListView?: boolean }) => (
     <div 
-      className={`absolute top-3 right-3 flex gap-2 transition-opacity duration-200 ${
+      className={`absolute ${isListView ? 'top-3 right-3' : 'top-3 right-3'} flex gap-2 transition-opacity duration-200 ${
         isHovered ? 'opacity-100' : 'opacity-0'
       }`}
     >
@@ -245,48 +268,91 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, viewMode = 'card' }: Fee
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-                     {/* Left Side - Image */}
-           <div className="flex-shrink-0 w-48">
-             <div className="w-full h-32 bg-gray-100 relative rounded-lg overflow-hidden">
-               <img 
-                 src={source.image_url || getPlaceholderImage(source.type)}
-                 alt={source.title}
-                 className={`w-full h-full ${source.image_url ? 'object-cover' : 'object-contain p-4'}`}
-                 onError={(e) => {
-                   const imgElement = e.currentTarget as HTMLImageElement;
-                   if (imgElement.src !== getPlaceholderImage(source.type)) {
-                     imgElement.src = getPlaceholderImage(source.type);
-                     imgElement.className = 'w-full h-full object-contain p-4';
-                   }
-                 }}
-               />
-               <HoverActions />
-             </div>
-           </div>
+          {/* Hover Actions for List View - Top Right of Card */}
+          <HoverActions isListView={true} />
+          
+          {/* Left Side - Image */}
+          <div className="flex-shrink-0 w-48">
+            <div className="w-full h-32 bg-gray-100 relative rounded-lg overflow-hidden">
+              <img 
+                src={source.image_url || getPlaceholderImage(source.type)}
+                alt={source.title}
+                className={`w-full h-full ${source.image_url ? 'object-cover' : 'object-contain p-4'}`}
+                onError={(e) => {
+                  const imgElement = e.currentTarget as HTMLImageElement;
+                  if (imgElement.src !== getPlaceholderImage(source.type)) {
+                    imgElement.src = getPlaceholderImage(source.type);
+                    imgElement.className = 'w-full h-full object-contain p-4';
+                  }
+                }}
+              />
+            </div>
+          </div>
           
           {/* Right Side - Content */}
           <div className="flex-1 p-4 flex flex-col justify-between">
             {/* Header */}
             <div className="flex-1">
-              <CardTitle className="text-base line-clamp-2 mb-2">
-                {source.title}
-              </CardTitle>
-              
-              {/* Publisher */}
-              {source.url && (
-                <div className="flex items-center space-x-2 text-sm text-gray-500 mb-2">
-                  <Avatar className="h-4 w-4">
-                    <AvatarImage src={`https://www.google.com/s2/favicons?domain=${getDomain(source.url)}&sz=32`} />
-                    <AvatarFallback>{getDomain(source.url)[0].toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                  <button
-                    onClick={handlePublisherClick}
-                    className="truncate hover:text-blue-600 hover:underline"
+              {/* Title with Status */}
+              <div className="flex items-center gap-2 mb-2">
+                <CardTitle className="text-base line-clamp-2 flex-1">
+                  {source.title}
+                </CardTitle>
+                {shouldShowStatus() && (
+                  <div 
+                    className="flex items-center space-x-1 transition-opacity duration-2000"
+                    style={{ opacity: statusOpacity }}
                   >
-                    {getDomain(source.url)}
-                  </button>
+                    <span className="text-gray-500">•</span>
+                    {getStatusIcon()}
+                    <span className="text-sm text-gray-600">{getStatusText()}</span>
+                  </div>
+                )}
+              </div>
+              
+              {/* Publisher, Time, and Categories */}
+              <div className="flex items-center space-x-2 text-sm text-gray-500 mb-2 flex-wrap">
+                {source.url ? (
+                  <>
+                    <Avatar className="h-4 w-4">
+                      <AvatarImage src={`https://www.google.com/s2/favicons?domain=${getDomain(source.url)}&sz=32`} />
+                      <AvatarFallback>{getDomain(source.url)[0].toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <button
+                      onClick={handlePublisherClick}
+                      className="truncate hover:text-blue-600 hover:underline"
+                    >
+                      {getDomain(source.url)}
+                    </button>
+                    <span>•</span>
+                  </>
+                ) : null}
+                
+                {/* Time and Icon */}
+                <div className="flex items-center space-x-1">
+                  {source.type !== 'website' && getSourceIcon()}
+                  <span>{formatDate(source.created_at)}</span>
                 </div>
-              )}
+                
+                {/* Categories */}
+                {source.category && source.category.length > 0 && (
+                  <>
+                    <span>•</span>
+                    <div className="flex flex-wrap gap-1">
+                      {source.category.slice(0, 2).map((cat, index) => (
+                        <Badge key={index} variant="secondary" className="text-xs">
+                          {cat}
+                        </Badge>
+                      ))}
+                      {source.category.length > 2 && (
+                        <Badge variant="secondary" className="text-xs">
+                          +{source.category.length - 2}
+                        </Badge>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
               
               {/* Description */}
               {(source.short_description || source.summary) && (
@@ -294,39 +360,6 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, viewMode = 'card' }: Fee
                   {source.short_description || source.summary}
                 </CardDescription>
               )}
-            </div>
-
-            {/* Bottom Row */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                {/* Status */}
-                <div className="flex items-center space-x-2">
-                  {getStatusIcon()}
-                  <span className="text-sm text-gray-600">{getStatusText()}</span>
-                </div>
-                
-                {/* Categories */}
-                {source.category && source.category.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    {source.category.slice(0, 2).map((cat, index) => (
-                      <Badge key={index} variant="secondary" className="text-xs">
-                        {cat}
-                      </Badge>
-                    ))}
-                    {source.category.length > 2 && (
-                      <Badge variant="secondary" className="text-xs">
-                        +{source.category.length - 2}
-                      </Badge>
-                    )}
-                  </div>
-                )}
-              </div>
-              
-              {/* Time with Icon - Only show icon for non-URL sources */}
-              <div className="flex items-center space-x-2">
-                {source.type !== 'website' && getSourceIcon()}
-                <span className="text-sm text-gray-500">{formatDate(source.created_at)}</span>
-              </div>
             </div>
           </div>
         </div>
@@ -385,34 +418,61 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, viewMode = 'card' }: Fee
 
         {/* Card Content - Title and time moved below image */}
         <CardContent className="p-4">
-          {/* Title and Time */}
-          <div className="mb-3">
-            <CardTitle className="text-base line-clamp-2 mb-2">
+          {/* Title with Status */}
+          <div className="flex items-center gap-2 mb-2">
+            <CardTitle className="text-base line-clamp-2 flex-1">
               {source.title}
             </CardTitle>
+            {shouldShowStatus() && (
+              <div 
+                className="flex items-center space-x-1 transition-opacity duration-2000"
+                style={{ opacity: statusOpacity }}
+              >
+                <span className="text-gray-500">•</span>
+                {getStatusIcon()}
+                <span className="text-sm text-gray-600">{getStatusText()}</span>
+              </div>
+            )}
+          </div>
+          
+          {/* Publisher, Time, and Categories */}
+          <div className="flex items-center space-x-2 text-sm text-gray-500 mb-3 flex-wrap">
+            {source.url ? (
+              <>
+                <Avatar className="h-4 w-4">
+                  <AvatarImage src={`https://www.google.com/s2/favicons?domain=${getDomain(source.url)}&sz=32`} />
+                  <AvatarFallback>{getDomain(source.url)[0].toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <button
+                  onClick={handlePublisherClick}
+                  className="truncate hover:text-blue-600 hover:underline"
+                >
+                  {getDomain(source.url)}
+                </button>
+                <span>•</span>
+              </>
+            ) : null}
             
-            {/* Time with Icon - Only show icon for non-URL sources */}
-            <div className="flex items-center space-x-2 text-sm text-gray-500">
+            {/* Time and Icon */}
+            <div className="flex items-center space-x-1">
               {source.type !== 'website' && getSourceIcon()}
               <span>{formatDate(source.created_at)}</span>
             </div>
+            
+            {/* Categories */}
+            {source.category && source.category.length > 0 && (
+              <>
+                <span>•</span>
+                <div className="flex flex-wrap gap-1">
+                  {source.category.map((cat, index) => (
+                    <Badge key={index} variant="secondary" className="text-xs">
+                      {cat}
+                    </Badge>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
-          
-          {/* Publisher */}
-          {source.url && (
-            <div className="flex items-center space-x-2 text-sm text-gray-500 mb-3">
-              <Avatar className="h-4 w-4">
-                <AvatarImage src={`https://www.google.com/s2/favicons?domain=${getDomain(source.url)}&sz=32`} />
-                <AvatarFallback>{getDomain(source.url)[0].toUpperCase()}</AvatarFallback>
-              </Avatar>
-              <button
-                onClick={handlePublisherClick}
-                className="truncate hover:text-blue-600 hover:underline"
-              >
-                {getDomain(source.url)}
-              </button>
-            </div>
-          )}
 
           {/* Description */}
           {(source.short_description || source.summary) && (
@@ -420,23 +480,6 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, viewMode = 'card' }: Fee
               {source.short_description || source.summary}
             </CardDescription>
           )}
-
-          {/* Categories */}
-          {source.category && source.category.length > 0 && (
-            <div className="flex flex-wrap gap-1 mb-3">
-              {source.category.map((cat, index) => (
-                <Badge key={index} variant="secondary" className="text-xs">
-                  {cat}
-                </Badge>
-              ))}
-            </div>
-          )}
-
-          {/* Status */}
-          <div className="flex items-center space-x-2">
-            {getStatusIcon()}
-            <span className="text-sm text-gray-600">{getStatusText()}</span>
-          </div>
         </CardContent>
       </Card>
 
@@ -465,4 +508,4 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, viewMode = 'card' }: Fee
   );
 };
 
-export default FeedSourceCard; 
+export default FeedSourceCard;
