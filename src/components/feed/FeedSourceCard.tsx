@@ -390,14 +390,14 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
                   <>
                     <span>•</span>
                     <div className="flex flex-wrap gap-1">
-                      {source.category.slice(0, 2).map((cat, index) => (
+                      {source.category.slice(0, 3).map((cat, index) => (
                         <Badge key={index} variant="secondary" className="text-xs">
                           {cat}
                         </Badge>
                       ))}
-                      {source.category.length > 2 && (
+                      {source.category.length > 3 && (
                         <Badge variant="secondary" className="text-xs">
-                          +{source.category.length - 2}
+                          +{source.category.length - 3}
                         </Badge>
                       )}
                     </div>
@@ -517,11 +517,16 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
               <>
                 <span>•</span>
                 <div className="flex flex-wrap gap-1">
-                  {source.category.map((cat, index) => (
+                  {source.category.slice(0, 2).map((cat, index) => (
                     <Badge key={index} variant="secondary" className="text-xs">
                       {cat}
                     </Badge>
                   ))}
+                  {source.category.length > 2 && (
+                    <Badge variant="secondary" className="text-xs">
+                      +{source.category.length - 2}
+                    </Badge>
+                  )}
                 </div>
               </>
             )}
