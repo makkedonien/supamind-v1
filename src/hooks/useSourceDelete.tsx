@@ -59,6 +59,22 @@ export const useSourceDelete = () => {
         }
         
         console.log('Source deleted successfully from database');
+
+        // Delete associated documents from vector store
+        console.log('Cleaning up vector embeddings for source:', sourceId);
+        const { error: documentsDeleteError } = await supabase
+          .from('documents')
+          .delete()
+          .eq('metadata->>source_id', sourceId);
+
+        if (documentsDeleteError) {
+          console.error('Error deleting documents for source:', documentsDeleteError);
+          // Don't throw here - the source is already deleted, this is just cleanup
+          // We'll log the error but continue
+        } else {
+          console.log('Vector embeddings cleaned up successfully for source');
+        }
+
         return source;
       } catch (error) {
         console.error('Error in source deletion process:', error);

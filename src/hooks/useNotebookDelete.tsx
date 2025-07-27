@@ -62,6 +62,21 @@ export const useNotebookDelete = () => {
           console.log('No files to delete from storage (URL-based sources or no file_paths)');
         }
 
+        // Delete associated documents from vector store before deleting notebook
+        console.log('Cleaning up vector embeddings for notebook:', notebookId);
+        const { error: documentsDeleteError } = await supabase
+          .from('documents')
+          .delete()
+          .eq('metadata->>notebook_id', notebookId);
+
+        if (documentsDeleteError) {
+          console.error('Error deleting documents for notebook:', documentsDeleteError);
+          // Don't throw here - we still want to delete the notebook
+          // even if document cleanup fails
+        } else {
+          console.log('Vector embeddings cleaned up successfully for notebook');
+        }
+
         // Delete the notebook - this will cascade delete all sources
         const { error: deleteError } = await supabase
           .from('notebooks')

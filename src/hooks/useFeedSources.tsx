@@ -210,6 +210,22 @@ export const useFeedSources = () => {
         }
         
         console.log('Feed source deleted successfully from database');
+
+        // Delete associated documents from vector store
+        console.log('Cleaning up vector embeddings for feed source:', sourceId);
+        const { error: documentsDeleteError } = await supabase
+          .from('documents')
+          .delete()
+          .eq('metadata->>source_id', sourceId);
+
+        if (documentsDeleteError) {
+          console.error('Error deleting documents for feed source:', documentsDeleteError);
+          // Don't throw here - the source is already deleted, this is just cleanup
+          // We'll log the error but continue
+        } else {
+          console.log('Vector embeddings cleaned up successfully for feed source');
+        }
+
         return source;
       } catch (error) {
         console.error('Error in feed source deletion process:', error);
