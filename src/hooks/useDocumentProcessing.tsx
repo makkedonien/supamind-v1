@@ -2,9 +2,11 @@
 import { useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const useDocumentProcessing = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const processDocument = useMutation({
     mutationFn: async ({
@@ -18,11 +20,16 @@ export const useDocumentProcessing = () => {
     }) => {
       console.log('Initiating document processing for:', { sourceId, filePath, sourceType });
 
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
       const { data, error } = await supabase.functions.invoke('process-document', {
         body: {
           sourceId,
           filePath,
-          sourceType
+          sourceType,
+          userId: user.id
         }
       });
 

@@ -13,16 +13,16 @@ serve(async (req) => {
   }
 
   try {
-    const { sourceId, filePath, sourceType } = await req.json()
+    const { sourceId, filePath, sourceType, userId } = await req.json()
 
-    if (!sourceId || !filePath || !sourceType) {
+    if (!sourceId || !filePath || !sourceType || !userId) {
       return new Response(
-        JSON.stringify({ error: 'sourceId, filePath, and sourceType are required' }),
+        JSON.stringify({ error: 'sourceId, filePath, sourceType, and userId are required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    console.log('Processing document:', { source_id: sourceId, file_path: filePath, source_type: sourceType });
+    console.log('Processing document:', { source_id: sourceId, file_path: filePath, source_type: sourceType, user_id: userId });
 
     // Get environment variables
     const webhookUrl = Deno.env.get('DOCUMENT_PROCESSING_WEBHOOK_URL')
@@ -60,6 +60,7 @@ serve(async (req) => {
       file_url: fileUrl,
       file_path: filePath,
       source_type: sourceType,
+      user_id: userId,
       callback_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/process-document-callback`
     }
 

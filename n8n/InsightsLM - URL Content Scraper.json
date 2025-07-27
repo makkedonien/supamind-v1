@@ -1,0 +1,828 @@
+{
+  "name": "InsightsLM - URL Content Scraper",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.firecrawl.dev/v1/scrape",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer fc-c77abf3248f848c3a9bf24541139a56c"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"url\": \"{{ $json.url }}\",\n  \"formats\": [\n    \"markdown\"\n  ],\n  \"onlyMainContent\": true,\n  \"waitFor\": 5000\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1220,
+        460
+      ],
+      "id": "0ed405c3-9e6a-4c0f-b82a-566e089e0b89",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1220,
+        120
+      ],
+      "id": "8d8db6cb-516d-4306-85e8-03b4d56e4c33",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "html": "={{ $('HTTP Request2').item.json.data }}",
+        "destinationKey": "data.markdown",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        -760,
+        120
+      ],
+      "id": "b3aa27dd-a1df-498d-95eb-b5be7ce5ed48",
+      "name": "Markdown"
+    },
+    {
+      "parameters": {
+        "url": "=https://youtube-transcript3.p.rapidapi.com/api/transcript?videoId={{ $json.id }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "flat_text",
+              "value": "true"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-rapidapi-key",
+              "value": "1745c5f2d9msh87ff331d0bfffa8p10bb57jsn9293271fb3ab"
+            },
+            {
+              "name": "x-rapidapi-host",
+              "value": "youtube-transcript3.p.rapidapi.com"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -880,
+        640
+      ],
+      "id": "7b01c699-f5ec-46d6-91b6-332c57f3a056",
+      "name": "HTTP Request3"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "4c4d6c34-5191-486e-8f86-9d7f8b3ae377",
+                    "leftValue": "={{ $json.url }}",
+                    "rightValue": "linkedin.com",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "LinkedIn"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "cf099449-5add-49b5-8864-33c13c6c6d28",
+                    "leftValue": "={{ $json.url }}",
+                    "rightValue": "mobiledevmemo.com",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "MobileDevMemo"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.url }}",
+                    "rightValue": "youtube.com",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "862b6ee6-e41a-4002-b823-1885262ceb60"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Youtube"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "822e14ae-b3fa-4429-a2d9-b39356dfb305",
+                    "leftValue": "={{ $json.url }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Other"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -1520,
+        340
+      ],
+      "id": "77681c77-56f2-472f-b34a-40f9c54fe623",
+      "name": "URL Switch"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.firecrawl.dev/v1/scrape",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer fc-c77abf3248f848c3a9bf24541139a56c"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"url\": \"{{ $json.url }}\",\n  \"formats\": [\n    \"markdown\"\n  ],\n  \"onlyMainContent\": true,\n  \"waitFor\": 5000,\n  \"headers\": {\n    \"cookie\": \"__stripe_mid=1713fb77-d9c5-4914-97e4-a68f5284dd22420b17;wordpress_logged_in_240259a5d3f6770f12e9bf70696c0c0d=marcknoll%40gmail.com%7C1751002499%7CP6beHER13ixXeIW0vzdyOwJeBPZttn14VSSC5egC0AQ%7C7f7e427fc08d5c2839a2de48d116c8ad65d0f290b7b86440691113d86085b611\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1220,
+        280
+      ],
+      "id": "c95fb21a-171e-470d-b411-05bd4cbf7b78",
+      "name": "HTTP Mobile Dev Memo"
+    },
+    {
+      "parameters": {
+        "jsCode": "// get the raw URL string\nconst urlString = $json.url;\nlet videoId = '';\n\n// try native parser first\ntry {\n  const url = new URL(urlString);\n  videoId = url.searchParams.get('v');\n} catch (e) {\n  // fallback to regex\n  const m = urlString.match(/(?:v=|youtu\\.be\\/)([A-Za-z0-9_-]{11})/);\n  if (m) videoId = m[1];\n}\n\n// output new item with videoId\nreturn [{ json: { videoId } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1220,
+        640
+      ],
+      "id": "12f9dd9a-93f4-4806-9c97-12cfcc76c6c7",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are provided below with markdown content from a LinkedIn post URL retrieved via HTTP request. Extract only the primary human-authored content and the following metadata: author, linkedin post url, publishing date. Important: Remove any double quotation marks in the main content!\n\nUse this response structure exactly:\n\n\nwebsite_name: LinkedIn\nlinkedin_post_author: [the author name of the linkedin post]\nlinkedin_post_url: [the linkedin post url]\nlinkedin_post_content\": [The main LinkedIn post content]\n\nDo not include any additional text, explanations, or commentary and no double quotation marks.\n\nUse empty strings (\"\") for any values that cannot be retrieved.\n\nHere is the content:\n{{ $json.data.markdown }}\n\nHere is the linkedin url:\n{{ $json.linkedin_url }}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -580,
+        120
+      ],
+      "id": "5f1d5d75-0f06-4683-afbd-724441c92b5c",
+      "name": "Basic LLM Chain1"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  // grab the field you want to truncate; adjust “text” to match your property\n  const inputText = $input.first().json.data || \"\";\n\n  // take only the first 500 characters\n  const truncated = inputText.substring(0, 2500);\n\n  // return it however you need downstream; here we overwrite the payload:\n  return {\n    json: {\n      truncated_text: truncated\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1060,
+        120
+      ],
+      "id": "71e6cd63-6eb3-4515-87b8-f76833f4957d",
+      "name": "Code2"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  // grab the raw HTML/text\n  const text = $input.first().json.truncated_text || '';\n\n  // regex to capture the URL inside <link rel=\"canonical\" href=\"…\">\n  const match = text.match(/<link\\s+rel=[\"']canonical[\"']\\s+href=[\"']([^\"']+)[\"']/i);\n  const canonicalUrl = match ? match[1] : '';\n\n  // return just the URL (or include other fields as needed)\n  return {\n    json: {\n      linkedin_url: canonicalUrl\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -920,
+        120
+      ],
+      "id": "468d2da7-ee30-405e-94f4-c10c5793095f",
+      "name": "Code3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "55126e1e-5068-44fe-b3d4-b3ed6edb1107",
+              "name": "website_name",
+              "value": "={{ $('HTTP Request').item.json.data.metadata['og:site_name'] }}",
+              "type": "string"
+            },
+            {
+              "id": "03e33403-19eb-4e55-abdf-3598fca6646f",
+              "name": "title",
+              "value": "={{ $('HTTP Request').item.json.data.metadata['og:title'] }}",
+              "type": "string"
+            },
+            {
+              "id": "9d721a32-f8b8-4840-aa55-9e6165c24aef",
+              "name": "publishing_date",
+              "value": "={{ $('HTTP Request').item.json.data.metadata.publishedTime }}",
+              "type": "string"
+            },
+            {
+              "id": "2575f231-cae4-49f3-8e76-7ea09cae2223",
+              "name": "url",
+              "value": "={{ $('HTTP Request').item.json.data.metadata.ogUrl }}",
+              "type": "string"
+            },
+            {
+              "id": "22cb3c11-8fe8-43d7-8e6f-47eaf41ac458",
+              "name": "image_url",
+              "value": "={{ $('HTTP Request').item.json.data.metadata.ogImage }}",
+              "type": "string"
+            },
+            {
+              "id": "958d520b-9156-416f-b04c-76ea6e0dd502",
+              "name": "description",
+              "value": "={{ $('HTTP Request').item.json.data.metadata.ogDescription }}",
+              "type": "string"
+            },
+            {
+              "id": "d25f0ca6-2444-45fe-9b10-54df02e6d41b",
+              "name": "url_content",
+              "value": "={{ $json.data.markdown }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -720,
+        460
+      ],
+      "id": "96d67378-22e0-4868-b11e-0bd74b6803d0",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "55126e1e-5068-44fe-b3d4-b3ed6edb1107",
+              "name": "website_name",
+              "value": "={{ $('HTTP Mobile Dev Memo').item.json.data.metadata.ogSiteName }}",
+              "type": "string"
+            },
+            {
+              "id": "03e33403-19eb-4e55-abdf-3598fca6646f",
+              "name": "title",
+              "value": "={{ $('HTTP Mobile Dev Memo').item.json.data.metadata.ogTitle }}",
+              "type": "string"
+            },
+            {
+              "id": "9d721a32-f8b8-4840-aa55-9e6165c24aef",
+              "name": "publishing_date",
+              "value": "={{ $('HTTP Mobile Dev Memo').item.json.data.metadata.publishedTime }}",
+              "type": "string"
+            },
+            {
+              "id": "2575f231-cae4-49f3-8e76-7ea09cae2223",
+              "name": "url",
+              "value": "={{ $('HTTP Mobile Dev Memo').item.json.data.metadata.ogUrl }}",
+              "type": "string"
+            },
+            {
+              "id": "22cb3c11-8fe8-43d7-8e6f-47eaf41ac458",
+              "name": "image_url",
+              "value": "={{ $('HTTP Mobile Dev Memo').item.json.data.metadata['og:image'] }}",
+              "type": "string"
+            },
+            {
+              "id": "958d520b-9156-416f-b04c-76ea6e0dd502",
+              "name": "description",
+              "value": "={{ $('HTTP Mobile Dev Memo').item.json.data.metadata['og:description'] }}",
+              "type": "string"
+            },
+            {
+              "id": "d25f0ca6-2444-45fe-9b10-54df02e6d41b",
+              "name": "url_content",
+              "value": "={{ $json.data.markdown }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -720,
+        280
+      ],
+      "id": "4e07b064-bb6e-4ac3-a393-a4b09414de67",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "resource": "video",
+        "operation": "get",
+        "videoId": "={{ $json.videoId }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.youTube",
+      "typeVersion": 1,
+      "position": [
+        -1040,
+        640
+      ],
+      "id": "e925591c-9dbc-438e-8a72-88700144e01f",
+      "name": "YouTube",
+      "credentials": {
+        "youTubeOAuth2Api": {
+          "id": "YnKofT99MJp5cvS7",
+          "name": "YouTube account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "55126e1e-5068-44fe-b3d4-b3ed6edb1107",
+              "name": "website_name",
+              "value": "={{ $('YouTube').item.json.snippet.channelTitle }}",
+              "type": "string"
+            },
+            {
+              "id": "03e33403-19eb-4e55-abdf-3598fca6646f",
+              "name": "title",
+              "value": "={{ $('YouTube').item.json.snippet.title }}",
+              "type": "string"
+            },
+            {
+              "id": "9d721a32-f8b8-4840-aa55-9e6165c24aef",
+              "name": "publishing_date",
+              "value": "={{ $('YouTube').item.json.snippet.publishedAt }}",
+              "type": "string"
+            },
+            {
+              "id": "2575f231-cae4-49f3-8e76-7ea09cae2223",
+              "name": "url",
+              "value": "=https://www.youtube.com/watch?v={{ $('YouTube').item.json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "22cb3c11-8fe8-43d7-8e6f-47eaf41ac458",
+              "name": "image_url",
+              "value": "={{ $('YouTube').item.json.snippet.thumbnails.maxres.url }}",
+              "type": "string"
+            },
+            {
+              "id": "958d520b-9156-416f-b04c-76ea6e0dd502",
+              "name": "description",
+              "value": "={{ $('YouTube').item.json.snippet.description }}",
+              "type": "string"
+            },
+            {
+              "id": "d25f0ca6-2444-45fe-9b10-54df02e6d41b",
+              "name": "url_content",
+              "value": "={{ $json.transcript }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -720,
+        640
+      ],
+      "id": "9081d76a-5486-4ca0-bd97-4fdb0e71e2d0",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "url"
+            },
+            {
+              "name": "userId"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1900,
+        360
+      ],
+      "id": "32d5b75e-b3c7-4ffa-898f-537a20800325",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -540,
+        180
+      ],
+      "id": "70ea5053-ca50-4b11-8011-9a74824e71cf",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "cSYzD9b0mOz2UD8Y",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -2080,
+        560
+      ],
+      "id": "2af9fd0d-fe5f-4bc3-b061-e9425a5bfcd5",
+      "name": "When chat message received",
+      "webhookId": "97f8159d-90fe-4eab-bc68-48b1669d8307"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "13c14019-e51a-4201-bd0b-701352ce1c85",
+              "name": "url",
+              "value": "={{ $json.chatInput }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1860,
+        560
+      ],
+      "id": "a82f9999-1e4b-46f0-9004-634b1e6847e7",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "55126e1e-5068-44fe-b3d4-b3ed6edb1107",
+              "name": "website_name",
+              "value": "=LinkedIn",
+              "type": "string"
+            },
+            {
+              "id": "03e33403-19eb-4e55-abdf-3598fca6646f",
+              "name": "title",
+              "value": "=",
+              "type": "string"
+            },
+            {
+              "id": "9d721a32-f8b8-4840-aa55-9e6165c24aef",
+              "name": "publishing_date",
+              "value": "=",
+              "type": "string"
+            },
+            {
+              "id": "2575f231-cae4-49f3-8e76-7ea09cae2223",
+              "name": "url",
+              "value": "={{ $('Edit Fields3').item.json.url }}",
+              "type": "string"
+            },
+            {
+              "id": "22cb3c11-8fe8-43d7-8e6f-47eaf41ac458",
+              "name": "image_url",
+              "value": "=",
+              "type": "string"
+            },
+            {
+              "id": "958d520b-9156-416f-b04c-76ea6e0dd502",
+              "name": "description",
+              "value": "=",
+              "type": "string"
+            },
+            {
+              "id": "d25f0ca6-2444-45fe-9b10-54df02e6d41b",
+              "name": "url_content",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -240,
+        120
+      ],
+      "id": "f39136c0-92ad-439f-be88-12c2379e02a7",
+      "name": "Edit Fields7"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "URL Switch": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Mobile Dev Memo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Mobile Dev Memo": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "YouTube",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "YouTube": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "URL Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "URL Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "870fb0bf-7406-4732-89c7-be8329465b4d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f5707d3666ba184efe554775a181f51837c332c4fa57af1133598e1ba699e314"
+  },
+  "id": "qsHAeodj1KJE7nsD",
+  "tags": []
+}
