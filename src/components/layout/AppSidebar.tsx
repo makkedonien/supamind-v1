@@ -180,14 +180,11 @@ const AppSidebar = ({ feedFilters, onFeedFiltersChange, feedSourceCounts }: AppS
                       isActive={item.active}
                       onClick={() => handleFilterToggle(item.id)}
                       tooltip={item.label}
-                      className="justify-between"
                     >
-                      <div className="flex items-center">
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.label}</span>
-                      </div>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.label}</span>
                       {item.count > 0 && (
-                        <Badge variant="secondary" className="ml-auto">
+                        <Badge variant="secondary" className="ml-auto group-data-[collapsible=icon]:hidden">
                           {item.count}
                         </Badge>
                       )}
@@ -215,17 +212,14 @@ const AppSidebar = ({ feedFilters, onFeedFiltersChange, feedSourceCounts }: AppS
                         isActive={isActive}
                         onClick={() => handleCategoryToggle(category.name)}
                         tooltip={category.name}
-                        className="justify-between"
                       >
-                        <div className="flex items-center">
-                          <div 
-                            className="w-3 h-3 rounded-full mr-2" 
-                            style={{ backgroundColor: category.color }}
-                          />
-                          <span className="truncate">{category.name}</span>
-                        </div>
+                        <div 
+                          className="w-3 h-3 rounded-full flex-shrink-0" 
+                          style={{ backgroundColor: category.color }}
+                        />
+                        <span className="truncate">{category.name}</span>
                         {count > 0 && (
-                          <Badge variant="secondary" className="ml-auto">
+                          <Badge variant="secondary" className="ml-auto group-data-[collapsible=icon]:hidden">
                             {count}
                           </Badge>
                         )}
