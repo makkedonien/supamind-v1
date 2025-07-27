@@ -1,8 +1,9 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Upload, FileText, Link, Copy } from 'lucide-react';
-import MultipleWebsiteUrlsDialog from './MultipleWebsiteUrlsDialog';
 import CopiedTextDialog from './CopiedTextDialog';
 import { useSources } from '@/hooks/useSources';
 import { useFileUpload } from '@/hooks/useFileUpload';
@@ -24,8 +25,9 @@ const AddSourcesDialog = ({
 }: AddSourcesDialogProps) => {
   const [dragActive, setDragActive] = useState(false);
   const [showCopiedTextDialog, setShowCopiedTextDialog] = useState(false);
-  const [showMultipleWebsiteDialog, setShowMultipleWebsiteDialog] = useState(false);
   const [isLocallyProcessing, setIsLocallyProcessing] = useState(false);
+  const [urlsText, setUrlsText] = useState('');
+  const [uploadButtonDragActive, setUploadButtonDragActive] = useState(false);
 
   const {
     addSourceAsync,
@@ -56,6 +58,9 @@ const AddSourcesDialog = ({
   useEffect(() => {
     if (open) {
       setIsLocallyProcessing(false);
+      setUrlsText('');
+      setUploadButtonDragActive(false);
+      setDragActive(false);
     }
   }, [open]);
 
@@ -69,10 +74,23 @@ const AddSourcesDialog = ({
     }
   }, []);
 
+  const handleUploadButtonDrag = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setUploadButtonDragActive(true);
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setUploadButtonDragActive(false);
+      setDragActive(false);
+    }
+  }, []);
+
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
+    setUploadButtonDragActive(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const files = Array.from(e.dataTransfer.files);
       handleFileUpload(files);
@@ -396,6 +414,25 @@ const AddSourcesDialog = ({
     }
   };
 
+  const handleUrlSubmit = async () => {
+    // Parse URLs from textarea - split by newlines and filter out empty lines
+    const urls = urlsText
+      .split('\n')
+      .map(url => url.trim())
+      .filter(url => url !== '');
+    
+    if (urls.length === 0) {
+      return;
+    }
+
+    try {
+      await handleMultipleWebsiteSubmit(urls);
+      setUrlsText('');
+    } catch (error) {
+      console.error('Error submitting URLs:', error);
+    }
+  };
+
   // Use local processing state instead of global processing states
   const isProcessingFiles = isLocallyProcessing;
 
@@ -420,14 +457,101 @@ const AddSourcesDialog = ({
             <div>
               <h2 className="text-xl font-medium mb-2">Add sources</h2>
               <p className="text-gray-600 text-sm mb-1">Sources let InsightsLM base its responses on the information that matters most to you.</p>
-              <p className="text-gray-500 text-xs">
-                (Examples: marketing plans, course reading, research notes, meeting transcripts, sales documents, etc.)
-              </p>
             </div>
 
-            {/* File Upload Area */}
+            {/* URL Input Area - Now the main input */}
+            <div className={`border rounded-lg p-6 transition-colors border-gray-300 hover:border-gray-400 ${isProcessingFiles ? 'opacity-50 pointer-events-none' : ''}`}>
+              <div className="flex flex-col space-y-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center bg-slate-100">
+                    <Link className="h-4 w-4 text-green-600" />
+                  </div>
+                  <Label className="text-sm font-medium">Add Website URLs</Label>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Enter multiple website URLs, one per line. Each URL will be scraped as a separate source.
+                </p>
+                
+                <Textarea
+                  placeholder={`Enter URLs one per line, for example:
+https://example.com
+https://another-site.com
+https://third-website.org`}
+                  value={urlsText}
+                  onChange={(e) => setUrlsText(e.target.value)}
+                  className="min-h-32 resize-y"
+                  rows={6}
+                  disabled={isProcessingFiles}
+                />
+                
+                {(() => {
+                  const validUrls = urlsText
+                    .split('\n')
+                    .map(url => url.trim())
+                    .filter(url => url !== '');
+                  
+                  return (
+                    <div className="space-y-2">
+                      <div>
+                        {validUrls.length > 0 && (
+                          <p className="text-sm text-gray-500">
+                            {validUrls.length} URL{validUrls.length !== 1 ? 's' : ''} detected
+                          </p>
+                        )}
+                      </div>
+                      <Button 
+                        onClick={handleUrlSubmit} 
+                        disabled={validUrls.length === 0 || isProcessingFiles}
+                        className="w-full bg-green-600 hover:bg-green-700"
+                      >
+                        {isProcessingFiles ? 'Adding...' : validUrls.length > 0 ? `Add ${validUrls.length} Website${validUrls.length !== 1 ? 's' : ''}` : 'Add Websites'}
+                      </Button>
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+
+            {/* Integration Options */}
+            <div className="grid grid-cols-2 gap-4">
+              <div 
+                className={`transition-colors ${
+                  uploadButtonDragActive ? 'bg-blue-50' : ''
+                }`}
+                onDragEnter={handleUploadButtonDrag}
+                onDragLeave={handleUploadButtonDrag}
+                onDragOver={handleUploadButtonDrag}
+                onDrop={handleDrop}
+              >
+                <Button
+                  variant="outline"
+                  className={`h-auto p-4 flex flex-col items-center space-y-2 w-full transition-colors ${
+                    uploadButtonDragActive ? 'border-blue-400 bg-blue-50' : ''
+                  }`}
+                  onClick={() => document.getElementById('file-upload')?.click()}
+                  disabled={isProcessingFiles}
+                >
+                  <Upload className="h-6 w-6 text-slate-600" />
+                  <span className="font-medium">Upload Files</span>
+                  <span className="text-sm text-gray-500">PDF, txt, Audio</span>
+                </Button>
+              </div>
+
+              <Button
+                variant="outline"
+                className="h-auto p-4 flex flex-col items-center space-y-2"
+                onClick={() => setShowCopiedTextDialog(true)}
+                disabled={isProcessingFiles}
+              >
+                <Copy className="h-6 w-6 text-purple-600" />
+                <span className="font-medium">Paste Copied Text</span>
+                <span className="text-sm text-gray-500">Add copied content</span>
+              </Button>
+            </div>
+
+            {/* Hidden file input and drag/drop area */}
             <div 
-              className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
+              className={`hidden border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
                 dragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
               } ${isProcessingFiles ? 'opacity-50 pointer-events-none' : ''}`}
               onDragEnter={handleDrag}
@@ -475,46 +599,15 @@ const AddSourcesDialog = ({
                 />
               </div>
             </div>
-
-            {/* Integration Options */}
-            <div className="grid grid-cols-2 gap-4">
-              <Button
-                variant="outline"
-                className="h-auto p-4 flex flex-col items-center space-y-2"
-                onClick={() => setShowMultipleWebsiteDialog(true)}
-                disabled={isProcessingFiles}
-              >
-                <Link className="h-6 w-6 text-green-600" />
-                <span className="font-medium">Link - Website</span>
-                <span className="text-sm text-gray-500">Multiple URLs at once</span>
-              </Button>
-
-              <Button
-                variant="outline"
-                className="h-auto p-4 flex flex-col items-center space-y-2"
-                onClick={() => setShowCopiedTextDialog(true)}
-                disabled={isProcessingFiles}
-              >
-                <Copy className="h-6 w-6 text-purple-600" />
-                <span className="font-medium">Paste Text - Copied Text</span>
-                <span className="text-sm text-gray-500">Add copied content</span>
-              </Button>
-            </div>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Sub-dialogs */}
+      {/* Copied Text Dialog */}
       <CopiedTextDialog 
         open={showCopiedTextDialog} 
         onOpenChange={setShowCopiedTextDialog} 
         onSubmit={handleTextSubmit} 
-      />
-
-      <MultipleWebsiteUrlsDialog 
-        open={showMultipleWebsiteDialog} 
-        onOpenChange={setShowMultipleWebsiteDialog} 
-        onSubmit={handleMultipleWebsiteSubmit} 
       />
     </>
   );
