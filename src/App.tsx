@@ -24,9 +24,7 @@ const AppContent = () => {
         path="/" 
         element={
           <ProtectedRoute fallback={<Auth />}>
-            <AppLayout>
-              <Feed />
-            </AppLayout>
+            <Feed />
           </ProtectedRoute>
         } 
       />

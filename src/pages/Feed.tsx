@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,12 +9,15 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { ExternalLink, LayoutGrid, List, Check, X, Share, Bookmark, Star, Clock, Calendar, Plus, Bot, Tag } from 'lucide-react';
 import { useFeedSources } from '@/hooks/useFeedSources';
 import { useToast } from '@/hooks/use-toast';
 import FeedSourceCard from '@/components/feed/FeedSourceCard';
 import AddFeedSourceDialog from '@/components/feed/AddFeedSourceDialog';
 import SourceCategoryDialog from '@/components/feed/SourceCategoryDialog';
+import AppLayout from '@/components/layout/AppLayout';
+
 
 // Enhanced Types
 interface ContentItem {
@@ -31,6 +34,14 @@ interface ContentItem {
   summary?: string;
   deep_summary?: string;
   is_favorite?: boolean;
+}
+
+interface FeedFilters {
+  favorites: boolean;
+  websites: boolean;
+  pdfs: boolean;
+  copiedTexts: boolean;
+  categories: string[];
 }
 
 // Updated placeholder data
@@ -534,6 +545,76 @@ const Feed = () => {
   // Feed sources data
   const { sources, isLoading, error } = useFeedSources();
 
+  // Filter state
+  const [filters, setFilters] = useState<FeedFilters>({
+    favorites: false,
+    websites: false,
+    pdfs: false,
+    copiedTexts: false,
+    categories: [],
+  });
+
+  // Filtered sources based on active filters
+  const filteredSources = useMemo(() => {
+    if (!sources) return [];
+
+    return sources.filter(source => {
+      // If no filters are active, show all sources
+      const hasActiveFilters = filters.favorites || filters.websites || filters.pdfs || filters.copiedTexts || filters.categories.length > 0;
+      if (!hasActiveFilters) return true;
+
+      // Check favorites filter
+      if (filters.favorites && !source.is_favorite) return false;
+
+      // Check type filters
+      if (filters.websites && !['website', 'youtube'].includes(source.type)) return false;
+      if (filters.pdfs && source.type !== 'pdf') return false;
+      if (filters.copiedTexts && source.type !== 'text') return false;
+
+      // Check category filters
+      if (filters.categories.length > 0) {
+        const sourceCategories = source.category || [];
+        const hasMatchingCategory = filters.categories.some(filterCategory => 
+          sourceCategories.includes(filterCategory)
+        );
+        if (!hasMatchingCategory) return false;
+      }
+
+      return true;
+    });
+  }, [sources, filters]);
+
+  // Calculate source counts for sidebar
+  const sourceCounts = useMemo(() => {
+    if (!sources) {
+      return {
+        favorites: 0,
+        websites: 0,
+        pdfs: 0,
+        copiedTexts: 0,
+        categoryCounts: {},
+      };
+    }
+
+    const counts = {
+      favorites: sources.filter(s => s.is_favorite).length,
+      websites: sources.filter(s => ['website', 'youtube'].includes(s.type)).length,
+      pdfs: sources.filter(s => s.type === 'pdf').length,
+      copiedTexts: sources.filter(s => s.type === 'text').length,
+      categoryCounts: {} as Record<string, number>,
+    };
+
+    // Calculate category counts
+    sources.forEach(source => {
+      const sourceCategories = source.category || [];
+      sourceCategories.forEach(category => {
+        counts.categoryCounts[category] = (counts.categoryCounts[category] || 0) + 1;
+      });
+    });
+
+    return counts;
+  }, [sources]);
+
   // Mobile detection
   useEffect(() => {
     const checkScreenSize = () => {
@@ -664,9 +745,14 @@ const Feed = () => {
   };
 
   return (
-    <main className="w-full px-6 py-8 2xl:max-w-[1480px] 2xl:mx-auto">
-      {/* Content Feed Section */}
-      <div className="space-y-6">
+    <AppLayout 
+      feedFilters={filters}
+      onFeedFiltersChange={setFilters}
+      feedSourceCounts={sourceCounts}
+    >
+      <main className="w-full px-6 py-8 2xl:max-w-[1480px] 2xl:mx-auto">
+          {/* Content Feed Section */}
+          <div className="space-y-6">
         {/* Header with Add Source Button */}
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -676,11 +762,20 @@ const Feed = () => {
                 <>
                   {selectedSources.size} source{selectedSources.size !== 1 ? 's' : ''} selected
                   <span className="mx-2">•</span>
+                  {filteredSources?.length || 0} filtered
+                  <span className="mx-2">•</span>
                   {sources?.length || 0} total
                 </>
               ) : (
                 <>
-                  {sources?.length || 0} source{sources?.length !== 1 ? 's' : ''} in your feed
+                  {filteredSources?.length || 0} source{filteredSources?.length !== 1 ? 's' : ''} 
+                  {(filters.favorites || filters.websites || filters.pdfs || filters.copiedTexts || filters.categories.length > 0) ? ' match filters' : ' in your feed'}
+                  {(filters.favorites || filters.websites || filters.pdfs || filters.copiedTexts || filters.categories.length > 0) && (
+                    <>
+                      <span className="mx-2">•</span>
+                      {sources?.length || 0} total
+                    </>
+                  )}
                 </>
               )}
             </p>
@@ -757,13 +852,32 @@ const Feed = () => {
           </div>
         )}
 
+        {/* No Filtered Results State */}
+        {!isLoading && !error && sources && sources.length > 0 && filteredSources.length === 0 && (
+          <div className="text-center py-12">
+            <div className="w-16 h-16 bg-gray-200 rounded-lg mx-auto mb-4 flex items-center justify-center">
+              <span className="text-gray-400 text-2xl">🔍</span>
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No sources match your filters</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Try adjusting your filters to see more sources.
+            </p>
+            <Button 
+              variant="outline" 
+              onClick={() => setFilters({ favorites: false, websites: false, pdfs: false, copiedTexts: false, categories: [] })}
+            >
+              Clear Filters
+            </Button>
+          </div>
+        )}
+
         {/* Feed Sources Grid */}
-        {!isLoading && !error && sources && sources.length > 0 && (
+        {!isLoading && !error && sources && sources.length > 0 && filteredSources.length > 0 && (
           <div className={viewMode === 'list' 
             ? "space-y-4 w-full" 
             : "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
           }>
-            {sources.map(source => (
+            {filteredSources.map(source => (
               <FeedSourceCard 
                 key={source.id} 
                 source={source}
@@ -798,7 +912,8 @@ const Feed = () => {
         onOpenChange={handleCloseCategoryDialog} 
         source={selectedSourceForCategory}
       />
-    </main>
+      </main>
+    </AppLayout>
   );
 };
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Rss, Mic, BookOpen, User, LogOut, Settings } from 'lucide-react';
+import { Rss, Mic, BookOpen, User, LogOut, Settings, Star, Globe, FileText, Copy, Filter } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -14,14 +14,37 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Badge } from '@/components/ui/badge';
 import { useLogout } from '@/services/authService';
 import { useAuth } from '@/contexts/AuthContext';
+import { useUserCategories } from '@/hooks/useUserCategories';
 import Logo from '@/components/ui/Logo';
 
-const AppSidebar = () => {
+interface FeedFilters {
+  favorites: boolean;
+  websites: boolean;
+  pdfs: boolean;
+  copiedTexts: boolean;
+  categories: string[];
+}
+
+interface AppSidebarProps {
+  feedFilters?: FeedFilters;
+  onFeedFiltersChange?: (filters: FeedFilters) => void;
+  feedSourceCounts?: {
+    favorites: number;
+    websites: number;
+    pdfs: number;
+    copiedTexts: number;
+    categoryCounts: Record<string, number>;
+  };
+}
+
+const AppSidebar = ({ feedFilters, onFeedFiltersChange, feedSourceCounts }: AppSidebarProps = {}) => {
   const location = useLocation();
   const { logout } = useLogout();
   const { user } = useAuth();
+  const { categories } = useUserCategories();
 
   const menuItems = [
     {
@@ -40,6 +63,68 @@ const AppSidebar = () => {
       path: '/notebooks',
     }
   ];
+
+  // Check if we're on the feed page
+  const isFeedPage = location.pathname === '/';
+  
+  // Filter items for feed page
+  const filterItems = feedSourceCounts ? [
+    {
+      id: 'favorites' as keyof FeedFilters,
+      icon: Star,
+      label: 'Favorites',
+      count: feedSourceCounts.favorites,
+      active: feedFilters?.favorites || false,
+    },
+    {
+      id: 'websites' as keyof FeedFilters,
+      icon: Globe,
+      label: 'Websites',
+      count: feedSourceCounts.websites,
+      active: feedFilters?.websites || false,
+    },
+    {
+      id: 'pdfs' as keyof FeedFilters,
+      icon: FileText,
+      label: 'PDFs',
+      count: feedSourceCounts.pdfs,
+      active: feedFilters?.pdfs || false,
+    },
+    {
+      id: 'copiedTexts' as keyof FeedFilters,
+      icon: Copy,
+      label: 'Copied Texts',
+      count: feedSourceCounts.copiedTexts,
+      active: feedFilters?.copiedTexts || false,
+    },
+  ] : [];
+
+  const handleFilterToggle = (filterId: keyof FeedFilters) => {
+    if (!feedFilters || !onFeedFiltersChange || filterId === 'categories') return;
+    
+    onFeedFiltersChange({
+      ...feedFilters,
+      [filterId]: !feedFilters[filterId],
+    });
+  };
+
+  const handleCategoryToggle = (categoryName: string) => {
+    if (!feedFilters || !onFeedFiltersChange) return;
+    
+    const updatedCategories = feedFilters.categories.includes(categoryName)
+      ? feedFilters.categories.filter(cat => cat !== categoryName)
+      : [...feedFilters.categories, categoryName];
+    
+    onFeedFiltersChange({
+      ...feedFilters,
+      categories: updatedCategories,
+    });
+  };
+
+  // Get categories that actually have feed sources assigned to them
+  const categoriesWithSources = categories.filter(category => 
+    feedSourceCounts?.categoryCounts[category.name] > 0
+  );
 
   return (
     <Sidebar collapsible="icon">
@@ -79,6 +164,79 @@ const AppSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Filters Section - Only on Feed page */}
+        {isFeedPage && feedSourceCounts && (
+          <SidebarGroup>
+            <SidebarGroupLabel>
+              <Filter className="h-4 w-4 mr-2" />
+              Filters
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {filterItems.map((item) => (
+                  <SidebarMenuItem key={item.id}>
+                    <SidebarMenuButton
+                      isActive={item.active}
+                      onClick={() => handleFilterToggle(item.id)}
+                      tooltip={item.label}
+                      className="justify-between"
+                    >
+                      <div className="flex items-center">
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.label}</span>
+                      </div>
+                      {item.count > 0 && (
+                        <Badge variant="secondary" className="ml-auto">
+                          {item.count}
+                        </Badge>
+                      )}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {/* Categories Section - Only on Feed page */}
+        {isFeedPage && categoriesWithSources.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Categories</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {categoriesWithSources.map((category) => {
+                  const isActive = feedFilters?.categories.includes(category.name) || false;
+                  const count = feedSourceCounts?.categoryCounts[category.name] || 0;
+                  
+                  return (
+                    <SidebarMenuItem key={category.id}>
+                      <SidebarMenuButton
+                        isActive={isActive}
+                        onClick={() => handleCategoryToggle(category.name)}
+                        tooltip={category.name}
+                        className="justify-between"
+                      >
+                        <div className="flex items-center">
+                          <div 
+                            className="w-3 h-3 rounded-full mr-2" 
+                            style={{ backgroundColor: category.color }}
+                          />
+                          <span className="truncate">{category.name}</span>
+                        </div>
+                        {count > 0 && (
+                          <Badge variant="secondary" className="ml-auto">
+                            {count}
+                          </Badge>
+                        )}
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter>

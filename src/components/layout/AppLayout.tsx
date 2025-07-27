@@ -4,11 +4,28 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/s
 import { Separator } from '@/components/ui/separator';
 import AppSidebar from './AppSidebar';
 
-interface AppLayoutProps {
-  children: React.ReactNode;
+interface FeedFilters {
+  favorites: boolean;
+  websites: boolean;
+  pdfs: boolean;
+  copiedTexts: boolean;
+  categories: string[];
 }
 
-const AppLayout = ({ children }: AppLayoutProps) => {
+interface AppLayoutProps {
+  children: React.ReactNode;
+  feedFilters?: FeedFilters;
+  onFeedFiltersChange?: (filters: FeedFilters) => void;
+  feedSourceCounts?: {
+    favorites: number;
+    websites: number;
+    pdfs: number;
+    copiedTexts: number;
+    categoryCounts: Record<string, number>;
+  };
+}
+
+const AppLayout = ({ children, feedFilters, onFeedFiltersChange, feedSourceCounts }: AppLayoutProps) => {
   const location = useLocation();
   
   const getPageTitle = () => {
@@ -33,7 +50,11 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         "--sidebar-width-mobile": "16rem",
       } as React.CSSProperties}
     >
-      <AppSidebar />
+      <AppSidebar 
+        feedFilters={feedFilters}
+        onFeedFiltersChange={onFeedFiltersChange}
+        feedSourceCounts={feedSourceCounts}
+      />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 bg-background sticky top-0 z-10">
           <SidebarTrigger className="-ml-1" />
