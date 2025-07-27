@@ -542,8 +542,27 @@ const Feed = () => {
   // Feed source selection state
   const [selectedSources, setSelectedSources] = useState<Set<string>>(new Set());
 
+  // Optimistic deletion state
+  const [optimisticallyDeletedIds, setOptimisticallyDeletedIds] = useState<Set<string>>(new Set());
+
   // Feed sources data
   const { sources, isLoading, error } = useFeedSources();
+
+  // Auto-cleanup optimistically deleted items when they're actually removed from sources
+  useEffect(() => {
+    if (sources && optimisticallyDeletedIds.size > 0) {
+      const sourceIds = new Set(sources.map(source => source.id));
+      const idsToRemove = Array.from(optimisticallyDeletedIds).filter(id => !sourceIds.has(id));
+      
+      if (idsToRemove.length > 0) {
+        setOptimisticallyDeletedIds(prev => {
+          const newSet = new Set(prev);
+          idsToRemove.forEach(id => newSet.delete(id));
+          return newSet;
+        });
+      }
+    }
+  }, [sources, optimisticallyDeletedIds]);
 
   // Filter state
   const [filters, setFilters] = useState<FeedFilters>({
@@ -559,6 +578,9 @@ const Feed = () => {
     if (!sources) return [];
 
     return sources.filter(source => {
+      // Exclude optimistically deleted items
+      if (optimisticallyDeletedIds.has(source.id)) return false;
+
       // If no filters are active, show all sources
       const hasActiveFilters = filters.favorites || filters.websites || filters.pdfs || filters.copiedTexts || filters.categories.length > 0;
       if (!hasActiveFilters) return true;
@@ -582,7 +604,7 @@ const Feed = () => {
 
       return true;
     });
-  }, [sources, filters]);
+  }, [sources, filters, optimisticallyDeletedIds]);
 
   // Calculate source counts for sidebar
   const sourceCounts = useMemo(() => {
@@ -695,6 +717,22 @@ const Feed = () => {
   const handleCloseCategoryDialog = () => {
     setShowCategoryDialog(false);
     setSelectedSourceForCategory(null);
+  };
+
+  // Optimistic deletion handlers
+  const handleOptimisticDelete = (sourceId: string) => {
+    setOptimisticallyDeletedIds(prev => new Set(prev).add(sourceId));
+  };
+
+
+
+  const handleDeleteError = (sourceId: string) => {
+    // Roll back optimistic deletion on error
+    setOptimisticallyDeletedIds(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(sourceId);
+      return newSet;
+    });
   };
 
   // Convert FeedSource to ContentItem for detail view
@@ -887,6 +925,8 @@ const Feed = () => {
                 onOpenDetail={handleOpenFeedSourceDetail}
                 isSelected={selectedSources.has(source.id)}
                 onSelectionChange={handleSourceSelection}
+                onOptimisticDelete={handleOptimisticDelete}
+                onDeleteError={handleDeleteError}
               />
             ))}
           </div>

@@ -36,11 +36,14 @@ interface FeedSourceCardProps {
   viewMode?: 'list' | 'card';
   isSelected?: boolean;
   onSelectionChange?: (sourceId: string, selected: boolean) => void;
+  onOptimisticDelete?: (sourceId: string) => void;
+  onDeleteError?: (sourceId: string) => void;
 }
 
-const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode = 'card', isSelected = false, onSelectionChange }: FeedSourceCardProps) => {
+const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode = 'card', isSelected = false, onSelectionChange, onOptimisticDelete, onDeleteError }: FeedSourceCardProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isAnimatingOut, setIsAnimatingOut] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [showStatus, setShowStatus] = useState(true);
   const [statusOpacity, setStatusOpacity] = useState(1);
@@ -170,12 +173,24 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
 
   const handleDelete = async () => {
     setIsDeleting(true);
+    setShowDeleteDialog(false);
+    
+    // Start the fade-out animation
+    setIsAnimatingOut(true);
+    
+    // Wait for animation to complete before optimistically removing
+    setTimeout(() => {
+      onOptimisticDelete?.(source.id);
+    }, 300);
+    
     try {
       await deleteSourceAsync(source.id);
       toast({
         title: "Source deleted",
         description: `"${source.title}" has been removed from your feed.`,
       });
+      // Don't call onDeleteComplete - let the real-time subscription handle the final removal
+      // The optimistic deletion will keep the item hidden until it's actually removed from the cache
     } catch (error) {
       console.error('Error deleting feed source:', error);
       toast({
@@ -183,9 +198,11 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
         description: "Failed to delete source. Please try again.",
         variant: "destructive",
       });
+      // Roll back the animation and optimistic deletion on error
+      setIsAnimatingOut(false);
+      onDeleteError?.(source.id);
     } finally {
       setIsDeleting(false);
-      setShowDeleteDialog(false);
     }
   };
 
@@ -311,7 +328,9 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
     return (
       <>
         <div
-          className="flex transition-all duration-200 bg-white rounded-lg overflow-hidden relative cursor-pointer"
+          className={`flex transition-all duration-300 bg-white rounded-lg overflow-hidden relative cursor-pointer ${
+            isAnimatingOut ? 'opacity-0 scale-95 transform translate-y-2' : 'opacity-100 scale-100 transform translate-y-0'
+          }`}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           onClick={handleCardClick}
@@ -444,7 +463,9 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
   return (
     <>
       <Card 
-        className="overflow-hidden transition-all duration-200 relative cursor-pointer"
+        className={`overflow-hidden transition-all duration-300 relative cursor-pointer ${
+          isAnimatingOut ? 'opacity-0 scale-95 transform translate-y-2' : 'opacity-100 scale-100 transform translate-y-0'
+        }`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onClick={handleCardClick}
