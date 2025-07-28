@@ -10,7 +10,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "Bearer fc-c77abf3248f848c3a9bf24541139a56c"
+              "value": "Here goes your API key"
             }
           ]
         },
@@ -216,7 +216,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "Bearer fc-c77abf3248f848c3a9bf24541139a56c"
+              "value": "Here goes your API key"
             }
           ]
         },
