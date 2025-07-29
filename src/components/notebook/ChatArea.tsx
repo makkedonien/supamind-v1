@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, Upload, FileText, Loader2, RefreshCw } from 'lucide-react';
+import { Send, Upload, FileText, Loader2, RefreshCw, X } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import { useNavigate } from 'react-router-dom';
 import { useChatMessages } from '@/hooks/useChatMessages';
 import { useSources } from '@/hooks/useSources';
 import MarkdownRenderer from '@/components/chat/MarkdownRenderer';
@@ -37,6 +38,7 @@ const ChatArea = ({
   const [showAiLoading, setShowAiLoading] = useState(false);
   const [clickedQuestions, setClickedQuestions] = useState<Set<string>>(new Set());
   const [showAddSourcesDialog, setShowAddSourcesDialog] = useState(false);
+  const navigate = useNavigate();
   
   const isGenerating = notebook?.generation_status === 'generating';
   
@@ -172,10 +174,20 @@ const ChatArea = ({
           <div className="p-4 border-b border-gray-200 flex-shrink-0">
             <div className="max-w-4xl mx-auto flex items-center justify-between">
               <h2 className="text-lg font-medium text-gray-900">Chat</h2>
-              {shouldShowRefreshButton && <Button variant="ghost" size="sm" onClick={handleRefreshChat} disabled={isDeletingChatHistory || isChatDisabled} className="flex items-center space-x-2">
-                  <RefreshCw className={`h-4 w-4 ${isDeletingChatHistory ? 'animate-spin' : ''}`} />
-                  <span>{isDeletingChatHistory ? 'Clearing...' : 'Clear Chat'}</span>
-                </Button>}
+              <div className="flex items-center space-x-2">
+                {shouldShowRefreshButton && <Button variant="ghost" size="sm" onClick={handleRefreshChat} disabled={isDeletingChatHistory || isChatDisabled} className="flex items-center space-x-2">
+                    <RefreshCw className={`h-4 w-4 ${isDeletingChatHistory ? 'animate-spin' : ''}`} />
+                    <span>{isDeletingChatHistory ? 'Clearing...' : 'Clear Chat'}</span>
+                  </Button>}
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => navigate('/notebooks')}
+                  className="flex items-center justify-center w-8 h-8 p-0"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
 
