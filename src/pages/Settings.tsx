@@ -29,6 +29,7 @@ const Settings = () => {
   const [newCategory, setNewCategory] = useState('');
   const [aiSummaryPrompt, setAiSummaryPrompt] = useState('');
   const [aiDeepSummaryPrompt, setAiDeepSummaryPrompt] = useState('');
+  const [aiFeedCategorizationPrompt, setAiFeedCategorizationPrompt] = useState('');
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   const handleAddCategory = async () => {
@@ -61,6 +62,7 @@ const Settings = () => {
       categories,
       aiSummaryPrompt,
       aiDeepSummaryPrompt,
+      aiFeedCategorizationPrompt,
       isDarkMode
     });
   };
@@ -206,7 +208,7 @@ const Settings = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="ai-deep-summary">AI Deep Summary Prompt</Label>
+                <Label htmlFor="ai-deep-summary">AI Deep Dive Prompt</Label>
                 <p className="text-sm text-muted-foreground">
                   Customize how the AI generates detailed content analysis.
                 </p>
@@ -214,7 +216,21 @@ const Settings = () => {
                   id="ai-deep-summary"
                   value={aiDeepSummaryPrompt}
                   onChange={(e) => setAiDeepSummaryPrompt(e.target.value)}
-                  placeholder="Enter your custom AI deep summary prompt..."
+                  placeholder="Enter your custom AI deep dive prompt..."
+                  className="min-h-[80px]"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="ai-feed-categorization">AI Feed Categorization Prompt</Label>
+                <p className="text-sm text-muted-foreground">
+                  Customize how the AI categorizes Feed items using your defined categories.
+                </p>
+                <Textarea
+                  id="ai-feed-categorization"
+                  value={aiFeedCategorizationPrompt}
+                  onChange={(e) => setAiFeedCategorizationPrompt(e.target.value)}
+                  placeholder="Enter your custom AI feed categorization prompt..."
                   className="min-h-[80px]"
                 />
               </div>
