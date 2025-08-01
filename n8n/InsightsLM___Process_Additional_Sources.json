@@ -11,15 +11,15 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        -20,
-        -100
+        -1856,
+        -400
       ],
-      "id": "e84393f1-d235-49b6-ae80-14fab4c2eaf3",
+      "id": "aeb078d7-c4a9-4d35-883a-3d905bc7d044",
       "name": "Webhook",
       "webhookId": "670882ea-5c1e-4b50-9f41-4792256af985",
       "credentials": {
         "httpHeaderAuth": {
-          "id": "XkKFXSTOUEFECndn",
+          "id": "gvJYxh53ckvIJCGJ",
           "name": "Webhook Header Auth account"
         }
       }
@@ -80,10 +80,10 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        880,
-        -280
+        -960,
+        -592
       ],
-      "id": "21f00127-d042-444c-9d5b-a5827ff303b7",
+      "id": "39c1ea5e-793e-4d4f-bac5-d062ed592db0",
       "name": "Execute Workflow"
     },
     {
@@ -165,10 +165,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        220,
-        -105
+        -1616,
+        -416
       ],
-      "id": "ea64f96b-552e-4036-a467-9e721a9348b3",
+      "id": "856443f3-e9a6-4b60-ac62-27a292716ced",
       "name": "Switch"
     },
     {
@@ -179,10 +179,10 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        440,
-        -5
+        -1392,
+        -304
       ],
-      "id": "df3e6c68-9618-4600-82b7-547815e30e0d",
+      "id": "c5fe2e1a-c2f7-4792-b9f2-d54b82ebe5ad",
       "name": "Split Out"
     },
     {
@@ -194,10 +194,10 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        660,
-        -5
+        -1168,
+        -304
       ],
-      "id": "5c238b17-d28f-42a7-a273-dd5ce9cf0f6c",
+      "id": "257eea62-f3c9-48b6-a709-a75c4591feb0",
       "name": "Loop Over Items"
     },
     {
@@ -217,17 +217,17 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1240,
-        300
+        -592,
+        112
       ],
-      "id": "ab711941-fffb-48a9-8f12-0417503bacf3",
+      "id": "dcc1945f-d2bf-4577-8107-4c50b8386bf3",
       "name": "Fetch Webpage with Jina.ai"
     },
     {
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "SrQqpK6NKzJPx86v",
+          "value": "L4jfcqHK5HarmFr8",
           "mode": "list",
           "cachedResultName": "InsightsLM - Upsert to Vector Store"
         },
@@ -248,8 +248,7 @@
               "defaultMatch": false,
               "display": true,
               "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
+              "type": "string"
             },
             {
               "id": "extracted_text",
@@ -258,8 +257,7 @@
               "defaultMatch": false,
               "display": true,
               "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
+              "type": "string"
             },
             {
               "id": "source_id",
@@ -268,8 +266,7 @@
               "defaultMatch": false,
               "display": true,
               "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
+              "type": "string"
             },
             {
               "id": "user_id",
@@ -278,8 +275,7 @@
               "defaultMatch": false,
               "display": true,
               "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
+              "type": "string"
             }
           ],
           "attemptToConvertTypes": false,
@@ -290,60 +286,11 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1960,
-        300
+        368,
+        -48
       ],
-      "id": "f64e5ee1-1ebe-48f1-b77e-86ed6943eb79",
+      "id": "1a75596a-a67a-4022-8f77-b36916e6c0b3",
       "name": "Execute Workflow1"
-    },
-    {
-      "parameters": {
-        "operation": "update",
-        "tableId": "sources",
-        "filters": {
-          "conditions": [
-            {
-              "keyName": "id",
-              "condition": "eq",
-              "keyValue": "={{ $('Switch').item.json.body.sourceIds[$('Loop Over Items').item.pairedItem.item] }}"
-            }
-          ]
-        },
-        "fieldsUi": {
-          "fieldValues": [
-            {
-              "fieldId": "content",
-              "fieldValue": "={{ $('Fetch Webpage with Jina.ai').item.json.data.content }}"
-            },
-            {
-              "fieldId": "title",
-              "fieldValue": "={{ $('Fetch Webpage with Jina.ai').item.json.data.title }}"
-            },
-            {
-              "fieldId": "file_path",
-              "fieldValue": "={{ $('Switch').item.json.body.notebookId }}/{{ $('Switch').item.json.body.sourceIds[$('Loop Over Items').item.pairedItem.item] }}.txt"
-            },
-            {
-              "fieldId": "file_size",
-              "fieldValue": "9999"
-            }
-          ]
-        }
-      },
-      "type": "n8n-nodes-base.supabase",
-      "typeVersion": 1,
-      "position": [
-        1660,
-        300
-      ],
-      "id": "629973a6-c406-4963-860b-2a6d90815afa",
-      "name": "Supabase",
-      "credentials": {
-        "supabaseApi": {
-          "id": "6Xm7SGmeTZwdSCzO",
-          "name": "Supabase account"
-        }
-      }
     },
     {
       "parameters": {
@@ -353,16 +300,16 @@
       "type": "n8n-nodes-base.aggregate",
       "typeVersion": 1,
       "position": [
-        2180,
-        360
+        560,
+        240
       ],
-      "id": "66f0f255-3e83-4014-8d50-4d539b8658af",
+      "id": "e590c246-da28-42fe-b7d3-9a11bbc8966b",
       "name": "Aggregate"
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://ehqdibhqhevjnknojogm.supabase.co/storage/v1/object/sources/{{ $('Switch').item.json.body.notebookId }}/{{ $('Switch').item.json.body.sourceIds[$('Loop Over Items').item.pairedItem.item] }}.txt",
+        "url": "=https://ehqdibhqhevjnknojogm.supabase.co/storage/v1/object/sources/feed/{{ $('Switch').item.json.body.userId }}/{{ $('Switch').item.json.body.sourceIds[$('Loop Over Items').item.pairedItem.item] }}.txt",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "supabaseApi",
         "sendBody": true,
@@ -374,14 +321,14 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1440,
-        300
+        -128,
+        32
       ],
-      "id": "932f87b7-3975-4304-9225-7e5dd709216b",
+      "id": "f3b082c1-14a3-483e-8bdc-63f1d0417360",
       "name": "Upload File to Bucket",
       "credentials": {
         "supabaseApi": {
-          "id": "6Xm7SGmeTZwdSCzO",
+          "id": "7GmwvHGWyd47X1M6",
           "name": "Supabase account"
         }
       }
@@ -401,14 +348,14 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        440,
-        -280
+        -1392,
+        -592
       ],
-      "id": "0c971148-8f1e-4da7-aee8-f6a9a4f7d58f",
+      "id": "1ae5ee5b-2566-43d8-af6b-87130838d255",
       "name": "Upload File to Bucket1",
       "credentials": {
         "supabaseApi": {
-          "id": "6Xm7SGmeTZwdSCzO",
+          "id": "7GmwvHGWyd47X1M6",
           "name": "Supabase account"
         }
       }
@@ -442,14 +389,14 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        660,
-        -280
+        -1168,
+        -592
       ],
-      "id": "8b5103e1-46bd-4959-8b1a-0e288759723f",
+      "id": "f2073de5-7a69-49df-a64a-e70ae3d6451d",
       "name": "Supabase1",
       "credentials": {
         "supabaseApi": {
-          "id": "6Xm7SGmeTZwdSCzO",
+          "id": "7GmwvHGWyd47X1M6",
           "name": "Supabase account"
         }
       }
@@ -463,10 +410,10 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        480,
-        -600
+        -1360,
+        -912
       ],
-      "id": "e0772715-ac1a-4ceb-8017-b07e568c2251",
+      "id": "7967757a-72bf-42a4-bdd8-1c53d083a30a",
       "name": "Sticky Note"
     },
     {
@@ -479,25 +426,25 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        0,
-        -600
+        -1840,
+        -912
       ],
-      "id": "3cb7b6af-1480-47dc-aa7b-07be3b2eb433",
+      "id": "b3ead267-2cc3-440e-b976-434e493006a0",
       "name": "Sticky Note8"
     },
     {
       "parameters": {
-        "content": "## To Do \n- Non-notebook sources don't get embedded into vector db. probably because no notebook id is passed? Also, userId should",
+        "content": "## To Do \n\n",
         "width": 680,
         "color": 4
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        1140,
-        -100
+        -576,
+        -560
       ],
-      "id": "2c7dbdc3-b41f-492b-8c64-4dd2a00f301a",
+      "id": "6151153f-a822-496e-af89-7d210be9388e",
       "name": "Sticky Note1"
     },
     {
@@ -608,10 +555,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        880,
-        100
+        -960,
+        -208
       ],
-      "id": "71f94dad-e841-47e1-a4ae-2413351d207c",
+      "id": "76931b70-e20e-4af0-b292-0ece39261b86",
       "name": "Switch1"
     },
     {
@@ -620,7 +567,7 @@
           "__rl": true,
           "value": "qsHAeodj1KJE7nsD",
           "mode": "list",
-          "cachedResultName": "URL Content Scraper"
+          "cachedResultName": "InsightsLM - URL Content Scraper"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
@@ -661,10 +608,10 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1240,
-        100
+        -592,
+        -208
       ],
-      "id": "c14d8fdc-a805-4314-9985-467592426683",
+      "id": "fe03dad7-ac97-48fa-8218-d5f549ce5f75",
       "name": "Execute URL Content Scraper"
     },
     {
@@ -676,20 +623,359 @@
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "text/plain",
-        "body": "={{ $json.data.url }}\n{{ $json.data.content }}",
+        "body": "={{ $json.url }}\n{{ $json.url_content }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1440,
-        100
+        -128,
+        -304
       ],
-      "id": "91c5dab7-921e-4447-aa95-df3a7bfda271",
+      "id": "9ad86917-2000-44ab-b48e-634c7649a2e5",
       "name": "Upload File to Bucket2",
       "credentials": {
         "supabaseApi": {
-          "id": "6Xm7SGmeTZwdSCzO",
+          "id": "7GmwvHGWyd47X1M6",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "sources",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Switch').item.json.body.sourceIds[$('Loop Over Items').item.pairedItem.item] }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "content",
+              "fieldValue": "={{ $('Execute URL Content Scraper').item.json.url_content }}"
+            },
+            {
+              "fieldId": "title",
+              "fieldValue": "={{ $('Execute URL Content Scraper').item.json.title }}"
+            },
+            {
+              "fieldId": "file_path",
+              "fieldValue": "={{ $('Switch').item.json.body.notebookId }}/{{ $('Switch').item.json.body.sourceIds[$('Loop Over Items').item.pairedItem.item] }}.txt"
+            },
+            {
+              "fieldId": "file_size",
+              "fieldValue": "9999"
+            },
+            {
+              "fieldId": "image_url",
+              "fieldValue": "={{ $('Execute URL Content Scraper').item.json.image_url }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        64,
+        -128
+      ],
+      "id": "c56e3e37-240a-4d63-ad96-635e9a7f71c7",
+      "name": "Update a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "7GmwvHGWyd47X1M6",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Switch').item.json.body.notebookId }}",
+                    "rightValue": "feed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "195fd243-c7e9-4acf-873e-c5f23af32d99"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Feed Source"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "95b8170c-e050-4d47-a140-b43e966e9ba7",
+                    "leftValue": "={{ $('Switch').item.json.body.notebookId }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notExists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "No Notebook ID"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d6f08bbb-ebaf-4bdc-b4f1-38ef681c9fde",
+                    "leftValue": "={{ $('Switch').item.json.body.notebookId }}",
+                    "rightValue": "feed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEquals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Notebook Source"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -416,
+        -208
+      ],
+      "id": "7fb3653b-eb7f-4b6d-ae99-ef0a7d1c9e05",
+      "name": "Switch2"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Switch').item.json.body.notebookId }}",
+                    "rightValue": "feed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "195fd243-c7e9-4acf-873e-c5f23af32d99"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Feed Source"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "3099d68b-5648-428f-aa10-c37595769566",
+                    "leftValue": "={{ $('Switch').item.json.body.notebookId }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notExists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "No Notebook ID"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d6f08bbb-ebaf-4bdc-b4f1-38ef681c9fde",
+                    "leftValue": "={{ $('Switch').item.json.body.notebookId }}",
+                    "rightValue": "feed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEquals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Notebook Source"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -416,
+        112
+      ],
+      "id": "b469094e-61e3-462e-977c-e6755e2359ba",
+      "name": "Switch3"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "sources",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Switch').item.json.body.sourceIds[$('Loop Over Items').item.pairedItem.item] }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "content",
+              "fieldValue": "={{ $('Execute URL Content Scraper').item.json.url_content }}"
+            },
+            {
+              "fieldId": "title",
+              "fieldValue": "={{ $('Execute URL Content Scraper').item.json.title }}"
+            },
+            {
+              "fieldId": "file_path",
+              "fieldValue": "=feed/{{ $('Switch').item.json.body.userId }}/{{ $('Switch').item.json.body.sourceIds[$('Loop Over Items').item.pairedItem.item] }}.txt"
+            },
+            {
+              "fieldId": "file_size",
+              "fieldValue": "9999"
+            },
+            {
+              "fieldId": "image_url",
+              "fieldValue": "={{ $('Execute URL Content Scraper').item.json.image_url }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        64,
+        -304
+      ],
+      "id": "a654f922-1468-4640-8aeb-75f03de72c5b",
+      "name": "Update a row1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "7GmwvHGWyd47X1M6",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "sources",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Switch').item.json.body.sourceIds[$('Loop Over Items').item.pairedItem.item] }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "content",
+              "fieldValue": "={{ $('Fetch Webpage with Jina.ai').item.json.data.content }}"
+            },
+            {
+              "fieldId": "title",
+              "fieldValue": "={{ $('Fetch Webpage with Jina.ai').item.json.data.title }}"
+            },
+            {
+              "fieldId": "file_path",
+              "fieldValue": "=feed/{{ $('Switch').item.json.body.userId }}/{{ $('Switch').item.json.body.sourceIds[$('Loop Over Items').item.pairedItem.item] }}.txt"
+            },
+            {
+              "fieldId": "file_size",
+              "fieldValue": "9999"
+            },
+            {
+              "fieldId": "image_url",
+              "fieldValue": "={{ $('Fetch Webpage with Jina.ai').item.json.data.metadata[\"og:image\"] }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        64,
+        32
+      ],
+      "id": "a013d34d-2cce-4116-a9ea-91d34d3db034",
+      "name": "Update a row2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "7GmwvHGWyd47X1M6",
           "name": "Supabase account"
         }
       }
@@ -724,6 +1010,10 @@
             {
               "fieldId": "file_size",
               "fieldValue": "9999"
+            },
+            {
+              "fieldId": "image_url",
+              "fieldValue": "={{ $('Fetch Webpage with Jina.ai').item.json.data.metadata[\"og:image\"] }}"
             }
           ]
         }
@@ -731,20 +1021,116 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        1660,
-        100
+        64,
+        192
       ],
-      "id": "8c438dc5-22c1-464e-ab00-602e42755496",
-      "name": "Supabase2",
+      "id": "882c6fbb-0061-4f1e-bd26-d28e6235c864",
+      "name": "Update a row3",
       "credentials": {
         "supabaseApi": {
-          "id": "6Xm7SGmeTZwdSCzO",
+          "id": "7GmwvHGWyd47X1M6",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://ehqdibhqhevjnknojogm.supabase.co/storage/v1/object/sources/{{ $('Switch').item.json.body.notebookId }}/{{ $('Switch').item.json.body.sourceIds[$('Loop Over Items').item.pairedItem.item] }}.txt",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "text/plain",
+        "body": "={{ $json.data.url }}\n{{ $json.data.content }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -128,
+        192
+      ],
+      "id": "1d8b69cd-aa5b-4af7-a01c-74247410c73c",
+      "name": "Upload File to Bucket3",
+      "credentials": {
+        "supabaseApi": {
+          "id": "7GmwvHGWyd47X1M6",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://ehqdibhqhevjnknojogm.supabase.co/storage/v1/object/sources/{{ $('Switch').item.json.body.notebookId }}/{{ $('Switch').item.json.body.sourceIds[$('Loop Over Items').item.pairedItem.item] }}.txt",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "text/plain",
+        "body": "={{ $json.url }}\n{{ $json.url_content }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -128,
+        -128
+      ],
+      "id": "72f7936d-c632-4e65-a590-1d0b2692d3d4",
+      "name": "Upload File to Bucket4",
+      "credentials": {
+        "supabaseApi": {
+          "id": "7GmwvHGWyd47X1M6",
           "name": "Supabase account"
         }
       }
     }
   ],
-  "pinData": {},
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n-railway-production-519d.up.railway.app",
+            "user-agent": "Deno/1.45.2 (variant; SupabaseEdgeRuntime/1.68.2)",
+            "content-length": "250",
+            "accept": "*/*",
+            "accept-encoding": "gzip, br",
+            "accept-language": "*",
+            "access-control-allow-headers": "authorization, x-client-info, apikey, content-type",
+            "access-control-allow-origin": "*",
+            "authorization": "xXoFdKtnFp2f4VpcHPGN3e3XFNBi6u",
+            "content-type": "application/json",
+            "x-forwarded-for": "35.181.50.195",
+            "x-forwarded-host": "n8n-railway-production-519d.up.railway.app",
+            "x-forwarded-proto": "https",
+            "x-railway-edge": "railway/europe-west4-drams3a",
+            "x-railway-request-id": "L-SH0jfoR8eG_GWf0-QtfA",
+            "x-real-ip": "35.181.50.195",
+            "x-request-start": "1753826492372"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "type": "feed-multiple-websites",
+            "userId": "ae11b2ca-64c9-4e82-a820-ab3b6a25f9e4",
+            "urls": [
+              "https://www.reforge.com/blog/the-coder-framework"
+            ],
+            "sourceIds": [
+              "6badae27-d2ea-4895-bfac-7f39c0ff7c2e"
+            ],
+            "timestamp": "2025-07-29T22:01:32.005Z",
+            "context": "feed"
+          },
+          "webhookUrl": "https://n8n-railway-production-519d.up.railway.app/webhook/670882ea-5c1e-4b50-9f41-4792256af985",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
   "connections": {
     "Webhook": {
       "main": [
@@ -809,18 +1195,7 @@
       "main": [
         [
           {
-            "node": "Upload File to Bucket",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Supabase": {
-      "main": [
-        [
-          {
-            "node": "Execute Workflow1",
+            "node": "Switch3",
             "type": "main",
             "index": 0
           }
@@ -853,7 +1228,7 @@
       "main": [
         [
           {
-            "node": "Supabase",
+            "node": "Update a row2",
             "type": "main",
             "index": 0
           }
@@ -918,7 +1293,7 @@
       "main": [
         [
           {
-            "node": "Upload File to Bucket2",
+            "node": "Switch2",
             "type": "main",
             "index": 0
           }
@@ -929,18 +1304,123 @@
       "main": [
         [
           {
-            "node": "Supabase2",
+            "node": "Update a row1",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Supabase2": {
+    "Update a row": {
       "main": [
         [
           {
             "node": "Execute Workflow1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch2": {
+      "main": [
+        [
+          {
+            "node": "Upload File to Bucket2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Upload File to Bucket2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Upload File to Bucket4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch3": {
+      "main": [
+        [
+          {
+            "node": "Upload File to Bucket",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Upload File to Bucket",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Upload File to Bucket3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row1": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row2": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row3": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload File to Bucket3": {
+      "main": [
+        [
+          {
+            "node": "Update a row3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload File to Bucket4": {
+      "main": [
+        [
+          {
+            "node": "Update a row",
             "type": "main",
             "index": 0
           }
@@ -952,10 +1432,11 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "23728b41-4044-43dc-8208-285f6fcb1d39",
+  "versionId": "bd32e421-f409-492d-9302-5eaac51fb7c1",
   "meta": {
+    "templateCredsSetupCompleted": true,
     "instanceId": "f5707d3666ba184efe554775a181f51837c332c4fa57af1133598e1ba699e314"
   },
-  "id": "F45NP7nHhHAkmhux",
+  "id": "mayJ5dHRSYTHgY2i",
   "tags": []
 }
