@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Key, Trash2, Plus, X, Loader2 } from 'lucide-react';
 import { useUserCategories } from '@/hooks/useUserCategories';
+import { useProfile } from '@/hooks/useProfile';
 
 const Settings = () => {
   const { user } = useAuth();
@@ -23,6 +24,13 @@ const Settings = () => {
     categoryNameExists 
   } = useUserCategories();
   
+  const {
+    profile,
+    isLoading: profileLoading,
+    updatePrompts,
+    isUpdatingPrompts
+  } = useProfile();
+  
   // Form state
   const [name, setName] = useState(user?.email?.split('@')[0] || '');
   const [email, setEmail] = useState(user?.email || '');
@@ -31,6 +39,17 @@ const Settings = () => {
   const [aiDeepSummaryPrompt, setAiDeepSummaryPrompt] = useState('');
   const [aiFeedCategorizationPrompt, setAiFeedCategorizationPrompt] = useState('');
   const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Load profile data into form when available
+  useEffect(() => {
+    if (profile) {
+      setAiSummaryPrompt(profile.summary_prompt || '');
+      setAiDeepSummaryPrompt(profile.deep_dive_prompt || '');
+      setAiFeedCategorizationPrompt(profile.categorization_prompt || '');
+      setName(profile.full_name || user?.email?.split('@')[0] || '');
+      setEmail(profile.email || user?.email || '');
+    }
+  }, [profile, user]);
 
   const handleAddCategory = async () => {
     if (newCategory.trim() && 
@@ -55,15 +74,10 @@ const Settings = () => {
   };
 
   const handleSaveChanges = () => {
-    // TODO: Implement save functionality
-    console.log('Saving settings:', {
-      name,
-      email,
-      categories,
-      aiSummaryPrompt,
-      aiDeepSummaryPrompt,
-      aiFeedCategorizationPrompt,
-      isDarkMode
+    updatePrompts({
+      summary_prompt: aiSummaryPrompt.trim() || null,
+      deep_dive_prompt: aiDeepSummaryPrompt.trim() || null,
+      categorization_prompt: aiFeedCategorizationPrompt.trim() || null,
     });
   };
 
@@ -192,49 +206,59 @@ const Settings = () => {
             <Separator />
 
             {/* AI Prompts */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="ai-summary">AI Summary Prompt</Label>
-                <p className="text-sm text-muted-foreground">
-                  Customize how the AI generates content summaries.
-                </p>
-                <Textarea
-                  id="ai-summary"
-                  value={aiSummaryPrompt}
-                  onChange={(e) => setAiSummaryPrompt(e.target.value)}
-                  placeholder="Enter your custom AI summary prompt..."
-                  className="min-h-[80px]"
-                />
+            {profileLoading ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Loading AI prompt settings...
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="ai-deep-summary">AI Deep Dive Prompt</Label>
-                <p className="text-sm text-muted-foreground">
-                  Customize how the AI generates detailed content analysis.
-                </p>
-                <Textarea
-                  id="ai-deep-summary"
-                  value={aiDeepSummaryPrompt}
-                  onChange={(e) => setAiDeepSummaryPrompt(e.target.value)}
-                  placeholder="Enter your custom AI deep dive prompt..."
-                  className="min-h-[80px]"
-                />
+            ) : (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="ai-summary">AI Summary Prompt</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Customize how the AI generates content summaries.
+                  </p>
+                  <Textarea
+                    id="ai-summary"
+                    value={aiSummaryPrompt}
+                    onChange={(e) => setAiSummaryPrompt(e.target.value)}
+                    placeholder="Enter your custom AI summary prompt..."
+                    className="min-h-[80px]"
+                    disabled={isUpdatingPrompts}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="ai-deep-summary">AI Deep Dive Prompt</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Customize how the AI generates detailed content analysis.
+                  </p>
+                  <Textarea
+                    id="ai-deep-summary"
+                    value={aiDeepSummaryPrompt}
+                    onChange={(e) => setAiDeepSummaryPrompt(e.target.value)}
+                    placeholder="Enter your custom AI deep dive prompt..."
+                    className="min-h-[80px]"
+                    disabled={isUpdatingPrompts}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="ai-feed-categorization">AI Feed Categorization Prompt</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Customize how the AI categorizes Feed items using your defined categories.
+                  </p>
+                  <Textarea
+                    id="ai-feed-categorization"
+                    value={aiFeedCategorizationPrompt}
+                    onChange={(e) => setAiFeedCategorizationPrompt(e.target.value)}
+                    placeholder="Enter your custom AI feed categorization prompt..."
+                    className="min-h-[80px]"
+                    disabled={isUpdatingPrompts}
+                  />
+                </div>
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="ai-feed-categorization">AI Feed Categorization Prompt</Label>
-                <p className="text-sm text-muted-foreground">
-                  Customize how the AI categorizes Feed items using your defined categories.
-                </p>
-                <Textarea
-                  id="ai-feed-categorization"
-                  value={aiFeedCategorizationPrompt}
-                  onChange={(e) => setAiFeedCategorizationPrompt(e.target.value)}
-                  placeholder="Enter your custom AI feed categorization prompt..."
-                  className="min-h-[80px]"
-                />
-              </div>
-            </div>
+            )}
           </CardContent>
         </Card>
 
@@ -267,8 +291,19 @@ const Settings = () => {
 
         {/* Save Button */}
         <div className="flex justify-end">
-          <Button onClick={handleSaveChanges} size="lg">
-            Save Changes
+          <Button 
+            onClick={handleSaveChanges} 
+            size="lg"
+            disabled={isUpdatingPrompts || profileLoading}
+          >
+            {isUpdatingPrompts ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              'Save Changes'
+            )}
           </Button>
         </div>
       </div>

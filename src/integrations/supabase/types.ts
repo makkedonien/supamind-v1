@@ -148,26 +148,35 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          categorization_prompt: string | null
           created_at: string
+          deep_dive_prompt: string | null
           email: string
           full_name: string | null
           id: string
+          summary_prompt: string | null
           updated_at: string
         }
         Insert: {
           avatar_url?: string | null
+          categorization_prompt?: string | null
           created_at?: string
+          deep_dive_prompt?: string | null
           email: string
           full_name?: string | null
           id: string
+          summary_prompt?: string | null
           updated_at?: string
         }
         Update: {
           avatar_url?: string | null
+          categorization_prompt?: string | null
           created_at?: string
+          deep_dive_prompt?: string | null
           email?: string
           full_name?: string | null
           id?: string
+          summary_prompt?: string | null
           updated_at?: string
         }
         Relationships: []

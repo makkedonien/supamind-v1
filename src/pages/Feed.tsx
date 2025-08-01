@@ -17,6 +17,7 @@ import FeedSourceCard from '@/components/feed/FeedSourceCard';
 import AddFeedSourceDialog from '@/components/feed/AddFeedSourceDialog';
 import SourceCategoryDialog from '@/components/feed/SourceCategoryDialog';
 import AppLayout from '@/components/layout/AppLayout';
+import EnhancedMarkdownRenderer from '@/components/chat/EnhancedMarkdownRenderer';
 
 
 // Enhanced Types
@@ -231,9 +232,10 @@ const DetailContent: React.FC<{
                   <Bot className="h-5 w-5 text-blue-600" />
                   <h3 className="text-lg font-semibold text-gray-900 m-0">Summary</h3>
                 </div>
-                <div className="text-base leading-relaxed">
-                  {item.summary}
-                </div>
+                <EnhancedMarkdownRenderer 
+                  content={item.summary}
+                  className="text-base leading-relaxed"
+                />
               </div>
             )}
             
@@ -243,9 +245,10 @@ const DetailContent: React.FC<{
                   <Bot className="h-5 w-5 text-blue-600" />
                   <h3 className="text-lg font-semibold text-gray-900 m-0">Deep Dive</h3>
                 </div>
-                <div className="text-base leading-relaxed">
-                  {item.deep_summary}
-                </div>
+                <EnhancedMarkdownRenderer 
+                  content={item.deep_summary}
+                  className="text-base leading-relaxed"
+                />
               </div>
             )}
             
