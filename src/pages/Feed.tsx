@@ -13,12 +13,34 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ExternalLink, LayoutGrid, List, Check, X, Share, Bookmark, Star, Clock, Calendar, Plus, Bot, Tag } from 'lucide-react';
 import { useFeedSources } from '@/hooks/useFeedSources';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 import FeedSourceCard from '@/components/feed/FeedSourceCard';
 import AddFeedSourceDialog from '@/components/feed/AddFeedSourceDialog';
 import SourceCategoryDialog from '@/components/feed/SourceCategoryDialog';
 import AppLayout from '@/components/layout/AppLayout';
 import EnhancedMarkdownRenderer from '@/components/chat/EnhancedMarkdownRenderer';
 
+// Helper function to detect mobile synchronously on initial render
+const getInitialMobileState = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth < 768;
+};
+
+// Helper function to get initial view mode based on mobile state
+const getInitialViewMode = (): 'list' | 'card' => {
+  const isMobile = getInitialMobileState();
+  if (isMobile) return 'card';
+  
+  // On desktop, try to load saved preference
+  if (typeof window !== 'undefined') {
+    const savedView = localStorage.getItem('feedViewMode');
+    if (savedView === 'list' || savedView === 'card') {
+      return savedView;
+    }
+  }
+  
+  return 'list'; // Default for desktop
+};
 
 // Enhanced Types
 interface ContentItem {
@@ -528,8 +550,8 @@ const ContentFeedItem: React.FC<{
 // Enhanced Main Feed Component
 const Feed = () => {
   const { user } = useAuth();
-  const [viewMode, setViewMode] = useState<'list' | 'card'>('list');
-  const [isMobile, setIsMobile] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'card'>(getInitialViewMode);
+  const isMobile = useIsMobile();
   
   // Feed sources state
   const [showAddSourceDialog, setShowAddSourceDialog] = useState(false);
@@ -640,25 +662,16 @@ const Feed = () => {
     return counts;
   }, [sources]);
 
-  // Mobile detection
+  // Force card view on mobile
   useEffect(() => {
-    const checkScreenSize = () => {
-      const mobile = window.innerWidth < 768; // md breakpoint
-      setIsMobile(mobile);
-      // Force card view on mobile
-      if (mobile) {
-        setViewMode('card');
-      }
-    };
-    
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    return () => window.removeEventListener('resize', checkScreenSize);
-  }, []);
+    if (isMobile) {
+      setViewMode('card');
+    }
+  }, [isMobile]);
 
-  // Load saved view preference (only on desktop)
+  // Load saved view preference (only on desktop, and only if not already set correctly)
   useEffect(() => {
-    if (!isMobile) {
+    if (!isMobile && !getInitialMobileState()) {
       const savedView = localStorage.getItem('feedViewMode');
       if (savedView === 'list' || savedView === 'card') {
         setViewMode(savedView);
