@@ -10,13 +10,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-import { ExternalLink, LayoutGrid, List, Check, X, Share, Bookmark, Star, Clock, Calendar, Plus, Bot, Tag } from 'lucide-react';
+import { ExternalLink, LayoutGrid, List, Check, X, Share, Bookmark, Star, Clock, Calendar, Plus, Bot, Tag, Mic } from 'lucide-react';
 import { useFeedSources } from '@/hooks/useFeedSources';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import FeedSourceCard from '@/components/feed/FeedSourceCard';
 import AddFeedSourceDialog from '@/components/feed/AddFeedSourceDialog';
 import SourceCategoryDialog from '@/components/feed/SourceCategoryDialog';
+import CreateMicrocastDialog from '@/components/microcasts/CreateMicrocastDialog';
 import AppLayout from '@/components/layout/AppLayout';
 import EnhancedMarkdownRenderer from '@/components/chat/EnhancedMarkdownRenderer';
 
@@ -556,6 +557,7 @@ const Feed = () => {
   // Feed sources state
   const [showAddSourceDialog, setShowAddSourceDialog] = useState(false);
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
+  const [showCreateMicrocastDialog, setShowCreateMicrocastDialog] = useState(false);
   const [selectedSourceForCategory, setSelectedSourceForCategory] = useState<any>(null);
   const [selectedSourceForEdit, setSelectedSourceForEdit] = useState<any>(null);
   
@@ -854,12 +856,21 @@ const Feed = () => {
           </div>
           <div className="flex items-center gap-3">
             {selectedSources.size > 0 && (
-              <Button 
-                variant="outline" 
-                onClick={() => setSelectedSources(new Set())}
-              >
-                Clear Selection
-              </Button>
+              <>
+                <Button 
+                  onClick={() => setShowCreateMicrocastDialog(true)}
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  <Mic className="h-4 w-4 mr-2" />
+                  Create Microcast
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setSelectedSources(new Set())}
+                >
+                  Clear Selection
+                </Button>
+              </>
             )}
             {!isMobile && (
               <div className="flex items-center gap-2">
@@ -981,6 +992,13 @@ const Feed = () => {
         open={showCategoryDialog} 
         onOpenChange={handleCloseCategoryDialog} 
         source={selectedSourceForCategory}
+      />
+
+      <CreateMicrocastDialog
+        open={showCreateMicrocastDialog}
+        onOpenChange={setShowCreateMicrocastDialog}
+        selectedSourceIds={Array.from(selectedSources)}
+        onClearSelection={() => setSelectedSources(new Set())}
       />
 
       {/* Floating Add Source Button */}

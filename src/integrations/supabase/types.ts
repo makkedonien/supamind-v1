@@ -242,6 +242,50 @@ export type Database = {
           user_id?: string
         }
       }
+      microcasts: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          source_ids: string[]
+          audio_url: string | null
+          audio_expires_at: string | null
+          generation_status: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          source_ids?: string[]
+          audio_url?: string | null
+          audio_expires_at?: string | null
+          generation_status?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          source_ids?: string[]
+          audio_url?: string | null
+          audio_expires_at?: string | null
+          generation_status?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "microcasts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_categories: {
         Row: {
           id: string
