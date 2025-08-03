@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAudioPlayer } from '@/contexts/AudioPlayerContext';
 import { Card, CardContent, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -551,6 +552,7 @@ const ContentFeedItem: React.FC<{
 // Enhanced Main Feed Component
 const Feed = () => {
   const { user } = useAuth();
+  const { playerState } = useAudioPlayer();
   const [viewMode, setViewMode] = useState<'list' | 'card'>(getInitialViewMode);
   const isMobile = useIsMobile();
   
@@ -1005,7 +1007,9 @@ const Feed = () => {
       <Button
         onClick={() => setShowAddSourceDialog(true)}
         size="icon"
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-shadow z-50"
+        className={`fixed right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all z-50 ${
+          playerState.currentMicrocast ? 'bottom-[120px]' : 'bottom-6'
+        }`}
       >
         <Plus className="h-6 w-6" />
       </Button>

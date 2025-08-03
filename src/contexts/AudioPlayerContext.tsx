@@ -211,8 +211,11 @@ export const AudioPlayerProvider: React.FC<AudioPlayerProviderProps> = ({ childr
       audio.currentTime = 0;
       setPlayerState(prev => ({ 
         ...prev, 
+        currentMicrocast: null,
         isPlaying: false,
-        currentTime: 0
+        currentTime: 0,
+        loading: false,
+        error: null
       }));
     }
   };

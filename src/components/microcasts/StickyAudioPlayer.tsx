@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Play, Pause, SkipBack, SkipForward, Volume2, Maximize2, X, Loader2 } from 'lucide-react';
+
+import { Play, Pause, RotateCcw, Volume2, X, Loader2 } from 'lucide-react';
 import { useAudioPlayer } from '@/contexts/AudioPlayerContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -17,7 +17,7 @@ const StickyAudioPlayer: React.FC = () => {
     stopPlayback 
   } = useAudioPlayer();
   
-  const [showExpandedPlayer, setShowExpandedPlayer] = useState(false);
+
 
   if (!playerState.currentMicrocast) {
     return null;
@@ -41,10 +41,7 @@ const StickyAudioPlayer: React.FC = () => {
     setVolume(value[0]);
   };
 
-  const skip = (seconds: number) => {
-    const newTime = Math.max(0, Math.min(duration, currentTime + seconds));
-    seekTo(newTime);
-  };
+
 
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
@@ -52,7 +49,9 @@ const StickyAudioPlayer: React.FC = () => {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
+  const restart = () => {
+    seekTo(0);
+  };
 
   const handleStop = () => {
     stopPlayback();
@@ -66,11 +65,15 @@ const StickyAudioPlayer: React.FC = () => {
     <>
       {/* Mini Player */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40">
-        {/* Progress Bar */}
-        <div className="w-full bg-gray-200 h-1">
-          <div 
-            className="bg-primary h-1 transition-all duration-200" 
-            style={{ width: `${progressPercentage}%` }}
+        {/* Interactive Progress Bar */}
+        <div className="w-full px-4 py-2 bg-gray-50">
+          <Slider
+            value={[currentTime]}
+            max={duration || 100}
+            step={1}
+            onValueChange={handleSeek}
+            className="w-full"
+            disabled={loading || !!error}
           />
         </div>
         
@@ -92,17 +95,7 @@ const StickyAudioPlayer: React.FC = () => {
           </div>
 
           {/* Center - Play controls */}
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => skip(-15)}
-              disabled={loading || error}
-              className="hidden sm:flex"
-            >
-              <SkipBack className="h-4 w-4" />
-            </Button>
-            
+          <div className="flex items-center justify-center">
             <Button
               variant="ghost"
               size="sm"
@@ -118,28 +111,31 @@ const StickyAudioPlayer: React.FC = () => {
                 <Play className="h-4 w-4" />
               )}
             </Button>
-            
+
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => skip(15)}
+              onClick={restart}
               disabled={loading || error}
-              className="hidden sm:flex"
+              className="w-10 h-10"
             >
-              <SkipForward className="h-4 w-4" />
+              <RotateCcw className="h-4 w-4" />
             </Button>
           </div>
 
           {/* Right side - Actions */}
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowExpandedPlayer(true)}
-              className="hidden md:flex"
-            >
-              <Maximize2 className="h-4 w-4" />
-            </Button>
+          <div className="flex items-center space-x-6 sm:ml-4">
+            {/* Volume Control */}
+            <div className="hidden sm:flex items-center space-x-2 w-24">
+              <Volume2 className="h-4 w-4 text-gray-500" />
+              <Slider
+                value={[volume]}
+                max={1}
+                step={0.1}
+                onValueChange={handleVolumeChange}
+                className="flex-1"
+              />
+            </div>
             
             <Button
               variant="ghost"
@@ -151,89 +147,6 @@ const StickyAudioPlayer: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* Expanded Player Sheet */}
-      <Sheet open={showExpandedPlayer} onOpenChange={setShowExpandedPlayer}>
-        <SheetContent side="bottom" className="h-[400px]">
-          <SheetHeader>
-            <SheetTitle>{currentMicrocast.title}</SheetTitle>
-          </SheetHeader>
-          
-          <div className="flex flex-col h-full pt-6">
-            {/* Large Album Art / Icon */}
-            <div className="flex justify-center mb-6">
-              <div className="w-32 h-32 bg-primary/10 rounded-2xl flex items-center justify-center">
-                <span className="text-primary text-6xl">🎙️</span>
-              </div>
-            </div>
-
-            {/* Progress Bar */}
-            <div className="space-y-2 mb-6">
-              <Slider
-                value={[currentTime]}
-                max={duration || 100}
-                step={1}
-                onValueChange={handleSeek}
-                className="w-full"
-                disabled={loading || !!error}
-              />
-              <div className="flex justify-between text-sm text-gray-500">
-                <span>{formatTime(currentTime)}</span>
-                <span>{formatTime(duration)}</span>
-              </div>
-            </div>
-
-            {/* Controls */}
-            <div className="flex items-center justify-center space-x-6 mb-6">
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={() => skip(-15)}
-                disabled={loading || error}
-              >
-                <SkipBack className="h-6 w-6" />
-              </Button>
-              
-              <Button
-                variant="default"
-                size="lg"
-                onClick={togglePlayPause}
-                disabled={loading || error}
-                className="w-16 h-16 rounded-full"
-              >
-                {loading ? (
-                  <Loader2 className="h-6 w-6 animate-spin" />
-                ) : isPlaying ? (
-                  <Pause className="h-6 w-6" />
-                ) : (
-                  <Play className="h-6 w-6" />
-                )}
-              </Button>
-              
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={() => skip(15)}
-                disabled={loading || error}
-              >
-                <SkipForward className="h-6 w-6" />
-              </Button>
-            </div>
-
-            {/* Volume Control */}
-            <div className="flex items-center space-x-3 mt-auto">
-              <Volume2 className="h-5 w-5 text-gray-500" />
-              <Slider
-                value={[volume]}
-                max={1}
-                step={0.1}
-                onValueChange={handleVolumeChange}
-                className="flex-1"
-              />
-            </div>
-          </div>
-        </SheetContent>
-      </Sheet>
 
       {/* Spacer to prevent content from being hidden behind the mini player */}
       <div className="h-16" />
