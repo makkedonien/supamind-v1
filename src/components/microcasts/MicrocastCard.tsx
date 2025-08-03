@@ -108,7 +108,7 @@ const MicrocastCard: React.FC<MicrocastCardProps> = ({ microcast, onClick }) => 
           <div className="flex-1 min-w-0">
             <CardTitle className="text-lg line-clamp-2">{microcast.title}</CardTitle>
             <CardDescription className="mt-1">
-              {microcast.source_ids.length} source{microcast.source_ids.length !== 1 ? 's' : ''} • {formatDate(microcast.created_at)}
+              {microcast.source_ids.length} source{microcast.source_ids.length !== 1 ? 's' : ''}
             </CardDescription>
           </div>
           
