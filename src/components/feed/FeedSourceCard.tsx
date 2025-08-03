@@ -57,20 +57,14 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
     setIsFavorite(source.is_favorite || false);
   }, [source.id, source.is_favorite]);
 
-  // Handle status visibility and fade-out animation
+  // Handle status visibility
   useEffect(() => {
-    if (source.processing_status === 'completed') {
-      // Start fade out animation after a brief delay
-      const timer = setTimeout(() => {
-        setStatusOpacity(0);
-        // Hide completely after fade animation completes
-        setTimeout(() => setShowStatus(false), 2000);
-      }, 500);
-      
-      return () => clearTimeout(timer);
-    } else if (source.processing_status === 'processing' || source.processing_status === 'uploading') {
+    if (source.processing_status === 'processing' || source.processing_status === 'uploading') {
       setShowStatus(true);
       setStatusOpacity(1);
+    } else {
+      setShowStatus(false);
+      setStatusOpacity(0);
     }
   }, [source.processing_status]);
 
@@ -123,7 +117,7 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
   };
 
   const shouldShowStatus = () => {
-    return showStatus && (source.processing_status === 'processing' || source.processing_status === 'uploading' || source.processing_status === 'completed');
+    return showStatus && (source.processing_status === 'processing' || source.processing_status === 'uploading');
   };
 
   const getDomain = (url: string) => {
@@ -274,12 +268,27 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
     </div>
   );
 
+  // Processing Status Component - Top Right Position
+  const ProcessingStatus = ({ isListView = false }: { isListView?: boolean }) => (
+    shouldShowStatus() ? (
+      <div 
+        className={`absolute ${isListView ? 'top-3 right-3' : 'top-3 right-3'} z-20 transition-opacity duration-2000 bg-white rounded-md px-2 py-1 shadow-sm border`}
+        style={{ opacity: statusOpacity }}
+      >
+        <div className="flex items-center space-x-1">
+          {getStatusIcon()}
+          <span className="text-xs text-gray-600">{getStatusText()}</span>
+        </div>
+      </div>
+    ) : null
+  );
+
   // Hover Action Buttons Component
   const HoverActions = ({ isListView = false }: { isListView?: boolean }) => (
     <div 
       className={`absolute ${isListView ? 'top-3 right-3' : 'top-3 right-3'} flex gap-2 transition-opacity duration-200 ${
         isHovered ? 'opacity-100' : 'opacity-0'
-      }`}
+      } ${shouldShowStatus() ? 'mt-10' : ''}`}
     >
       <Button
         variant="secondary"
@@ -337,6 +346,9 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
         >
           {/* Select Button for List View - Top Left of Card */}
           <SelectButton isListView={true} />
+          
+          {/* Processing Status for List View - Top Right of Card */}
+          <ProcessingStatus isListView={true} />
           
           {/* Hover Actions for List View - Top Right of Card */}
           <HoverActions isListView={true} />
@@ -420,17 +432,6 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
                   {source.short_description || source.summary}
                 </CardDescription>
               )}
-              
-              {/* Processing Status */}
-              {shouldShowStatus() && (
-                <div 
-                  className="flex items-center space-x-1 transition-opacity duration-2000 mb-2"
-                  style={{ opacity: statusOpacity }}
-                >
-                  {getStatusIcon()}
-                  <span className="text-sm text-gray-600">{getStatusText()}</span>
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -487,6 +488,7 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
               }}
             />
             <SelectButton />
+            <ProcessingStatus />
             <HoverActions />
           </div>
         </div>
@@ -549,17 +551,6 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
             <CardDescription className="line-clamp-3 mb-3">
               {source.short_description || source.summary}
             </CardDescription>
-          )}
-          
-          {/* Processing Status */}
-          {shouldShowStatus() && (
-            <div 
-              className="flex items-center space-x-1 transition-opacity duration-2000 mb-2"
-              style={{ opacity: statusOpacity }}
-            >
-              {getStatusIcon()}
-              <span className="text-sm text-gray-600">{getStatusText()}</span>
-            </div>
           )}
         </CardContent>
       </Card>
