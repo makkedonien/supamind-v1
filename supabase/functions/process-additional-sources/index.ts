@@ -13,9 +13,9 @@ serve(async (req) => {
   }
 
   try {
-    const { type, notebookId, urls, title, content, timestamp, sourceIds } = await req.json();
+    const { type, notebookId, urls, title, content, timestamp, sourceIds, userId } = await req.json();
     
-    console.log(`Process additional sources received ${type} request for notebook ${notebookId}`);
+    console.log(`Process additional sources received ${type} request for notebook ${notebookId}, user ${userId}`);
 
     // Get the webhook URL from Supabase secrets
     const webhookUrl = Deno.env.get('ADDITIONAL_SOURCES_WEBHOOK_URL');
@@ -38,6 +38,7 @@ serve(async (req) => {
         notebookId,
         urls,
         sourceIds, // Array of source IDs corresponding to the URLs
+        user_id: userId,
         timestamp
       };
     } else if (type === 'copied-text') {
@@ -47,6 +48,7 @@ serve(async (req) => {
         title,
         content,
         sourceId: sourceIds?.[0], // Single source ID for copied text
+        user_id: userId,
         timestamp
       };
     } else {

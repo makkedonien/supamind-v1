@@ -10,6 +10,7 @@ import { useFileUpload } from '@/hooks/useFileUpload';
 import { useDocumentProcessing } from '@/hooks/useDocumentProcessing';
 import { useNotebookGeneration } from '@/hooks/useNotebookGeneration';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
 interface AddSourcesDialogProps {
@@ -53,6 +54,8 @@ const AddSourcesDialog = ({
   const {
     toast
   } = useToast();
+
+  const { user } = useAuth();
 
   // Reset local processing state when dialog opens
   useEffect(() => {
@@ -306,6 +309,7 @@ const AddSourcesDialog = ({
           title,
           content,
           sourceIds: [createdSource.id], // Pass the source ID
+          userId: user?.id,
           timestamp: new Date().toISOString()
         }
       });
@@ -389,6 +393,7 @@ const AddSourcesDialog = ({
           notebookId,
           urls,
           sourceIds: allCreatedSources.map(source => source.id), // Pass array of source IDs
+          userId: user?.id,
           timestamp: new Date().toISOString()
         }
       });
