@@ -59,7 +59,8 @@ serve(async (req) => {
       file_url: fileUrl,
       file_path: filePath,
       source_type: sourceType,
-      user_id: userId, // Pass user_id instead of notebook_id
+      user_id: userId,
+      notebook_id: null, // Explicitly set null for feed sources
       context: 'feed', // Indicate this is for feed processing
       callback_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/process-document-callback`
     }

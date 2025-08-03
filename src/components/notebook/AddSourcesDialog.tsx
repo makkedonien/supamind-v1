@@ -138,7 +138,8 @@ const AddSourcesDialog = ({
         await processDocumentAsync({
           sourceId,
           filePath,
-          sourceType: fileType
+          sourceType: fileType,
+          notebookId
         });
 
         // Generate notebook content

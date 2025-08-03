@@ -44,6 +44,8 @@ npm run lint             # ESLint check
 supabase start           # Start local Supabase stack
 supabase db reset        # Reset local database
 supabase functions serve # Serve edge functions locally
+supabase functions deploy # Deploy edge functions
+supabase db push         # Push migrations to local/remote database
 ```
 
 ## Key Directories
@@ -53,11 +55,14 @@ supabase functions serve # Serve edge functions locally
   - `chat/` - Chat interface and message rendering
   - `dashboard/` - Main dashboard and notebook grid
   - `feed/` - Document feed and source management
+  - `layout/` - App layout and sidebar components
   - `notebook/` - Notebook interface with chat and sources
   - `ui/` - shadcn/ui components
-- `src/hooks/` - Custom React hooks for data fetching
+- `src/hooks/` - Custom React hooks for data fetching and state management
 - `src/pages/` - Top-level page components
+- `src/contexts/` - React context providers (AuthContext)
 - `src/integrations/supabase/` - Supabase client and types
+- `src/services/` - Service layer for authentication
 - `supabase/functions/` - Edge functions for backend logic
 - `supabase/migrations/` - Database schema migrations
 - `n8n/` - N8N workflow JSON files

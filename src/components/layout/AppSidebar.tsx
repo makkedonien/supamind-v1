@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Rss, Mic, BookOpen, User, LogOut, Settings, Star, Globe, FileText, Copy, Filter } from 'lucide-react';
+import { Rss, Mic, BookOpen, User, LogOut, Settings, Star, Globe, FileText, Copy, Filter, Loader2, Clock } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -38,9 +38,14 @@ interface AppSidebarProps {
     copiedTexts: number;
     categoryCounts: Record<string, number>;
   };
+  processingSources?: {
+    id: string;
+    title: string;
+    processing_status: string;
+  }[];
 }
 
-const AppSidebar = ({ feedFilters, onFeedFiltersChange, feedSourceCounts }: AppSidebarProps = {}) => {
+const AppSidebar = ({ feedFilters, onFeedFiltersChange, feedSourceCounts, processingSources }: AppSidebarProps = {}) => {
   const location = useLocation();
   const { logout } = useLogout();
   const { user } = useAuth();
@@ -223,6 +228,52 @@ const AppSidebar = ({ feedFilters, onFeedFiltersChange, feedSourceCounts }: AppS
                             {count}
                           </Badge>
                         )}
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {/* Processing Section - Only on Feed page */}
+        {isFeedPage && processingSources && processingSources.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Processing</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {processingSources.map((source) => {
+                  const getStatusIcon = () => {
+                    switch (source.processing_status) {
+                      case 'processing':
+                        return <Loader2 className="h-3 w-3 text-blue-600 animate-spin" />;
+                      case 'uploading':
+                        return <Loader2 className="h-3 w-3 text-blue-600 animate-spin" />;
+                      default:
+                        return <Clock className="h-3 w-3 text-gray-600" />;
+                    }
+                  };
+
+                  const getStatusText = () => {
+                    switch (source.processing_status) {
+                      case 'processing':
+                        return 'Processing';
+                      case 'uploading':
+                        return 'Uploading';
+                      default:
+                        return 'Pending';
+                    }
+                  };
+
+                  return (
+                    <SidebarMenuItem key={source.id}>
+                      <SidebarMenuButton disabled>
+                        {getStatusIcon()}
+                        <span className="truncate text-sm">{source.title}</span>
+                        <Badge variant="outline" className="ml-auto group-data-[collapsible=icon]:hidden text-xs">
+                          {getStatusText()}
+                        </Badge>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   );

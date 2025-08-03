@@ -12,13 +12,15 @@ export const useDocumentProcessing = () => {
     mutationFn: async ({
       sourceId,
       filePath,
-      sourceType
+      sourceType,
+      notebookId
     }: {
       sourceId: string;
       filePath: string;
       sourceType: string;
+      notebookId?: string;
     }) => {
-      console.log('Initiating document processing for:', { sourceId, filePath, sourceType });
+      console.log('Initiating document processing for:', { sourceId, filePath, sourceType, notebookId });
 
       if (!user) {
         throw new Error('User not authenticated');
@@ -29,7 +31,8 @@ export const useDocumentProcessing = () => {
           sourceId,
           filePath,
           sourceType,
-          userId: user.id
+          userId: user.id,
+          notebookId
         }
       });
 

@@ -166,7 +166,7 @@
     },
     {
       "parameters": {
-        "jsonSchemaExample": "{\n\t\"title\": \"<ADD>\",\n\t\"summary\": \"<ADD>\",\n    \"category\": [\"Category1\", \"Category2\"]\n}"
+        "jsonSchemaExample": "{\n\t\"title\": \"<ADD>\",\n\t\"summary\": \"<ADD>\",\n    \"category\": [\"Category1\", \"Category2\"],\n    \"short_description\": \"<ADD>\"\n}"
       },
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.2,
@@ -181,7 +181,7 @@
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "o4tZaImqg3WNpQmD",
+          "value": "ZWr97cxmECcUvIif",
           "mode": "list",
           "cachedResultName": "InsightsLM - Extract Text"
         },
@@ -400,7 +400,7 @@
         "messages": {
           "messageValues": [
             {
-              "message": "=You are a content summarizer and categorizer. Create a clear title, comprehensive summary, and accurate categorization of the provided content.\n\n## Inputs\n1. **Content**: The text to summarize\n2. **Categories**: Array of available categories\n3. **User Preferences** (optional): Categorization guidance\n\n## Summary Requirements\n- **Length**: 400-600 words (2-3 minute read)\n- **Style**: Clear, objective, and informative\n- **Structure**: Logical flow from main idea to supporting points\n- **Coverage**: Include all key points, data, and conclusions\n\n## Title Requirements\n- Descriptive and specific (not clickbait)\n- 5-12 words ideal length\n- Captures the core topic/finding\n\n## Categorization Requirements\n- **Select ONLY from provided categories array**\n- **Maximum 2 categories** (prefer 1 if highly relevant)\n- **Quality over quantity**: Only select categories with strong content fit\n- **User preferences**: If categorization guidance provided, follow it while maintaining accuracy\n\n## What to Include in Summary\n- Main thesis or central argument\n- Key supporting points and evidence\n- Important data, statistics, or findings\n- Notable conclusions or recommendations\n- Context necessary for understanding\n\n## What to Avoid\n- Personal opinions or interpretations\n- Excessive detail or minor points\n- Categories not in the provided list\n- Forcing categories that don't fit well\n\n## Output Format\nReturn ONLY valid JSON:\n{\n    \"title\": \"Your title here\",\n    \"summary\": \"Your summary here\",\n    \"category\": [\"Category1\", \"Category2\"]\n}\nFocus on WHAT the content says. Select categories that best represent the content's primary themes."
+              "message": "=You are a content summarizer and categorizer. Create a clear title, short description, comprehensive summary, and accurate categorization of the provided content.\n\n## Inputs\n1. **Content**: The text to summarize\n2. **Categories**: Array of available categories\n3. **User Preferences** (optional): Categorization guidance\n\n## Summary Requirements\n- **Length**: 400-600 words (2-3 minute read)\n- **Style**: Clear, objective, and informative\n- **Structure**: Logical flow from main idea to supporting points\n- **Format**: Use markdown formatting with double line breaks between paragraphs\n- **Coverage**: Include all key points, data, and conclusions\n\n## Short Description Requirements\n- Concise and descriptive\n- Maximum of 140 characters\n\n## Title Requirements\n- Descriptive and specific (not clickbait)\n- 5-12 words ideal length\n- Captures the core topic/finding\n\n## Categorization Requirements\n- **Select ONLY from provided categories array**\n- **Maximum 2 categories** (prefer 1 if highly relevant)\n- **Quality over quantity**: Only select categories with strong content fit\n- **User preferences**: If categorization guidance provided, follow it while maintaining accuracy\n\n## What to Include in Summary\n- Main thesis or central argument\n- Key supporting points and evidence\n- Important data, statistics, or findings\n- Notable conclusions or recommendations\n- Context necessary for understanding\n\n## What to Avoid\n- Personal opinions or interpretations\n- Excessive detail or minor points\n- Categories not in the provided list\n- Forcing categories that don't fit well\n\n## Output Format\nReturn ONLY valid JSON:\n{\n    \"title\": \"Your title here\",\n    \"summary\": \"Your summary here\",\n    \"category\": [\"Category1\", \"Category2\"],\n    \"short_description\": \"Your description here\"\n}\n\nFocus on WHAT the content says. Select categories that best represent the content's primary themes."
             }
           ]
         }
@@ -473,6 +473,10 @@
             {
               "fieldId": "category",
               "fieldValue": "={{ $('Generate Title, Category & Summary').item.json.output.category }}"
+            },
+            {
+              "fieldId": "short_description",
+              "fieldValue": "={{ $('Generate Title, Category & Summary').item.json.output.short_description }}"
             }
           ]
         }
@@ -708,7 +712,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "54bd72d6-7117-4da6-b980-112de97f0f9a",
+  "versionId": "d46eeabc-c2d3-4b44-bbc3-a3c97368934d",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "f5707d3666ba184efe554775a181f51837c332c4fa57af1133598e1ba699e314"

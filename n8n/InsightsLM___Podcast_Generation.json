@@ -8,8 +8,8 @@
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
       "position": [
-        -420,
-        1320
+        -416,
+        1328
       ],
       "id": "b804e4c1-5f49-4fb6-943b-92f183c302a9",
       "name": "Check is FFMPEG Installed"
@@ -51,8 +51,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -200,
-        1320
+        -208,
+        1328
       ],
       "id": "3adf9104-7091-4b88-b45b-efdb219c7742",
       "name": "If"
@@ -68,7 +68,7 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.4,
       "position": [
-        100,
+        112,
         1200
       ],
       "id": "54c2c7a8-af45-488e-9439-997d43ca2676",
@@ -85,8 +85,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.4,
       "position": [
-        100,
-        1380
+        112,
+        1392
       ],
       "id": "2b492335-fad2-4981-8c5c-bd790256bddd",
       "name": "Respond with 500 Error"
@@ -100,8 +100,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        2040,
-        840
+        2048,
+        848
       ],
       "id": "73fb9911-4a7c-413b-8bb9-9ec86a3f501e",
       "name": "Sticky Note1"
@@ -117,16 +117,16 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        -680,
-        1320
+        -688,
+        1328
       ],
       "id": "36040655-7e2a-4af2-8524-f0e84fa2c874",
       "name": "Webhook",
       "webhookId": "4c4699bc-004b-4ca3-8923-373ddd4a274e",
       "credentials": {
         "httpHeaderAuth": {
-          "id": "39evQ95L86jhtb3I",
-          "name": "MyNoteBookLM Auth"
+          "id": "gvJYxh53ckvIJCGJ",
+          "name": "Webhook Header Auth account"
         }
       }
     },
@@ -148,15 +148,15 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        360,
+        368,
         1200
       ],
       "id": "2bf3e04b-7472-4a31-80e3-c78fb8f742be",
       "name": "Get Sources",
       "credentials": {
         "supabaseApi": {
-          "id": "OeYUddl4OaIohMCC",
-          "name": "MynotebookLM Supabase"
+          "id": "7GmwvHGWyd47X1M6",
+          "name": "Supabase account"
         }
       }
     },
@@ -170,7 +170,7 @@
       "type": "n8n-nodes-base.aggregate",
       "typeVersion": 1,
       "position": [
-        580,
+        592,
         1200
       ],
       "id": "30a71143-107d-4c02-a43f-54d972c42437",
@@ -183,7 +183,7 @@
             {
               "id": "c3743cbc-c838-401a-8f65-95a386707ded",
               "name": "prompt",
-              "value": "=I’ll give you the text of SOURCE(S) and I’d like you to use the instructions below to write a podcast script\n\n# EXAMPLE OUTPUT STRUCTURE & TRANSCRIPT\n\nPlease read aloud the following in a podcast interview style:\nSpeaker 1: When you watch a Formula One car flash by, it's just an incredible sight. \nSpeaker 2: These things are absolute apex predators of engineering, aren't they? Machines designed purely for speed, pushing everything, materials, aero to the absolute limit. Every single part feels like a technological marvel. It really does.\nSpeaker 1: And what's amazing is that these cars, they weren't just dreamt up in a vacuum. You know, they actually exist within this incredibly tight box, a really, really detailed rulebook that dictates pretty much everything that is and isn't possible.\nSpeaker 2: Exactly. And for this deep dive, we're going straight to the source of that box. Our material today is key sections from the official 2025 Formula One technical regulations put out by the sports governing body, the FIA. Yeah. And our mission here for you listening is really to kind of pull back the curtain on that rulebook. We want to unpack these regulations, try and understand the fundamental principles, maybe some of the surprising details, and just grasp how much complexity is actually baked into the blueprint of an F1 car. It's not just, you know, dry rules. It's the framework that shapes performance, safety and that constant, fascinating battle of innovation we see season after season.\nSpeaker 1: OK, so let's start right at the top then. Yeah. The regulations make it pretty clear who's running the show. It's the FIA, right? They own and organize the Formula One World Championship. They're the ones handing out those coveted titles for drivers, constructors.\nSpeaker 2: That's right. And beneath that sort of top level, there are layers upon layers of rules governing absolutely everything. The championship itself, every single competition within it. So each race weekend, they're governed by the International Sporting Code. These technical regulations we're looking at today, the sporting regulations which cover race procedures, penalties, that kind of thing.\n\n# INSTRUCTIONS TO FOLLOW\n\n1. Opening:\n– Begin with some interesting opening remarks on the topic between the hosts\n– Then introduce the topic as a “deep dive” into the subject matter.\n\n2. Dialog Structure:\n– Use two hosts who engage in a conversational back-and-forth.\n– Alternate between short, punchy statements and longer explanations.\n– Use frequent affirmations like “Right,” “Exactly,” and “Absolutely” to maintain flow and agreement.\n\n3. Language and Tone:\n– Keep the language informal and accessible. Use contractions and colloquialisms.\n– Maintain an enthusiastic, energetic tone throughout.\n– Use rhetorical questions to transition between points: “It’s fascinating, isn’t it?”\n– Employ phrases like “You know” and “I mean” to maintain a casual feel.\n\n4. Content Presentation:\n– Introduce source material (e.g., articles, studies) early in the discussion.\n– Use analogies to explain complex concepts: “It’s like…”\n– Break down ideas into digestible chunks, often using numbered points or clear transitions.\n\n5. Interaction Between Hosts:\n– Have one host pose questions or express confusion, allowing the other to explain.\n– Use phrases like “You’ve hit the nail on the head” to validate each other’s points.\n– Build on each other’s ideas, creating a collaborative feel.\n\n6. Engagement Techniques:\n– Address the audience directly at times: “So to everyone listening…”\n– Pose thought-provoking questions for the audience to consider.\n\n7. Structure and Pacing:\n– Start with a broad introduction of the topic and narrow down to specific points.\n– Use phrases like “So we’ve established…” to summarize and move to new points.\n– Maintain a brisk pace, but allow for moments of reflection on bigger ideas.\n\n8. Concluding the Episode:\n– Signal the wrap-up with “So as we wrap things up…”\n– Pose a final thought-provoking question or takeaway.\n– Use the phrase “And on that note…” to transition to the closing.\n– Encourage continued engagement: “stay curious, keep those questions coming.”\n– End with a consistent sign-off: “Until next time, keep [relevant verb].”\n\n9. Overall Flow:\n– Begin with the misconception or general understanding of the topic.\n– Introduce expert sources that challenge or deepen this understanding.\n– Discuss implications and broader context of the new information.\n– Conclude with how this knowledge affects the listener or the field at large.\n\nRemember to maintain a balance between informative content and engaging conversation, always keeping the tone friendly and accessible regardless of the complexity of the topic.\n\n# SOURCE(S) TO CREATE TRANSCRIPT FROM\n\n{{ JSON.stringify($json.data) }}\n\n# OTHER\n\nIMPORTANT: Only output the transcript and use \\n in between speakers dialog\nIMPORTANT: Your response must start with ...\n\"Please read aloud the following in a podcast interview style:\nSpeaker 1: \"",
+              "value": "=You'll create a conversational podcast script featuring two hosts discussing the provided source material. The script should sound like an authentic, engaging conversation while ensuring every sentence provides value to the listener.\nHOST PERSONAS\nHost 1 (The Explainer): Knowledgeable but approachable. Uses analogies and breaks down complex concepts. Occasionally gets excited about interesting details.\nHost 2 (The Questioner): Curious and engaged. Asks clarifying questions, expresses genuine reactions, and connects ideas to broader implications.\nCORE DIALOGUE PRINCIPLES\n1. Natural Conversation Flow\n\nStart mid-thought occasionally: \"...and that's exactly why this matters so much\"\nUse incomplete sentences when interrupted: \"But wait, if that's true, then—\" \"Exactly!\"\nInclude thinking pauses: \"So... let me make sure I understand this\"\nNatural segues: \"Speaking of which...\" or \"That actually reminds me...\"\n\n2. Authentic Speech Patterns\n\nContractions always: \"it's\" not \"it is\", \"we've\" not \"we have\"\nFiller phrases sparingly: \"I mean\", \"You know\", \"Actually\"\nSelf-corrections: \"The data shows—well, actually, what it really reveals is...\"\nReal-time reactions: \"Oh wow\", \"Hold on\", \"Wait, what?\"\n\n3. Value-Dense Content\n\nEvery exchange must either:\n\nIntroduce new information\nClarify a complex concept\nConnect ideas in meaningful ways\nProvide concrete examples\nBuild toward key insights\n\n\nNO empty affirmations or repetitive agreements\nReplace \"That's so interesting!\" with \"That's interesting because it changes how we think about...\"\n\nSTRUCTURAL FRAMEWORK\nOpening (30-45 seconds)\nHost 1: [Jump directly into an intriguing observation or question from the source material]\nHost 2: [React with genuine curiosity and expand the thought]\nHost 1: Right, so today we're diving deep into [topic]. We've got [source] that reveals...\nHost 2: [Add context about why this matters now]\nBody Sections\nFor each major point:\n\nHook: Start with the most surprising/important aspect\nExplain: Break it down using analogies or examples\nQuestion: Have Host 2 probe deeper or challenge assumptions\nConnect: Link to broader implications or other concepts\nTransition: Natural bridge to next point\n\nDynamic Elements\n\nInterruptions: Use 2-3 per section when genuine excitement or realization occurs\nBuilding on ideas: \"And what's even more fascinating...\" / \"But here's where it gets really interesting...\"\nDisagreement/Tension: Occasionally include friendly pushback: \"Okay, but doesn't that assume...?\"\n\nSPECIFIC TECHNIQUES\nMaking Complex Ideas Accessible\n\nAnalogies: \"It's like [everyday example]\"\nConcrete numbers: \"To put that in perspective...\"\nReal-world applications: \"So if you're someone who...\"\n\nMaintaining Energy\n\nVary sentence length dramatically\nUse emphasis naturally: \"This completely changes...\"\nExpress genuine surprise: \"I had no idea that...\"\nCreate mini-cliffhangers: \"But then something unexpected happened...\"\n\nAuthentic Reactions\n\n\"Wait, back up a second...\"\n\"Okay, so if I'm following...\"\n\"See, this is what blows my mind...\"\n\"Can we just pause on that for a moment?\"\n\nPACING GUIDELINES\n\nTarget Length: 5-12 minutes of spoken content\n\nSimple/short sources: 5-7 minutes\nMedium complexity: 7-10 minutes\nComplex/lengthy sources: 10-12 minutes\n\n\nQuick exchanges: 2-3 short sentences back and forth for energy\nDeep dives: One host explains for 3-4 sentences while other uses minimal encouragers (\"Right\", \"Mm-hmm\")\nRevelation moments: Slow down, let impact sink in\nTransitions: Quick, natural, forward-moving\n\nLength Calibration\n\n~150-160 words per minute of natural speech\n5 minutes ≈ 750-800 words\n10 minutes ≈ 1,500-1,600 words\n12 minutes ≈ 1,800-1,920 words\nAdjust depth of exploration based on source complexity while maintaining engagement\n\nCOMMON PITFALLS TO AVOID\n❌ Empty praise: \"That's so fascinating!\" (without explaining why)\n❌ Repetitive agreement: Multiple \"Exactly!\" in a row\n❌ Over-explaining: Treating listener like they know nothing\n❌ Perfect grammar: Real people don't speak in complete, perfect sentences\n❌ Linear thinking: Real conversations loop back and build\nENDING (30-45 seconds)\nHost 1: So if we zoom out here... [synthesize main insight]\nHost 2: [Connect to listener's life/broader implications]\nHost 1: [Thought-provoking question or action item]\nHost 2: And on that note... [natural sign-off]\nBoth: Until next time, keep [relevant action verb].\nFINAL CHECKLIST\nBefore finalizing, ensure:\n\n Every exchange advances understanding\n Natural interruptions and incomplete thoughts included\n Complex ideas have concrete examples\n Energy varies throughout (not monotone enthusiasm)\n Genuine moments of discovery/surprise\n Clear value for listener in each section\n\n# SOURCE(S) TO CREATE TRANSCRIPT FROM\n\n{{ JSON.stringify($json.data) }}\n\n# OTHER\n\nIMPORTANT: Only output the transcript and use \\n in between speakers dialog\nIMPORTANT: Your response must start with ...\n\"Please read aloud the following in a podcast interview style:\nHost 1: \"",
               "type": "string"
             }
           ]
@@ -193,7 +193,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        840,
+        848,
         1200
       ],
       "id": "a12a3968-6929-489f-a497-a837f3c7e13c",
@@ -208,8 +208,8 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.7,
       "position": [
-        1100,
-        1180
+        1104,
+        1184
       ],
       "id": "25ae0627-f92b-4fa3-8722-6ce6cb678697",
       "name": "Basic LLM Chain",
@@ -230,14 +230,14 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.2,
       "position": [
-        1100,
-        1400
+        1104,
+        1408
       ],
       "id": "a805fc31-c265-49cc-8a95-e79ec7311783",
       "name": "OpenAI Chat Model",
       "credentials": {
         "openAiApi": {
-          "id": "hNalDChhNUDtYG7T",
+          "id": "vyxVe2RGE1yLgSDx",
           "name": "OpenAi account"
         }
       }
@@ -257,7 +257,7 @@
       "typeVersion": 4.2,
       "position": [
         1520,
-        1180
+        1184
       ],
       "id": "acf52aa8-77ad-41ba-8b27-66f496be6454",
       "name": "Generate Audio",
@@ -266,7 +266,7 @@
       "maxTries": 5,
       "credentials": {
         "googlePalmApi": {
-          "id": "PzC8XiX0nzmyH9AA",
+          "id": "0Cl9BqX4cx9pQwrD",
           "name": "Google Gemini(PaLM) Api account"
         }
       }
@@ -283,8 +283,8 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        1740,
-        1180
+        1744,
+        1184
       ],
       "id": "0c297369-7ff9-45f8-be19-83191b69a676",
       "name": "Convert to File"
@@ -298,8 +298,8 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1,
       "position": [
-        1960,
-        1180
+        1968,
+        1184
       ],
       "id": "d6a89506-9cd2-4486-85a1-be20060d5d04",
       "name": "Read/Write Files from Disk"
@@ -311,8 +311,8 @@
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
       "position": [
-        2200,
-        1180
+        2208,
+        1184
       ],
       "id": "d3f96ec9-2373-4ca7-8282-c078de61b92b",
       "name": "Execute Command"
@@ -325,8 +325,8 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1,
       "position": [
-        2420,
-        1180
+        2432,
+        1184
       ],
       "id": "5d91d055-300e-4a33-b3e9-fac3b25dd3e0",
       "name": "Read/Write Files from Disk1"
@@ -334,7 +334,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://yfvmutoxmibqzvyklggr.supabase.co/storage/v1/object/audio/{{ $('Webhook').item.json.body.notebook_id}}/{{ $binary.data.fileName }}",
+        "url": "=https://ehqdibhqhevjnknojogm.supabase.co/storage/v1/object/audio/{{ $('Webhook').item.json.body.notebook_id}}/{{ $binary.data.fileName }}",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "supabaseApi",
         "sendBody": true,
@@ -362,19 +362,19 @@
       "typeVersion": 4.1,
       "position": [
         2640,
-        1180
+        1184
       ],
       "credentials": {
         "supabaseApi": {
-          "id": "OeYUddl4OaIohMCC",
-          "name": "MynotebookLM Supabase"
+          "id": "7GmwvHGWyd47X1M6",
+          "name": "Supabase account"
         }
       }
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://yfvmutoxmibqzvyklggr.supabase.co/storage/v1/object/sign/{{ $json.body.Key }}",
+        "url": "=https://ehqdibhqhevjnknojogm.supabase.co/storage/v1/object/sign/{{ $json.body.Key }}",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "supabaseApi",
         "sendBody": true,
@@ -385,15 +385,15 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2840,
-        1180
+        2848,
+        1184
       ],
       "id": "f05a5230-c0c5-4b55-b50c-57b1a3c4df83",
       "name": "Generate Signed URL",
       "credentials": {
         "supabaseApi": {
-          "id": "OeYUddl4OaIohMCC",
-          "name": "MynotebookLM Supabase"
+          "id": "7GmwvHGWyd47X1M6",
+          "name": "Supabase account"
         }
       }
     },
@@ -404,8 +404,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3080,
-        1180
+        3088,
+        1184
       ],
       "id": "8d5764b9-498a-4a73-a62a-69ccb6fa5716",
       "name": "Generate Timestamp for Expires"
@@ -427,7 +427,7 @@
           "fieldValues": [
             {
               "fieldId": "audio_overview_url",
-              "fieldValue": "=https://yfvmutoxmibqzvyklggr.supabase.co/storage/v1/{{ $json.signedURL }}"
+              "fieldValue": "=https://ehqdibhqhevjnknojogm.supabase.co/storage/v1/{{ $json.signedURL }}"
             },
             {
               "fieldId": "audio_url_expires_at",
@@ -443,15 +443,15 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        3340,
-        1180
+        3344,
+        1184
       ],
       "id": "e549327c-f98e-4119-82b0-92c8e902fd06",
       "name": "Supabase",
       "credentials": {
         "supabaseApi": {
-          "id": "OeYUddl4OaIohMCC",
-          "name": "MynotebookLM Supabase"
+          "id": "7GmwvHGWyd47X1M6",
+          "name": "Supabase account"
         }
       }
     },
@@ -465,8 +465,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -680,
-        900
+        -688,
+        912
       ],
       "id": "f1d8ead0-76e7-4a47-8399-969861b08a46",
       "name": "Sticky Note8"
@@ -673,18 +673,10 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "f228bda4-191c-47b3-a8b0-e8e16d374eb5",
+  "versionId": "07cb2bc4-2263-489b-b18a-ff4f779a9734",
   "meta": {
-    "templateCredsSetupCompleted": true,
-    "instanceId": "b5d1ea132a4e071e6288b3143f31284b91560858bdef3f0c88a49f587fc91a29"
+    "instanceId": "f5707d3666ba184efe554775a181f51837c332c4fa57af1133598e1ba699e314"
   },
-  "id": "bxrCsRKl157B5Lyt",
-  "tags": [
-    {
-      "createdAt": "2025-05-12T13:43:59.783Z",
-      "updatedAt": "2025-05-12T13:43:59.783Z",
-      "id": "d3ygIhrGjDmzgrW0",
-      "name": "TheAIAutomators.com"
-    }
-  ]
+  "id": "jUOJ4Hk7VTEpfGB0",
+  "tags": []
 }

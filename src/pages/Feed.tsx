@@ -662,6 +662,23 @@ const Feed = () => {
     return counts;
   }, [sources]);
 
+  // Calculate processing sources for sidebar
+  const processingSources = useMemo(() => {
+    if (!sources) return [];
+    
+    return sources
+      .filter(source => 
+        source.processing_status === 'processing' || 
+        source.processing_status === 'uploading' ||
+        source.processing_status === 'pending'
+      )
+      .map(source => ({
+        id: source.id,
+        title: source.title,
+        processing_status: source.processing_status || 'pending'
+      }));
+  }, [sources]);
+
   // Force card view on mobile
   useEffect(() => {
     if (isMobile) {
@@ -803,6 +820,7 @@ const Feed = () => {
       feedFilters={filters}
       onFeedFiltersChange={setFilters}
       feedSourceCounts={sourceCounts}
+      processingSources={processingSources}
     >
       <main className="w-full px-6 py-8 2xl:max-w-[1480px] 2xl:mx-auto">
           {/* Content Feed Section */}

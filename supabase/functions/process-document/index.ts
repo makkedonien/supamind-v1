@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { sourceId, filePath, sourceType, userId } = await req.json()
+    const { sourceId, filePath, sourceType, userId, notebookId } = await req.json()
 
     if (!sourceId || !filePath || !sourceType || !userId) {
       return new Response(
@@ -22,7 +22,7 @@ serve(async (req) => {
       )
     }
 
-    console.log('Processing document:', { source_id: sourceId, file_path: filePath, source_type: sourceType, user_id: userId });
+    console.log('Processing document:', { source_id: sourceId, file_path: filePath, source_type: sourceType, user_id: userId, notebook_id: notebookId });
 
     // Get environment variables
     const webhookUrl = Deno.env.get('DOCUMENT_PROCESSING_WEBHOOK_URL')
@@ -61,6 +61,7 @@ serve(async (req) => {
       file_path: filePath,
       source_type: sourceType,
       user_id: userId,
+      notebook_id: notebookId,
       callback_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/process-document-callback`
     }
 

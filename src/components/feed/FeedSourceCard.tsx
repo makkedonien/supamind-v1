@@ -363,21 +363,11 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
           <div className="flex-1 p-4 flex flex-col justify-between">
             {/* Header */}
             <div className="flex-1">
-              {/* Title with Status */}
-              <div className="flex items-center gap-2 mb-2">
-                <CardTitle className="text-base line-clamp-2 flex-1">
+              {/* Title */}
+              <div className="mb-2">
+                <CardTitle className="text-base line-clamp-2">
                   {source.title}
                 </CardTitle>
-                {shouldShowStatus() && (
-                  <div 
-                    className="flex items-center space-x-1 transition-opacity duration-2000"
-                    style={{ opacity: statusOpacity }}
-                  >
-                    <span className="text-gray-500">•</span>
-                    {getStatusIcon()}
-                    <span className="text-sm text-gray-600">{getStatusText()}</span>
-                  </div>
-                )}
               </div>
               
               {/* Publisher, Time, and Categories */}
@@ -429,6 +419,17 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
                 <CardDescription className="line-clamp-2 mb-3">
                   {source.short_description || source.summary}
                 </CardDescription>
+              )}
+              
+              {/* Processing Status */}
+              {shouldShowStatus() && (
+                <div 
+                  className="flex items-center space-x-1 transition-opacity duration-2000 mb-2"
+                  style={{ opacity: statusOpacity }}
+                >
+                  {getStatusIcon()}
+                  <span className="text-sm text-gray-600">{getStatusText()}</span>
+                </div>
               )}
             </div>
           </div>
@@ -492,21 +493,11 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
 
         {/* Card Content - Title and time moved below image */}
         <CardContent className="p-4">
-          {/* Title with Status */}
-          <div className="flex items-center gap-2 mb-2">
-            <CardTitle className="text-base line-clamp-2 flex-1">
+          {/* Title */}
+          <div className="mb-2">
+            <CardTitle className="text-base line-clamp-2">
               {source.title}
             </CardTitle>
-            {shouldShowStatus() && (
-              <div 
-                className="flex items-center space-x-1 transition-opacity duration-2000"
-                style={{ opacity: statusOpacity }}
-              >
-                <span className="text-gray-500">•</span>
-                {getStatusIcon()}
-                <span className="text-sm text-gray-600">{getStatusText()}</span>
-              </div>
-            )}
           </div>
           
           {/* Publisher, Time, and Categories */}
@@ -558,6 +549,17 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
             <CardDescription className="line-clamp-3 mb-3">
               {source.short_description || source.summary}
             </CardDescription>
+          )}
+          
+          {/* Processing Status */}
+          {shouldShowStatus() && (
+            <div 
+              className="flex items-center space-x-1 transition-opacity duration-2000 mb-2"
+              style={{ opacity: statusOpacity }}
+            >
+              {getStatusIcon()}
+              <span className="text-sm text-gray-600">{getStatusText()}</span>
+            </div>
           )}
         </CardContent>
       </Card>
