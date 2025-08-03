@@ -807,7 +807,7 @@ const Feed = () => {
       <main className="w-full px-6 py-8 2xl:max-w-[1480px] 2xl:mx-auto">
           {/* Content Feed Section */}
           <div className="space-y-6">
-        {/* Header with Add Source Button */}
+        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-xl font-semibold">Your Feed</h2>
@@ -843,10 +843,6 @@ const Feed = () => {
                 Clear Selection
               </Button>
             )}
-            <Button onClick={() => setShowAddSourceDialog(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Source
-            </Button>
             {!isMobile && (
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">View:</span>
@@ -968,6 +964,15 @@ const Feed = () => {
         onOpenChange={handleCloseCategoryDialog} 
         source={selectedSourceForCategory}
       />
+
+      {/* Floating Add Source Button */}
+      <Button
+        onClick={() => setShowAddSourceDialog(true)}
+        size="icon"
+        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-shadow z-50"
+      >
+        <Plus className="h-6 w-6" />
+      </Button>
       </main>
     </AppLayout>
   );
