@@ -18,6 +18,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import FeedSourceCard from '@/components/feed/FeedSourceCard';
 import AddFeedSourceDialog from '@/components/feed/AddFeedSourceDialog';
 import SourceCategoryDialog from '@/components/feed/SourceCategoryDialog';
+import { safeStringify } from '@/lib/stringUtils';
 import CreateMicrocastDialog from '@/components/microcasts/CreateMicrocastDialog';
 import AppLayout from '@/components/layout/AppLayout';
 import EnhancedMarkdownRenderer from '@/components/chat/EnhancedMarkdownRenderer';
@@ -256,8 +257,9 @@ const DetailContent: React.FC<{
                   <Bot className="h-5 w-5 text-blue-600" />
                   <h3 className="text-lg font-semibold text-gray-900 m-0">Summary</h3>
                 </div>
+
                 <EnhancedMarkdownRenderer 
-                  content={item.summary}
+                  content={item.summary || ''}
                   className="text-base leading-relaxed"
                 />
               </div>
@@ -269,8 +271,9 @@ const DetailContent: React.FC<{
                   <Bot className="h-5 w-5 text-blue-600" />
                   <h3 className="text-lg font-semibold text-gray-900 m-0">Deep Dive</h3>
                 </div>
+
                 <EnhancedMarkdownRenderer 
-                  content={item.deep_summary}
+                  content={item.deep_summary || ''}
                   className="text-base leading-relaxed"
                 />
               </div>
@@ -782,6 +785,8 @@ const Feed = () => {
       }
     };
 
+
+
     return {
       id: source.id,
       title: source.title,
@@ -793,8 +798,8 @@ const Feed = () => {
       url: source.url || '#',
       publishedAt: source.created_at ? new Date(source.created_at).toLocaleDateString() : undefined,
       readTime: 5, // Default read time, could be calculated based on content length
-      summary: source.summary,
-      deep_summary: source.deep_summary,
+      summary: safeStringify(source.summary),
+      deep_summary: safeStringify(source.deep_summary),
       is_favorite: source.is_favorite
     };
   };

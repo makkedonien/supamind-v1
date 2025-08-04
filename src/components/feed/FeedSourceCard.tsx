@@ -7,6 +7,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { ExternalLink, Tag, FileText, Link as LinkIcon, Youtube, Volume2, Clock, CheckCircle, XCircle, Loader2, Star, Trash2, Check } from 'lucide-react';
 import { useFeedSources } from '@/hooks/useFeedSources';
 import { useToast } from '@/hooks/use-toast';
+import { safeStringifyForDisplay } from '@/lib/stringUtils';
 
 interface FeedSource {
   id: string;
@@ -429,7 +430,7 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
               {/* Description */}
               {(source.short_description || source.summary) && (
                 <CardDescription className="line-clamp-2 mb-3">
-                  {source.short_description || source.summary}
+                  {safeStringifyForDisplay(source.short_description) || safeStringifyForDisplay(source.summary)}
                 </CardDescription>
               )}
             </div>
@@ -549,7 +550,7 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
           {/* Description */}
           {(source.short_description || source.summary) && (
             <CardDescription className="line-clamp-3 mb-3">
-              {source.short_description || source.summary}
+              {safeStringifyForDisplay(source.short_description) || safeStringifyForDisplay(source.summary)}
             </CardDescription>
           )}
         </CardContent>
