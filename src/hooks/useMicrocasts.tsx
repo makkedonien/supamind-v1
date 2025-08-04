@@ -240,20 +240,6 @@ export const useMicrocasts = () => {
     },
   });
 
-  const refreshAudioUrl = useMutation({
-    mutationFn: async (microcastId: string) => {
-      const { data, error } = await supabase.functions.invoke('refresh-audio-url', {
-        body: { microcastId },
-      });
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      console.log('Microcast audio URL refreshed successfully');
-      // The Realtime subscription will handle updating the cache
-    },
-  });
 
   return {
     microcasts,
@@ -268,8 +254,5 @@ export const useMicrocasts = () => {
     deleteMicrocast: deleteMicrocast.mutate,
     deleteMicrocastAsync: deleteMicrocast.mutateAsync,
     isDeleting: deleteMicrocast.isPending,
-    refreshAudioUrl: refreshAudioUrl.mutate,
-    refreshAudioUrlAsync: refreshAudioUrl.mutateAsync,
-    isRefreshing: refreshAudioUrl.isPending,
   };
 };

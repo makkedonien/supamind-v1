@@ -8,8 +8,8 @@
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
       "position": [
-        -416,
-        1328
+        -528,
+        1088
       ],
       "id": "b804e4c1-5f49-4fb6-943b-92f183c302a9",
       "name": "Check is FFMPEG Installed"
@@ -51,8 +51,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -208,
-        1328
+        -320,
+        1088
       ],
       "id": "3adf9104-7091-4b88-b45b-efdb219c7742",
       "name": "If"
@@ -68,8 +68,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.4,
       "position": [
-        112,
-        1200
+        -80,
+        1072
       ],
       "id": "54c2c7a8-af45-488e-9439-997d43ca2676",
       "name": "Respond to Webhook"
@@ -85,8 +85,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.4,
       "position": [
-        112,
-        1392
+        -80,
+        1280
       ],
       "id": "2b492335-fad2-4981-8c5c-bd790256bddd",
       "name": "Respond with 500 Error"
@@ -101,7 +101,7 @@
       "typeVersion": 1,
       "position": [
         2048,
-        848
+        656
       ],
       "id": "73fb9911-4a7c-413b-8bb9-9ec86a3f501e",
       "name": "Sticky Note1"
@@ -117,8 +117,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        -688,
-        1328
+        -800,
+        1088
       ],
       "id": "36040655-7e2a-4af2-8524-f0e84fa2c874",
       "name": "Webhook",
@@ -148,7 +148,7 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        368,
+        576,
         1200
       ],
       "id": "2bf3e04b-7472-4a31-80e3-c78fb8f742be",
@@ -170,7 +170,7 @@
       "type": "n8n-nodes-base.aggregate",
       "typeVersion": 1,
       "position": [
-        592,
+        800,
         1200
       ],
       "id": "30a71143-107d-4c02-a43f-54d972c42437",
@@ -193,7 +193,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        848,
+        1056,
         1200
       ],
       "id": "a12a3968-6929-489f-a497-a837f3c7e13c",
@@ -208,7 +208,7 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.7,
       "position": [
-        1104,
+        1312,
         1184
       ],
       "id": "25ae0627-f92b-4fa3-8722-6ce6cb678697",
@@ -230,8 +230,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.2,
       "position": [
-        1104,
-        1408
+        1312,
+        1344
       ],
       "id": "a805fc31-c265-49cc-8a95-e79ec7311783",
       "name": "OpenAI Chat Model",
@@ -256,7 +256,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1520,
+        1728,
         1184
       ],
       "id": "acf52aa8-77ad-41ba-8b27-66f496be6454",
@@ -283,7 +283,7 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        1744,
+        1952,
         1184
       ],
       "id": "0c297369-7ff9-45f8-be19-83191b69a676",
@@ -298,7 +298,7 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1,
       "position": [
-        1968,
+        2176,
         1184
       ],
       "id": "d6a89506-9cd2-4486-85a1-be20060d5d04",
@@ -311,7 +311,7 @@
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
       "position": [
-        2208,
+        2416,
         1184
       ],
       "id": "d3f96ec9-2373-4ca7-8282-c078de61b92b",
@@ -325,7 +325,7 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1,
       "position": [
-        2432,
+        2640,
         1184
       ],
       "id": "5d91d055-300e-4a33-b3e9-fac3b25dd3e0",
@@ -361,7 +361,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [
-        2640,
+        2848,
         1184
       ],
       "credentials": {
@@ -385,7 +385,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2848,
+        3056,
         1184
       ],
       "id": "f05a5230-c0c5-4b55-b50c-57b1a3c4df83",
@@ -404,7 +404,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3088,
+        3296,
         1184
       ],
       "id": "8d5764b9-498a-4a73-a62a-69ccb6fa5716",
@@ -443,7 +443,7 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        3344,
+        3552,
         1184
       ],
       "id": "e549327c-f98e-4119-82b0-92c8e902fd06",
@@ -457,22 +457,484 @@
     },
     {
       "parameters": {
-        "content": "[![The AI Automators](https://www.theaiautomators.com/wp-content/uploads/2025/03/gray-logo.png)](https://www.theaiautomators.com/)\n## InsightsLM\nhttps://github.com/theaiautomators/insights-lm-public",
-        "height": 220,
-        "width": 280,
-        "color": 7
+        "operation": "getAll",
+        "tableId": "sources",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.source_ids_array[0] }}"
+            },
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.source_ids_array[1] }}"
+            },
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.source_ids_array[2] }}"
+            },
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.source_ids_array[3] }}"
+            },
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.source_ids_array[4] }}"
+            }
+          ]
+        }
       },
-      "type": "n8n-nodes-base.stickyNote",
+      "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        -688,
+        736,
+        928
+      ],
+      "id": "58602c37-54e8-4b5d-88b6-e6c0cdb6e2b7",
+      "name": "Get Sources1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "7GmwvHGWyd47X1M6",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "include": "specifiedFields",
+        "fieldsToInclude": "title,content",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        896,
+        928
+      ],
+      "id": "9a28d396-9db8-4d41-803d-e0b498b654ad",
+      "name": "Aggregate1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c3743cbc-c838-401a-8f65-95a386707ded",
+              "name": "prompt",
+              "value": "=You'll create a podcast script where two expert hosts take turns presenting comprehensive summaries of different content sources. Each host covers one source at a time, alternating throughout the episode. The tone should be that of a knowledgeable friend sharing fascinating finds with clear \"so what?\" implications.\nCRITICAL: This is a no-fluff podcast. Get to the point immediately. Every second counts. Start with impact, maintain momentum, deliver value.\nHOST PERSONAS\nBoth Hosts: Expert curators who are genuinely excited about sharing knowledge. They speak with authority but remain approachable, like that friend who always has the most interesting articles to share and knows exactly why they matter. Zero fluff, maximum insight, infectious enthusiasm.\nSTRUCTURAL FRAMEWORK (DIRECT & FAST)\nOpening (Max 15 seconds)\nHost 1: [Number] game-changing pieces coming at you. I'm [name], here with [name].\nHost 2: We're diving into [brief topic area]. Let's jump straight in.\nOR\nHost 1: Welcome back. I'm [name] with [name]. Today: [ultra-brief topic teaser].\nHost 2: [Number] pieces that'll change how you think. Here we go.\nExample of immediate transition to content:\nHost 1: Three mind-blowing discoveries about the future of work. I'm Sarah, with James.\nHost 2: Each one's a game-changer. Let's dive in.\nHost 1: MIT shattered everything we thought we knew about productivity. They discovered that...\nContent Presentation Format\nIMPORTANT: After the brief 15-second opening, Host 1 should immediately launch into the first source with energy and no additional preamble. Think \"cold open\" - hit them with the most interesting fact/finding within the first sentence of covering Source 1.\nFor each content source, the presenting host should:\n1. The Hook (10-15 seconds)\n\nStart with the most surprising/impactful finding\nOr pose the central question the content addresses\nExample: \"So imagine finding out that [surprising fact]. That's exactly what researchers discovered in...\"\nAlternative direct start: \"Forget everything you know about [topic]. This new study just proved...\"\n\n2. Source Introduction (5-10 seconds)\n\nUltra-brief: \"This comes from [source/author].\"\nOr integrated: \"MIT researchers discovered...\" (weaving source into the narrative)\nOr skip entirely if the source speaks for itself through the content\nOnly mention credentials if crucial to understanding the weight of the findings\nNote: No publication dates will be provided - focus on the content, not timing\n\n3. The Core Summary (45-75 seconds)\n\n3-4 key points delivered with punch\nLead with results, not methodology\n\"They found [shocking result]. How? [brief explanation]\"\nKeep momentum: \"But wait—it gets better...\"\nUse specifics: numbers, percentages, concrete outcomes\n\n4. The \"So What?\" (20-30 seconds)\n\nImmediate impact: \"Starting tomorrow, this means...\"\nPersonal stakes: \"If you use [X], this changes everything\"\nBigger picture: \"We're looking at a world where...\"\nOne clear takeaway the listener can use or share\n\n5. The Handoff (5-10 seconds)\n\nQuick synthesis: \"So [one-sentence summary]. [Other host], what've you got?\"\nDirect pass: \"That's [topic 1]. Your turn, [name].\"\nFast connection: \"Which brings us to your piece on...\"\n\nTONE AND DELIVERY GUIDELINES\nExpert Friend Approach\n\nDirect and impactful: Start with the meat, skip the appetizer\nKnowledgeable but not condescending: \"Here's what changes everything...\"\nGenuine enthusiasm: \"This completely upends what we thought...\"\nClear stakes: \"This matters because...\"\nNo throat-clearing: Jump straight to the insight after the 15-second intro\n\nLanguage Patterns\n\nStart segments with impact: \"Breaking: [key finding]\"\nUse \"Here's the thing...\" only for crucial pivots\nInclude reactions: \"This floored me...\"\nMake it urgent: \"You need to know about this...\"\n\nMaking Complex Ideas Stick\n\nQuick analogies: \"It's like [familiar thing] but for [new context]\"\nShocking numbers: \"That's 10x bigger than [familiar comparison]\"\nInstant scenarios: \"Tomorrow, you could...\"\nMemory anchors: \"One thing to remember: [key point]\"\n\nPACING AND LENGTH\n\nTarget Length: 7-15 minutes total\n\n2 sources: 7-9 minutes\n3 sources: 9-11 minutes\n4+ sources: 11-15 minutes\n\n\nPer source: 90-150 seconds each (1.5-2.5 minutes)\nOpening: Max 15 seconds - straight to content\nEnding: 15-20 seconds - quick wrap\nSpeaking pace: Energetic but not rushed\nPauses: Brief moments after major revelations\n\nTime breakdown for 3-source episode (~10 min):\n\nOpening: 15 sec\nSource 1: 2 min\nTransition: 5-10 sec\nSource 2: 2 min\nTransition: 5-10 sec\nSource 3: 2 min\nEnding: 20 sec\nTotal: ~6.5-7 min content + natural pacing = ~10 min\n\nTRANSITION TECHNIQUES\nBetween sources, create swift bridges (5-10 seconds max):\n\nDirect handoff: \"That's [topic 1]. Now here's [Host 2] with something equally mind-blowing.\"\nQuick contrast: \"From [topic 1] to something completely different...\"\nFast connection: \"Speaking of disruption, you found...\"\nSimple pass: \"Over to you, [name].\"\n\nSPECIFIC PHRASES AND PATTERNS\nOpening a segment:\n\nDirect start: \"A Stanford study shattered our understanding of...\"\nQuestion hook: \"What if everything we believed about [topic] was wrong?\"\nData shock: \"90% of people don't realize that...\"\nStory entry: \"Researchers stumbled upon something that changes everything...\"\nBreaking finding: \"Scientists discovered [shocking fact]...\"\n\nExplaining significance:\n\n\"Why care? Because...\"\n\"This changes everything for...\"\n\"Here's what happens next...\"\n\"The impact? Massive. Here's why...\"\n\nClosing a segment:\n\n\"Bottom line: [Key takeaway in one sentence]\"\n\"Remember this: [Most important point]\"\n\"The takeaway? [Action or insight]\"\n\nENDING (15-20 seconds)\nHost 1: That's [number] pieces that'll change how you think about [topic].\nHost 2: Links in the show notes. Until next time!\nOR\nHost 2: The thread connecting all of this? [One-sentence insight].\nHost 1: Everything's linked below. Stay curious!\nHANDLING MULTIPLE SOURCES\n\nSpeed: Each source gets its point across fast\nVariety: Mix shocking stats, breakthrough research, practical applications\nBuild: Each source adds to the bigger picture\nNo repetition: If sources overlap, synthesize don't repeat\n\nQUALITY CHECKLIST\nFor each source segment, ensure:\n\n Immediate, exciting hook within first sentence\n Zero fluff or unnecessary setup\n Source/author credibility established in one sentence\n 3-4 concrete takeaways, not just vague summaries\n Specific \"so what?\" that connects to listener's life/interests\n Natural transition to next host/topic\n At least one memorable analogy or example\n The excitement feels genuine, not manufactured\n\nWHAT TO AVOID\n❌ \"Hey everyone, how's it going?\"\n❌ \"Before we get started...\"\n❌ \"I want to talk to you about...\"\n❌ \"Let me tell you why this is interesting...\"\n❌ Long-winded explanations\n❌ Repetitive transitions\n❌ Any form of \"warming up\" to the topic\n❌ References to when something was published (dates not provided)\n✅ Instead: Start with the revelation, build from there\nOUTPUT FORMAT\nPlease read aloud the following in a podcast style:\nHost 1: [Brief opening - max 15 seconds]\nHost 2: [Quick acknowledgment/addition if needed]\nHost 1: [Immediately launches into Source 1 with hook]\nHost 2: [Covers Source 2]\n[Continue alternating as needed]\nEXAMPLE SOURCE SEGMENT:\nHost 1: Your smartphone is literally rewiring your brain—and neuroscientists have proved it. Stanford researchers scanned 200 brains before and after a 30-day digital detox. The results? Shocking. Gray matter in the attention centers increased by 15% in just one month. That's the same growth you'd see from learning a new language. But here's the kicker—the anxiety centers? They shrunk. First time we've seen reversible brain changes from tech use. So every notification, every scroll—you're physically reshaping your neural pathways. The good news? It's completely reversible. Take a real break from your phone for 30 days, and your brain bounces back. Bottom line: your device addiction isn't just psychological—it's carved into your brain structure. Over to you, James.\n\n# SOURCE(S) TO CREATE TRANSCRIPT FROM\n\n{{ JSON.stringify($json.data) }}\n\n# OTHER\n\nIMPORTANT: Only output the transcript and use \\n in between speakers dialog\nIMPORTANT: Your response must start with ...\n\"Please read aloud the following in a podcast interview style:\nHost 1: \"",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1056,
+        928
+      ],
+      "id": "b33878b2-6d51-4251-a128-1f8ffad38c69",
+      "name": "Set Prompt1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt }}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1312,
         912
       ],
-      "id": "f1d8ead0-76e7-4a47-8399-969861b08a46",
-      "name": "Sticky Note8"
+      "id": "30e39dca-568d-44f5-bd8d-baab35449f8d",
+      "name": "Basic LLM Chain1",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "maxTries": 5
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [{\n    \"parts\":[{\n      \"text\": {{ JSON.stringify($json.text) }}\n    }]\n  }],\n  \"generationConfig\": {\n    \"responseModalities\": [\"AUDIO\"],\n    \"speechConfig\": {\n      \"multiSpeakerVoiceConfig\": {\n        \"speakerVoiceConfigs\": [{\n            \"speaker\": \"Joe\",\n            \"voiceConfig\": {\n              \"prebuiltVoiceConfig\": {\n                \"voiceName\": \"Algenib\"\n              }\n            }\n          }, {\n            \"speaker\": \"Jane\",\n            \"voiceConfig\": {\n              \"prebuiltVoiceConfig\": {\n                \"voiceName\": \"Kore\"\n              }\n            }\n          }]\n      }\n    }\n  },\n  \"model\": \"gemini-2.5-flash-preview-tts\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1728,
+        912
+      ],
+      "id": "d23bd32b-3cd6-4b50-9a63-bdb7a326cd6b",
+      "name": "Generate Audio1",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "maxTries": 5,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "0Cl9BqX4cx9pQwrD",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "candidates[0].content.parts[0].inlineData.data",
+        "options": {
+          "fileName": "audio.pcm",
+          "mimeType": "audio/L16"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1952,
+        912
+      ],
+      "id": "7fefd841-1dfb-4168-aa08-04d8b0f2b575",
+      "name": "Convert to File1"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "=/tmp/{{ $('Generate Audio1').item.json.responseId }}-in.pcm",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        2176,
+        912
+      ],
+      "id": "ee2742d9-8029-4863-b2bd-145fb734f3b7",
+      "name": "Read/Write Files from Disk2"
+    },
+    {
+      "parameters": {
+        "command": "=ffmpeg -f s16le -ar 24000 -ac 1 -i /tmp/{{ $('Generate Audio1').item.json.responseId }}-in.pcm -codec:a libmp3lame -qscale:a 2 /tmp/{{ $('Generate Audio1').item.json.responseId }}-out.mp3"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        2416,
+        912
+      ],
+      "id": "c11e7e04-27ab-44f5-b5c8-1aa81d6fb4dc",
+      "name": "Execute Command1"
+    },
+    {
+      "parameters": {
+        "fileSelector": "=/tmp/{{ $('Generate Audio1').item.json.responseId }}-out.mp3",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        2640,
+        912
+      ],
+      "id": "6b040b99-4580-4fcd-8c96-6234a7e7caea",
+      "name": "Read/Write Files from Disk3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://ehqdibhqhevjnknojogm.supabase.co/storage/v1/object/audio/microcast/{{ $('Webhook').item.json.body.microcast_id }}/{{ $binary.data.fileName }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "1de84e9b-8a17-4f61-8acc-e8f775b8f6da",
+      "name": "Upload object1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        2848,
+        912
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "7GmwvHGWyd47X1M6",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://ehqdibhqhevjnknojogm.supabase.co/storage/v1/object/sign/{{ $json.body.Key }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"expiresIn\": 86400\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3056,
+        912
+      ],
+      "id": "3757b22a-6a15-4696-85e4-04cab1649134",
+      "name": "Generate Signed URL1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "7GmwvHGWyd47X1M6",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  const now = new Date();\n  const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000); // Add 1 day in ms\n  item.json.timestamp = tomorrow.toISOString(); // Compatible with Supabase timestampz\n}\n\nreturn $input.all();\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3472,
+        912
+      ],
+      "id": "9ddae48f-4857-4782-96b5-1ee615c8524b",
+      "name": "Generate Timestamp for Expires1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Webhook').item.json.body.source_ids }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "array",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "id": "4211a371-7a5f-4e1f-9c0f-ed50453aa251"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "source_ids exist"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "eb41bc9d-0289-49a0-8a47-64c3ff7a96ba",
+                    "leftValue": "={{ $('Webhook').item.json.body.notebook_id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "notebook_id exists"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        128,
+        1056
+      ],
+      "id": "f8266e86-ff56-47db-bab1-8006b9b5a103",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1312,
+        1072
+      ],
+      "id": "2b32dcd7-8b6f-454a-9a3d-a5110b22956b",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "vyxVe2RGE1yLgSDx",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the array from the webhook input\nconst sourceIds = $('Webhook').item.json.body.source_ids;\n\n// Define placeholder UUID for padding\nconst placeholderUuid = '00000000-0000-0000-0000-000000000000';\n\n// Ensure we always have exactly 5 IDs\nconst paddedIds = [...sourceIds]; // Create a copy of the original array\n\n// Fill up to 5 IDs with placeholder if needed\nwhile (paddedIds.length < 5) {\n  paddedIds.push(placeholderUuid);\n}\n\n// Take only the first 5 IDs (in case input has more than 5)\nconst finalIds = paddedIds.slice(0, 5);\n\n// Return as JSON array\nreturn [{ json: { source_ids_array: finalIds } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        576,
+        928
+      ],
+      "id": "d9305a9f-3413-47ed-9d84-b0a72375da5f",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "microcasts",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Webhook').item.json.body.microcast_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "audio_url",
+              "fieldValue": "=https://ehqdibhqhevjnknojogm.supabase.co/storage/v1/{{ $json.signedURL }}"
+            },
+            {
+              "fieldId": "audio_expires_at",
+              "fieldValue": "={{ $json.timestamp }}"
+            },
+            {
+              "fieldId": "generation_status",
+              "fieldValue": "completed"
+            },
+            {
+              "fieldId": "title",
+              "fieldValue": "={{ $('Generating timestamp title').item.json.timestamp_title }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        3648,
+        912
+      ],
+      "id": "3cc01404-5892-43ae-942e-286d3ed1a2d6",
+      "name": "Update a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "7GmwvHGWyd47X1M6",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get current date and time\nconst now = new Date();\n\n// Format the timestamp\nconst timestamp = now.toLocaleString('en-US', {\n  month: 'short',    // Aug\n  day: 'numeric',    // 3\n  hour: 'numeric',   // 7\n  minute: '2-digit', // 29\n  hour12: true       // PM\n});\n\n// Return just the string\nreturn [{ json: { timestamp_title: timestamp } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3264,
+        912
+      ],
+      "id": "3064b26b-ab7a-4756-bab0-baee75ccb7ed",
+      "name": "Generating timestamp title"
     }
   ],
-  "pinData": {},
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n-railway-production-519d.up.railway.app",
+            "user-agent": "Deno/1.45.2 (variant; SupabaseEdgeRuntime/1.68.3)",
+            "content-length": "259",
+            "accept": "*/*",
+            "accept-encoding": "gzip, br",
+            "accept-language": "*",
+            "authorization": "xXoFdKtnFp2f4VpcHPGN3e3XFNBi6u",
+            "content-type": "application/json",
+            "x-forwarded-for": "63.179.55.147",
+            "x-forwarded-host": "n8n-railway-production-519d.up.railway.app",
+            "x-forwarded-proto": "https",
+            "x-railway-edge": "railway/europe-west4-drams3a",
+            "x-railway-request-id": "Ybb9RZU2SmGriSc7m3z_FQ",
+            "x-real-ip": "63.179.55.147",
+            "x-request-start": "1754252285478"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "microcast_id": "58bafaff-aa86-4fc5-835b-f91886028520",
+            "source_ids": [
+              "fa326b2a-f303-4ec5-a218-4d24c9036e68"
+            ],
+            "user_id": "ae11b2ca-64c9-4e82-a820-ab3b6a25f9e4",
+            "callback_url": "https://ehqdibhqhevjnknojogm.supabase.co/functions/v1/microcast-generation-callback"
+          },
+          "webhookUrl": "https://n8n-railway-production-519d.up.railway.app/webhook/4c4699bc-004b-4ca3-8923-373ddd4a274e",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
   "connections": {
     "Check is FFMPEG Installed": {
       "main": [
@@ -507,7 +969,7 @@
       "main": [
         [
           {
-            "node": "Get Sources",
+            "node": "Switch",
             "type": "main",
             "index": 0
           }
@@ -667,13 +1129,196 @@
           }
         ]
       ]
+    },
+    "Get Sources1": {
+      "main": [
+        [
+          {
+            "node": "Aggregate1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate1": {
+      "main": [
+        [
+          {
+            "node": "Set Prompt1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Prompt1": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1": {
+      "main": [
+        [
+          {
+            "node": "Generate Audio1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Audio1": {
+      "main": [
+        [
+          {
+            "node": "Convert to File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File1": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk2": {
+      "main": [
+        [
+          {
+            "node": "Execute Command1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Command1": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk3": {
+      "main": [
+        [
+          {
+            "node": "Upload object1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload object1": {
+      "main": [
+        [
+          {
+            "node": "Generate Signed URL1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Signed URL1": {
+      "main": [
+        [
+          {
+            "node": "Generating timestamp title",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Timestamp for Expires1": {
+      "main": [
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Get Sources1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generating timestamp title": {
+      "main": [
+        [
+          {
+            "node": "Generate Timestamp for Expires1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "07cb2bc4-2263-489b-b18a-ff4f779a9734",
+  "versionId": "f8f5ef47-add6-4d52-9f67-a32e47bb90e5",
   "meta": {
     "instanceId": "f5707d3666ba184efe554775a181f51837c332c4fa57af1133598e1ba699e314"
   },

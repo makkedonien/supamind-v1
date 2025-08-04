@@ -47,18 +47,12 @@ serve(async (req) => {
 
     if (status === 'completed' && audio_url) {
       console.log('Microcast generation completed successfully')
+      console.log('Audio URL provided by N8N:', audio_url)
       
-      // Generate signed URL for the audio file
-      const audioFilePath = `microcasts/${microcast_id}/audio.mp3`
-      const expiresIn = 60 * 60 * 24 * 7 // 7 days in seconds
-      
-      const { data: signedUrlData, error: signedUrlError } = await supabase.storage
-        .from('audio')
-        .createSignedUrl(audioFilePath, expiresIn)
-
       const updateData: any = {
         generation_status: 'completed',
-        audio_expires_at: new Date(Date.now() + expiresIn * 1000).toISOString()
+        audio_url: audio_url, // Use the URL provided by N8N directly
+        audio_expires_at: new Date(Date.now() + (60 * 60 * 24 * 7 * 1000)).toISOString() // 7 days from now
       }
 
       // Include title if provided by N8N
@@ -66,23 +60,12 @@ serve(async (req) => {
         updateData.title = title.trim()
       }
 
-      if (signedUrlError) {
-        console.error('Error creating signed URL:', signedUrlError)
-        // Update with the direct URL if signed URL creation fails
-        updateData.audio_url = audio_url
-        await supabase
-          .from('microcasts')
-          .update(updateData)
-          .eq('id', microcast_id)
-      } else {
-        console.log('Signed URL created successfully')
-        // Update with the signed URL
-        updateData.audio_url = signedUrlData.signedUrl
-        await supabase
-          .from('microcasts')
-          .update(updateData)
-          .eq('id', microcast_id)
-      }
+      console.log('Updating microcast with data:', updateData)
+      
+      await supabase
+        .from('microcasts')
+        .update(updateData)
+        .eq('id', microcast_id)
 
     } else if (status === 'failed') {
       console.log('Microcast generation failed:', error_message)
