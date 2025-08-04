@@ -86,12 +86,46 @@ export const AudioPlayerProvider: React.FC<AudioPlayerProviderProps> = ({ childr
     };
 
     const handleError = (e: Event) => {
-      console.error('Audio playback error:', e);
+      const audio = audioRef.current;
+      const target = e.target as HTMLAudioElement;
+      
+      // Log detailed error information
+      console.error('Audio playback error:', {
+        error: e,
+        audioSrc: audio?.src,
+        networkState: audio?.networkState,
+        readyState: audio?.readyState,
+        errorCode: target?.error?.code,
+        errorMessage: target?.error?.message,
+        currentMicrocast: playerState.currentMicrocast?.id,
+        currentTime: audio?.currentTime,
+        duration: audio?.duration
+      });
+
+      // Map error codes to user-friendly messages
+      let errorMessage = 'Failed to load audio';
+      if (target?.error) {
+        switch (target.error.code) {
+          case 1: // MEDIA_ERR_ABORTED
+            errorMessage = 'Audio loading was aborted';
+            break;
+          case 2: // MEDIA_ERR_NETWORK
+            errorMessage = 'Network error while loading audio';
+            break;
+          case 3: // MEDIA_ERR_DECODE
+            errorMessage = 'Audio file format not supported';
+            break;
+          case 4: // MEDIA_ERR_SRC_NOT_SUPPORTED
+            errorMessage = 'Audio source not accessible';
+            break;
+        }
+      }
+
       setPlayerState(prev => ({ 
         ...prev, 
         loading: false,
         isPlaying: false,
-        error: 'Failed to load audio'
+        error: errorMessage
       }));
     };
 
@@ -150,10 +184,33 @@ export const AudioPlayerProvider: React.FC<AudioPlayerProviderProps> = ({ childr
 
   const playMicrocast = (microcast: Microcast) => {
     const audio = audioRef.current;
-    if (!audio || !microcast.audio_url) return;
+    
+    console.log('Attempting to play microcast:', {
+      microcastId: microcast.id,
+      title: microcast.title,
+      audioUrl: microcast.audio_url,
+      generationStatus: microcast.generation_status,
+      audioExpires: microcast.audio_expires_at
+    });
+
+    if (!audio) {
+      console.error('Audio element not available');
+      return;
+    }
+
+    if (!microcast.audio_url) {
+      console.error('No audio URL provided for microcast:', microcast.id);
+      setPlayerState(prev => ({ 
+        ...prev, 
+        error: 'No audio URL available'
+      }));
+      return;
+    }
 
     // If it's a different microcast, load the new audio
     if (!playerState.currentMicrocast || playerState.currentMicrocast.id !== microcast.id) {
+      console.log('Loading new microcast audio:', microcast.audio_url);
+      
       setPlayerState(prev => ({ 
         ...prev, 
         currentMicrocast: microcast,
@@ -170,7 +227,13 @@ export const AudioPlayerProvider: React.FC<AudioPlayerProviderProps> = ({ childr
     const playPromise = audio.play();
     if (playPromise !== undefined) {
       playPromise.catch(error => {
-        console.error('Play failed:', error);
+        console.error('Play failed:', {
+          error,
+          audioSrc: audio.src,
+          networkState: audio.networkState,
+          readyState: audio.readyState,
+          microcastId: microcast.id
+        });
         setPlayerState(prev => ({ 
           ...prev, 
           error: 'Playback failed',
