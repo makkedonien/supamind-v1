@@ -1,141 +1,216 @@
-<p align="center">
-  <img src="https://www.theaiautomators.com/wp-content/uploads/2025/07/Group-2651.svg" alt="InsightsLM Logo" width="600"/>
-</p>
-
-
-# InsightsLM: The Open Source NotebookLM Alternative
+# SupaMind: AI-Powered Knowledge Assistant
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![GitHub stars](https://img.shields.io/github/stars/theaiautomators/insights-lm-public?style=social)](https://github.com/theaiautomators/insights-lm-public/stargazers)
-[![YouTube Video](https://img.shields.io/badge/YouTube-Watch%20the%20Build-red)](https://www.youtube.com/watch?v=IXJEGjfZRBE)
+[![React](https://img.shields.io/badge/React-18.3.1-blue.svg)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.5.3-blue.svg)](https://www.typescriptlang.org/)
 
-> What if the power of a tool like NotebookLM wasn't locked away in a closed system? What if you could build a private, self-hosted alternative that can be customized for your business needs, all without writing a single line of code?
+> Transform your documents into an intelligent, searchable knowledge base. Upload, organize, and chat with your content using advanced AI technology.
 
-That's exactly what we've done with **InsightsLM**. This project is an open-source, self-hostable alternative to NotebookLM. It's designed to be a powerful AI research tool that grounds its responses exclusively in the sources you provide, making it a reliable window into your company's knowledge base.
-
+SupaMind is a modern, open-source knowledge management platform that enables you to build a personalized AI assistant grounded in your own documents and data. Whether you're conducting research, managing team knowledge, or organizing personal information, SupaMind provides powerful AI-driven insights while maintaining complete control over your data.
 
 ## About The Project
 
-NotebookLM is one of the most powerful AI research tools available today. However, its closed-source nature limits its potential for customization and private hosting. InsightsLM was created to bridge this gap.
+SupaMind addresses the growing need for intelligent document management and knowledge retrieval. Unlike closed-source alternatives, this platform gives you full control over your data while providing enterprise-grade AI capabilities through a modern, intuitive interface.
 
-This isn't just a basic prototype. It's a robust application with some killer features, developed using a "vibe-coding" approach with Loveable for the Javascript frontend and a powerful backend combination of Supabase and N8N.
-
-We are open-sourcing InsightsLM so you can install it, customize it, improve it, and even commercialize it. The ability to deploy AI agents grounded in a company's specific knowledge (a concept known as Retrieval-Augmented Generation or RAG) represents one of the biggest commercial opportunities for generative AI today.
-
-
-<p align="center">
-  <img src="https://www.theaiautomators.com/wp-content/uploads/2025/07/Group-2652.png" alt="The AI Automators Logo" width="500"/>
-</p>
-
-
-## Fully Local Version
-
-This version of InsightsLM relies on cloud AI services like OpenAI and Gemini.
-
-If you'd like to setup a fully local version of this that uses Ollama and Qwen3 along with Whisper and CoquiTTS, then check out our other repo below
-
-[Fully Local InsightsLM](https://github.com/theaiautomators/insights-lm-local-package)
-
-## Join Our Community
-
-If you're interested in learning how to customize InsightsLM or build similar applications, join our community, The AI Automators.
-
-https://www.theaiautomators.com/
-
+Built with a robust architecture combining React, Supabase, and N8N workflows, SupaMind offers both cloud and self-hosted deployment options, making it suitable for individuals, teams, and organizations of any size.
 
 ## Key Features
 
-* **Chat with Your Documents:** Upload your documents and get instant, context-aware answers.
-* **Verifiable Citations:** Jump directly to the source of the information to ensure the AI isn't hallucinating.
-* **Podcast Generation:** Create audio summaries and discussions from your source materials, just like in NotebookLM.
-* **Private and Self-Hosted:** Maintain complete control over your data by hosting it yourself. Use local models if you wish.
-* **Customizable and Extensible:** Built with modern, accessible tools, making it easy to tailor to your specific needs.
+### 📄 **Document Management**
+- **Multi-format Support**: Upload PDFs, documents, audio files, images, and web content
+- **Intelligent Processing**: Automatic text extraction, summarization, and categorization
+- **Organized Collections**: Group related documents into notebooks for focused research
 
+### 💬 **AI-Powered Chat**
+- **Context-Aware Conversations**: Chat with your documents using advanced RAG (Retrieval-Augmented Generation)
+- **Verifiable Citations**: Every AI response includes direct links to source material
+- **Smart Search**: Find information across your entire knowledge base instantly
 
-## Demo & Walkthrough
+### 🎧 **Audio Generation**
+- **Podcast Creation**: Generate engaging audio discussions from your documents
+- **Content Summaries**: Create audio overviews of complex materials
+- **Multiple Voices**: Natural-sounding AI narration for enhanced accessibility
 
-For a complete demonstration of InsightsLM, an overview of its architecture, and a step-by-step guide on how to set it up, check out our YouTube video:
+### 🔒 **Privacy & Control**
+- **Self-Hosted Option**: Deploy on your own infrastructure for maximum data control
+- **Local AI Support**: Use local models with Ollama for complete privacy
+- **Secure Storage**: Enterprise-grade security with Supabase backend
 
-<p>
-  <a target="_blank" href="https://www.youtube.com/watch?v=IXJEGjfZRBE"><img src="https://raw.githubusercontent.com/theaiautomators/insights-lm-public/main/public/video.png" alt="Video" width="500"/></a>
-</p>
-
+### ⚙️ **Customization**
+- **Custom Prompts**: Tailor AI behavior to your specific needs
+- **Category Management**: Organize content with custom taxonomies
+- **Workflow Automation**: Extensible N8N-based processing pipelines
 
 ## Built With
 
-This project is built with a modern, powerful stack:
-* **Frontend:** 
-    * [Loveable](https://theaiautomators.com/go/loveable)
-    * [Vite](https://vitejs.dev/)
-    * [React](https://react.dev/)
-    * [TypeScript](https://www.typescriptlang.org/)
-    * [shadcn-ui](https://ui.shadcn.com/)
-    * [Tailwind CSS](https://tailwindcss.com/)
-* **Backend:**
-    * [Supabase](https://supabase.com/) - for database, authentication, and storage.
-    * [N8N](https://theaiautomators.com/go/n8n) - for workflow automation and backend logic.
+**Frontend Stack:**
+- [React 18](https://react.dev/) - Modern UI framework
+- [TypeScript](https://www.typescriptlang.org/) - Type-safe JavaScript
+- [Vite](https://vitejs.dev/) - Fast build tool and dev server
+- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
+- [shadcn/ui](https://ui.shadcn.com/) - Beautiful, accessible components
 
+**Backend & Infrastructure:**
+- [Supabase](https://supabase.com/) - Database, authentication, and storage
+- [N8N](https://n8n.io/) - Workflow automation and backend logic
+- PostgreSQL with vector extensions for embeddings
+- OpenAI/Gemini APIs for AI processing
 
-## Getting Started: A Guide for No-Coders to Test and Customize
+## Quick Start
 
-This guide provides the quickest way to get InsightsLM up and running so you can test, customize, and experiment.
+### Prerequisites
 
-I recommend you following along from 17:53 in our video here for the full step by step guide - [https://youtu.be/IXJEGjfZRBE?t=1073](https://youtu.be/IXJEGjfZRBE?t=1073)
+- Node.js 18+ and npm
+- Supabase account
+- N8N instance (cloud or self-hosted)
+- OpenAI or Gemini API key
 
-You will need a notepad file open to copy and paste in various credentials and details.
+### Installation
 
-1.  **Create Supabase Account and Project**
-    * Go to [Supabase.com](https://supabase.com/) and create a free account.
-    * Create a new project. Paste in your `database password` into your open notepad file as you will need this later.
-2.  **Create GitHub Account & Repo from Template**
-    * If you don't have one, create a free account on [GitHub](https://github.com/).
-    * Navigate to the InsightsLM template repository here: [**github.com/theaiautomators/insights-lm-public**](https://github.com/theaiautomators/insights-lm-public)
-    * Click the `Use this template` button to create a copy of the repository in your own GitHub account. Fill out the form.
-3.  **Import into an AI-Coding Editor (Bolt.new)**
-    * Create an account on [Bolt.new](https://bolt.new/) as it supports Supabase integration. (While the project was built on Loveable, it is currently quite difficult to import existing Github projects into Loveable)
-    * Import your newly created GitHub repository into your Bolt project. You will need to link your Github account to Bolt. Choose the repo and import.
-    * Now click Integrations on the top and connect your Supabase project. You will need to link your Supabase account to Bolt.
-    * Once connected, the Supabase Edge Functions will auto-deploy. You will need to approve the running of the migration script to create the data structures in Supabase.
-4.  **Import and Configure N8N Workflows**
-    * The `/n8n` directory in this repository contains the JSON files for the required N8N workflows. There are 2 approaches here.
-        1. The easiest is to import the "Import_Insights_LM_Workflows.json" file into a new workflow in n8n and follow the steps in the video. This includes configuring an n8n API key which will be used to auto-create all workflows needed by the system. You will also need to set various credentials.
-        2. Instead of using the above workflow importer, you can instead download and import the 6 JSON workflows in this directory. You will need to go node by node in each workflow to configure them for your services. (e.g. Supabase, OpenAI, Gemini, Sub-Workflows etc). Follow the TODOs in each workflow.
-5.  **Add N8N Webhooks to Supabase Secrets**
-    * Your N8N workflows are triggered by webhooks from the Supabase Edge Functions. If you used the workflow importer, you will have the list of N8N secrets to create. Otherwise you'll need to gather these from the various workflows.
-    * In your Supabase project dashboard, navigate to `Edge Functions` -> `Secrets` and add the following secrets. This allows the Supabase Edge Functions to securely call your N8N workflows.
-    * These are the secrets that need to be created
-        * NOTEBOOK_CHAT_URL
-        * NOTEBOOK_GENERATION_URL
-        * AUDIO_GENERATION_WEBHOOK_URL
-        * DOCUMENT_PROCESSING_WEBHOOK_URL
-        * ADDITIONAL_SOURCES_WEBHOOK_URL
-        * NOTEBOOK_GENERATION_AUTH (This is the password for the custom Header Auth for each n8n Webhook)
-        * OPENAI_API_KEY (This is used in the Generate Note Title edge function)
-6.  **Test & Customize**
-    * That's it! Your instance of InsightsLM should now be live.
-    * You can now test the application, upload documents, and start chatting.
-    * Within Bolt.new you can also deploy this to Netlify
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd supamind-v1
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Configure environment**
+   ```bash
+   cp .env.example .env.local
+   # Edit .env.local with your Supabase credentials
+   ```
+
+4. **Set up Supabase**
+   - Create a new Supabase project
+   - Run the included migrations to set up the database schema
+   - Configure authentication settings
+
+5. **Import N8N workflows**
+   - Import the JSON workflows from the `/n8n` directory
+   - Configure webhook URLs and API credentials
+   - Set up required secrets in Supabase Edge Functions
+
+6. **Start development server**
+   ```bash
+   npm run dev
+   ```
+
+Visit `http://localhost:5173` to access the application.
+
+## Architecture Overview
+
+SupaMind uses a modern, scalable architecture:
+
+- **Frontend**: React SPA with TypeScript and Vite
+- **Database**: PostgreSQL with vector extensions via Supabase
+- **Authentication**: Supabase Auth with JWT tokens
+- **File Storage**: Supabase Storage for documents and media
+- **AI Processing**: N8N workflows orchestrating AI APIs
+- **Real-time Updates**: Supabase realtime subscriptions
+
+## Development
+
+### Available Scripts
+
+```bash
+npm run dev          # Start development server
+npm run build        # Production build
+npm run preview      # Preview production build
+npm run lint         # Run ESLint
+```
+
+### Project Structure
+
+```
+src/
+├── components/      # React components organized by feature
+│   ├── auth/       # Authentication components
+│   ├── chat/       # Chat interface and messaging
+│   ├── dashboard/  # Main dashboard and navigation
+│   ├── feed/       # Document feed management
+│   ├── notebook/   # Notebook interface and tools
+│   └── ui/         # Reusable UI components
+├── hooks/          # Custom React hooks
+├── pages/          # Top-level page components
+├── contexts/       # React context providers
+├── integrations/   # External service integrations
+└── lib/           # Utility functions and helpers
+```
+
+## Deployment
+
+### Cloud Deployment
+
+Deploy to platforms like Netlify, Vercel, or Railway:
+
+1. Connect your repository
+2. Set environment variables
+3. Deploy with automatic builds
+
+### Self-Hosted Deployment
+
+For maximum control and privacy:
+
+1. Set up a VPS or cloud instance
+2. Install Docker and Docker Compose
+3. Configure reverse proxy (nginx/Traefik)
+4. Deploy with provided Docker configuration
+
+## Local AI Setup
+
+For complete privacy, use the local AI version:
+
+- **Models**: Ollama with Qwen3 for text generation
+- **Speech**: Whisper for transcription, CoquiTTS for synthesis
+- **Processing**: Fully offline document analysis
+
+[Local AI Setup Guide](https://github.com/example/supamind-local)
 
 ## Contributing
 
-Contributions make the open-source community an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
+We welcome contributions from the community! Here's how to get started:
 
-- Fork the Project
-- Create your Feature Branch (git checkout -b feature/AmazingFeature)
-- Commit your Changes (git commit -m 'Add some AmazingFeature')
-- Push to the Branch (git push origin feature/AmazingFeature)
-- Open a Pull Request
+1. **Fork the repository**
+2. **Create a feature branch** (`git checkout -b feature/amazing-feature`)
+3. **Make your changes** with appropriate tests
+4. **Commit your changes** (`git commit -m 'Add amazing feature'`)
+5. **Push to your branch** (`git push origin feature/amazing-feature`)
+6. **Open a Pull Request**
+
+### Development Guidelines
+
+- Follow TypeScript best practices
+- Use existing component patterns
+- Write meaningful commit messages
+- Test your changes thoroughly
+- Update documentation as needed
 
 ## License
 
-This codebase is distributed under the MIT License.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## A Note on n8n's Sustainable Use License
+## Important Notes
 
-While InsightsLM is fully open-sourced and Supabase is also open source, it's important to be aware that n8n, which powers much of the backend automation, is not open source in the traditional sense.
+### N8N Licensing
 
-n8n is distributed under a [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md). This license allows free usage for internal business purposes, including hosting workflows within your company or organization.
+This project uses N8N for workflow automation, which operates under a [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md). 
 
-However, if you plan to use InsightsLM as part of a commercial SaaS offering—such as reselling access or hosting a public version for multiple clients—you may need to obtain an n8n Enterprise License. We’re not lawyers, so we recommend that you review the n8n license and contacting their team if your use case falls into a commercial category.
+- ✅ **Free for internal business use** and self-hosting
+- ❓ **Commercial SaaS usage** may require an Enterprise License
+- 🔄 **Alternative**: Convert workflows to Supabase Edge Functions for full open-source deployment
 
-Alternatives: If your use case is restricted by the n8n license, one potential option is to convert key workflows into Supabase Edge Functions. This would allow you to fully avoid using n8n in production.
+Please review N8N's licensing terms for your specific use case.
+
+### Support & Documentation
+
+- **Issues**: Report bugs and request features via GitHub Issues
+- **Discussions**: Join community discussions for questions and ideas
+- **Documentation**: Comprehensive guides available in the `/docs` directory
+
+---
+
+**Built with ❤️ for the open-source community**
