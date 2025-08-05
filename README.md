@@ -1,4 +1,4 @@
-# SupaMind: AI-Powered Knowledge Assistant
+# Supamind: AI-Powered Knowledge Assistant
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![React](https://img.shields.io/badge/React-18.3.1-blue.svg)](https://react.dev/)
@@ -6,13 +6,13 @@
 
 > Transform your documents into an intelligent, searchable knowledge base. Upload, organize, and chat with your content using advanced AI technology.
 
-SupaMind is a modern, open-source knowledge management platform that enables you to build a personalized AI assistant grounded in your own documents and data. Whether you're conducting research, managing team knowledge, or organizing personal information, SupaMind provides powerful AI-driven insights while maintaining complete control over your data.
+Supamind is a modern, open-source knowledge management platform that enables you to build a personalized AI assistant grounded in your own documents and data. Whether you're conducting research, managing team knowledge, or organizing personal information, Supamind provides powerful AI-driven insights while maintaining complete control over your data.
 
 ## About The Project
 
-SupaMind addresses the growing need for intelligent document management and knowledge retrieval. Unlike closed-source alternatives, this platform gives you full control over your data while providing enterprise-grade AI capabilities through a modern, intuitive interface.
+Supamind addresses the growing need for intelligent document management and knowledge retrieval. Unlike closed-source alternatives, this platform gives you full control over your data while providing enterprise-grade AI capabilities through a modern, intuitive interface.
 
-Built with a robust architecture combining React, Supabase, and N8N workflows, SupaMind offers both cloud and self-hosted deployment options, making it suitable for individuals, teams, and organizations of any size.
+Built with a robust architecture combining React, Supabase, and N8N workflows, Supamind offers both cloud and self-hosted deployment options, making it suitable for individuals, teams, and organizations of any size.
 
 ## Key Features
 
@@ -70,7 +70,7 @@ Built with a robust architecture combining React, Supabase, and N8N workflows, S
 1. **Clone the repository**
    ```bash
    git clone <your-repo-url>
-   cd supamind-v1
+   cd Supamind-v1
    ```
 
 2. **Install dependencies**
@@ -103,7 +103,7 @@ Visit `http://localhost:5173` to access the application.
 
 ## Architecture Overview
 
-SupaMind uses a modern, scalable architecture:
+Supamind uses a modern, scalable architecture:
 
 - **Frontend**: React SPA with TypeScript and Vite
 - **Database**: PostgreSQL with vector extensions via Supabase
@@ -168,7 +168,7 @@ For complete privacy, use the local AI version:
 - **Speech**: Whisper for transcription, CoquiTTS for synthesis
 - **Processing**: Fully offline document analysis
 
-[Local AI Setup Guide](https://github.com/example/supamind-local)
+[Local AI Setup Guide](https://github.com/example/Supamind-local)
 
 ## Contributing
 
