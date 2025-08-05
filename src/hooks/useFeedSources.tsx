@@ -1,14 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 export const useFeedSources = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const [displayLimit, setDisplayLimit] = useState(20); // Start with 20 items
+  const [totalCount, setTotalCount] = useState(0);
 
+  // Query for all sources to track total count and handle real-time updates
   const {
-    data: sources = [],
+    data: allSources = [],
     isLoading,
     error,
   } = useQuery({
@@ -28,6 +31,27 @@ export const useFeedSources = () => {
     },
     enabled: !!user,
   });
+
+  // Update total count when allSources changes
+  useEffect(() => {
+    setTotalCount(allSources.length);
+  }, [allSources.length]);
+
+  // Get the limited sources for display
+  const sources = allSources.slice(0, displayLimit);
+
+  // Load more function
+  const loadMore = useCallback(() => {
+    setDisplayLimit(prev => prev + 12);
+  }, []);
+
+  // Reset display limit when user changes
+  useEffect(() => {
+    setDisplayLimit(20);
+  }, [user?.id]);
+
+  // Check if there are more sources to load
+  const hasMore = displayLimit < totalCount;
 
   // Set up Realtime subscription for feed sources
   useEffect(() => {
@@ -270,8 +294,12 @@ export const useFeedSources = () => {
 
   return {
     sources,
+    allSources,
     isLoading,
     error,
+    totalCount,
+    hasMore,
+    loadMore,
     addSource: addSource.mutate,
     addSourceAsync: addSource.mutateAsync,
     isAdding: addSource.isPending,

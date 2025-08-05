@@ -166,6 +166,13 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
     }
   };
 
+  const truncateTitle = (title: string, maxLength: number = 110) => {
+    if (title.length <= maxLength) {
+      return title;
+    }
+    return title.substring(0, maxLength).trim() + '...';
+  };
+
   const handleDelete = async () => {
     setIsDeleting(true);
     setShowDeleteDialog(false);
@@ -379,7 +386,7 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
               {/* Title */}
               <div className="mb-2">
                 <CardTitle className="text-base line-clamp-2">
-                  {source.title}
+                  {truncateTitle(source.title)}
                 </CardTitle>
               </div>
               
@@ -441,7 +448,7 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
         <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Delete {source.title}?</AlertDialogTitle>
+              <AlertDialogTitle>Delete {truncateTitle(source.title)}?</AlertDialogTitle>
               <AlertDialogDescription>
                 This will permanently remove this source from your feed. This action cannot be undone.
               </AlertDialogDescription>
@@ -499,7 +506,7 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
           {/* Title */}
           <div className="mb-2">
             <CardTitle className="text-base line-clamp-2">
-              {source.title}
+              {truncateTitle(source.title)}
             </CardTitle>
           </div>
           
@@ -560,7 +567,7 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete {source.title}?</AlertDialogTitle>
+            <AlertDialogTitle>Delete {truncateTitle(source.title)}?</AlertDialogTitle>
             <AlertDialogDescription>
               This will permanently remove this source from your feed. This action cannot be undone.
             </AlertDialogDescription>

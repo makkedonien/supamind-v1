@@ -578,7 +578,7 @@ const Feed = () => {
   const [optimisticallyDeletedIds, setOptimisticallyDeletedIds] = useState<Set<string>>(new Set());
 
   // Feed sources data
-  const { sources, isLoading, error } = useFeedSources();
+  const { sources, allSources, isLoading, error, totalCount, hasMore, loadMore } = useFeedSources();
 
   // Auto-cleanup optimistically deleted items when they're actually removed from sources
   useEffect(() => {
@@ -640,7 +640,7 @@ const Feed = () => {
 
   // Calculate source counts for sidebar
   const sourceCounts = useMemo(() => {
-    if (!sources) {
+    if (!allSources) {
       return {
         favorites: 0,
         websites: 0,
@@ -651,15 +651,15 @@ const Feed = () => {
     }
 
     const counts = {
-      favorites: sources.filter(s => s.is_favorite).length,
-      websites: sources.filter(s => ['website', 'youtube'].includes(s.type)).length,
-      pdfs: sources.filter(s => s.type === 'pdf').length,
-      copiedTexts: sources.filter(s => s.type === 'text').length,
+      favorites: allSources.filter(s => s.is_favorite).length,
+      websites: allSources.filter(s => ['website', 'youtube'].includes(s.type)).length,
+      pdfs: allSources.filter(s => s.type === 'pdf').length,
+      copiedTexts: allSources.filter(s => s.type === 'text').length,
       categoryCounts: {} as Record<string, number>,
     };
 
     // Calculate category counts
-    sources.forEach(source => {
+    allSources.forEach(source => {
       const sourceCategories = source.category || [];
       sourceCategories.forEach(category => {
         counts.categoryCounts[category] = (counts.categoryCounts[category] || 0) + 1;
@@ -667,13 +667,13 @@ const Feed = () => {
     });
 
     return counts;
-  }, [sources]);
+  }, [allSources]);
 
   // Calculate processing sources for sidebar
   const processingSources = useMemo(() => {
-    if (!sources) return [];
+    if (!allSources) return [];
     
-    return sources
+    return allSources
       .filter(source => 
         source.processing_status === 'processing' || 
         source.processing_status === 'uploading' ||
@@ -684,7 +684,7 @@ const Feed = () => {
         title: source.title,
         processing_status: source.processing_status || 'pending'
       }));
-  }, [sources]);
+  }, [allSources]);
 
   // Force card view on mobile
   useEffect(() => {
@@ -845,7 +845,7 @@ const Feed = () => {
                   <span className="mx-2">•</span>
                   {filteredSources?.length || 0} filtered
                   <span className="mx-2">•</span>
-                  {sources?.length || 0} total
+                  {allSources?.length || 0} total
                 </>
               ) : (
                 <>
@@ -854,7 +854,7 @@ const Feed = () => {
                   {(filters.favorites || filters.websites || filters.pdfs || filters.copiedTexts || filters.categories.length > 0) && (
                     <>
                       <span className="mx-2">•</span>
-                      {sources?.length || 0} total
+                      {allSources?.length || 0} total
                     </>
                   )}
                 </>
@@ -922,7 +922,7 @@ const Feed = () => {
         )}
 
         {/* Empty State */}
-        {!isLoading && !error && (!sources || sources.length === 0) && (
+        {!isLoading && !error && (!allSources || allSources.length === 0) && (
           <div className="text-center py-12">
             <div className="w-16 h-16 bg-gray-200 rounded-lg mx-auto mb-4 flex items-center justify-center">
               <span className="text-gray-400 text-2xl">📄</span>
@@ -939,7 +939,7 @@ const Feed = () => {
         )}
 
         {/* No Filtered Results State */}
-        {!isLoading && !error && sources && sources.length > 0 && filteredSources.length === 0 && (
+        {!isLoading && !error && allSources && allSources.length > 0 && filteredSources.length === 0 && (
           <div className="text-center py-12">
             <div className="w-16 h-16 bg-gray-200 rounded-lg mx-auto mb-4 flex items-center justify-center">
               <span className="text-gray-400 text-2xl">🔍</span>
@@ -958,25 +958,41 @@ const Feed = () => {
         )}
 
         {/* Feed Sources Grid */}
-        {!isLoading && !error && sources && sources.length > 0 && filteredSources.length > 0 && (
-          <div className={viewMode === 'list' 
-            ? "space-y-4 w-full" 
-            : "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-          }>
-            {filteredSources.map(source => (
-              <FeedSourceCard 
-                key={source.id} 
-                source={source}
-                viewMode={viewMode}
-                onEdit={handleEditSource}
-                onCategorize={handleCategorizeSource}
-                onOpenDetail={handleOpenFeedSourceDetail}
-                isSelected={selectedSources.has(source.id)}
-                onSelectionChange={handleSourceSelection}
-                onOptimisticDelete={handleOptimisticDelete}
-                onDeleteError={handleDeleteError}
-              />
-            ))}
+        {!isLoading && !error && allSources && allSources.length > 0 && filteredSources.length > 0 && (
+          <div className="space-y-6">
+            <div className={viewMode === 'list' 
+              ? "space-y-4 w-full" 
+              : "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+            }>
+              {filteredSources.map(source => (
+                <FeedSourceCard 
+                  key={source.id} 
+                  source={source}
+                  viewMode={viewMode}
+                  onEdit={handleEditSource}
+                  onCategorize={handleCategorizeSource}
+                  onOpenDetail={handleOpenFeedSourceDetail}
+                  isSelected={selectedSources.has(source.id)}
+                  onSelectionChange={handleSourceSelection}
+                  onOptimisticDelete={handleOptimisticDelete}
+                  onDeleteError={handleDeleteError}
+                />
+              ))}
+            </div>
+
+            {/* Load More Button - Only show if total count > 20 and there are more to load */}
+            {totalCount > 20 && hasMore && (
+              <div className="flex justify-center pt-6">
+                <Button 
+                  variant="outline" 
+                  onClick={loadMore}
+                  size="lg"
+                  className="px-8"
+                >
+                  Load More ({totalCount - sources.length} remaining)
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </div>
