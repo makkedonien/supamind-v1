@@ -134,12 +134,12 @@ const AppSidebar = ({ feedFilters, onFeedFiltersChange, feedSourceCounts, proces
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <div className="flex items-center space-x-2 px-2">
+        <Link to="/" className="flex items-center space-x-2 px-2 hover:opacity-80 transition-opacity">
           <Logo size="md" />
           <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">
             Supamind
           </span>
-        </div>
+        </Link>
       </SidebarHeader>
       
       <SidebarContent>

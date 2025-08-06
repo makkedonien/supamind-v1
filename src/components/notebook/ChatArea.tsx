@@ -289,7 +289,17 @@ const ChatArea = ({
           </div>
         </div> :
     // Empty State
-    <div className="flex-1 flex flex-col items-center justify-center p-8 overflow-hidden">
+    <div className="flex-1 flex flex-col items-center justify-center p-8 overflow-hidden relative">
+          {/* Close button for empty state */}
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => navigate('/notebooks')}
+            className="absolute top-4 right-4 flex items-center justify-center w-8 h-8 p-0"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+          
           <div className="text-center mb-8">
             <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center bg-gray-100">
               <Upload className="h-8 w-8 text-slate-600" />

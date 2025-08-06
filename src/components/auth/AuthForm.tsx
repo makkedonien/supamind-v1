@@ -74,7 +74,7 @@ const AuthForm = () => {
 
   return (
     <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
+      <CardHeader className="text-center">
         <CardTitle>Sign In</CardTitle>
         <CardDescription>
           Enter your credentials to access your notebooks
@@ -112,6 +112,7 @@ const AuthForm = () => {
                 required
                 placeholder="Enter your email"
                 disabled={loading || googleLoading}
+                className="text-center"
               />
             </div>
             <div className="space-y-2">
@@ -125,6 +126,7 @@ const AuthForm = () => {
                 placeholder="Enter your password"
                 minLength={6}
                 disabled={loading || googleLoading}
+                className="text-center"
               />
             </div>
             <Button type="submit" className="w-full" disabled={loading || googleLoading}>
