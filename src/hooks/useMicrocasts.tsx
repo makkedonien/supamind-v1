@@ -240,6 +240,83 @@ export const useMicrocasts = () => {
     },
   });
 
+  const refreshAudioUrl = useMutation({
+    mutationFn: async (microcastId: string) => {
+      if (!user) throw new Error('User not authenticated');
+
+      // Get the current microcast to find the audio file path
+      const { data: microcast, error: fetchError } = await supabase
+        .from('microcasts')
+        .select('audio_url')
+        .eq('id', microcastId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (fetchError) {
+        console.error('Error fetching microcast:', fetchError);
+        throw new Error('Failed to fetch microcast');
+      }
+
+      if (!microcast.audio_url) {
+        throw new Error('No audio URL found');
+      }
+
+      // Extract the file path from the existing URL
+      const urlParts = microcast.audio_url.split('/');
+      const bucketIndex = urlParts.findIndex(part => part === 'audio');
+      
+      if (bucketIndex === -1) {
+        throw new Error('Invalid audio URL format');
+      }
+
+      // Reconstruct the file path from the URL
+      const filePath = urlParts.slice(bucketIndex + 1).join('/');
+
+      console.log('Refreshing signed URL for microcast path:', filePath);
+
+      // Generate a new signed URL with 7 days expiration (same as original)
+      const { data: signedUrlData, error: signError } = await supabase.storage
+        .from('audio')
+        .createSignedUrl(filePath, 86400 * 7); // 7 days in seconds
+
+      if (signError) {
+        console.error('Error creating signed URL:', signError);
+        throw new Error('Failed to create signed URL');
+      }
+
+      // Calculate new expiry time (7 days from now)
+      const newExpiryTime = new Date();
+      newExpiryTime.setDate(newExpiryTime.getDate() + 7);
+
+      // Update the microcast with the new signed URL and expiry time
+      const { error: updateError } = await supabase
+        .from('microcasts')
+        .update({
+          audio_url: signedUrlData.signedUrl,
+          audio_expires_at: newExpiryTime.toISOString()
+        })
+        .eq('id', microcastId)
+        .eq('user_id', user.id);
+
+      if (updateError) {
+        console.error('Error updating microcast:', updateError);
+        throw new Error('Failed to update microcast with new URL');
+      }
+
+      console.log('Successfully refreshed audio URL for microcast:', microcastId);
+
+      return {
+        success: true,
+        audioUrl: signedUrlData.signedUrl,
+        expiresAt: newExpiryTime.toISOString()
+      };
+    },
+    onSuccess: () => {
+      console.log('Microcast audio URL refreshed successfully');
+      // The Realtime subscription will handle updating the cache
+    },
+  });
+
 
   return {
     microcasts,
@@ -254,5 +331,8 @@ export const useMicrocasts = () => {
     deleteMicrocast: deleteMicrocast.mutate,
     deleteMicrocastAsync: deleteMicrocast.mutateAsync,
     isDeleting: deleteMicrocast.isPending,
+    refreshAudioUrl: refreshAudioUrl.mutate,
+    refreshAudioUrlAsync: refreshAudioUrl.mutateAsync,
+    isRefreshing: refreshAudioUrl.isPending,
   };
 };

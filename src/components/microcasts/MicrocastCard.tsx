@@ -3,10 +3,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Play, Pause, Loader2, AlertTriangle, Clock, Mic, FileText, Link as LinkIcon, Youtube, Volume2 } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Play, Pause, Loader2, AlertTriangle, Clock, Mic, FileText, Link as LinkIcon, Youtube, Volume2, MoreVertical, Download, Trash2 } from 'lucide-react';
 import { useAudioPlayer } from '@/contexts/AudioPlayerContext';
 import { Tables } from '@/integrations/supabase/types';
 import { useFeedSources } from '@/hooks/useFeedSources';
+import { useMicrocasts } from '@/hooks/useMicrocasts';
+import { useToast } from '@/hooks/use-toast';
 
 type Microcast = Tables<'microcasts'>;
 
@@ -18,6 +21,8 @@ interface MicrocastCardProps {
 const MicrocastCard: React.FC<MicrocastCardProps> = ({ microcast, onClick }) => {
   const { playerState, playMicrocast, pausePlayback, resumePlayback } = useAudioPlayer();
   const { allSources } = useFeedSources();
+  const { deleteMicrocast, isDeleting } = useMicrocasts();
+  const { toast } = useToast();
 
   // Check if this microcast is currently playing
   const isCurrentMicrocast = playerState.currentMicrocast?.id === microcast.id;
@@ -146,6 +151,77 @@ const MicrocastCard: React.FC<MicrocastCardProps> = ({ microcast, onClick }) => 
     return title.substring(0, maxLength).trim() + '...';
   };
 
+  // Check if audio is expired
+  const isExpired = microcast.audio_expires_at ? new Date(microcast.audio_expires_at) <= new Date() : false;
+
+  // Format expiration date
+  const formatExpirationText = () => {
+    if (!microcast.audio_expires_at) return null;
+    
+    const expiryDate = new Date(microcast.audio_expires_at);
+    const now = new Date();
+    const diffTime = expiryDate.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (isExpired) {
+      return "Audio expired";
+    } else if (diffDays === 1) {
+      return "Expires in 1 day";
+    } else if (diffDays <= 7) {
+      return `Expires in ${diffDays} days`;
+    } else {
+      return `Expires ${expiryDate.toLocaleDateString()}`;
+    }
+  };
+
+  const downloadAudio = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!microcast.audio_url) return;
+    
+    try {
+      // Fetch the audio file
+      const response = await fetch(microcast.audio_url);
+      if (!response.ok) {
+        throw new Error('Failed to fetch audio file');
+      }
+      
+      // Create a blob from the response
+      const blob = await response.blob();
+      
+      // Create a temporary URL for the blob
+      const blobUrl = URL.createObjectURL(blob);
+      
+      // Create a temporary anchor element and trigger download
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `${microcast.title}.mp3`;
+      document.body.appendChild(link);
+      link.click();
+      
+      // Clean up
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
+      
+      toast({
+        title: "Download Started",
+        description: "Your microcast is being downloaded.",
+      });
+    } catch (error) {
+      console.error('Download failed:', error);
+      toast({
+        title: "Download Failed",
+        description: "Failed to download the microcast. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    deleteMicrocast(microcast.id);
+  };
+
 
   return (
     <Card 
@@ -159,7 +235,7 @@ const MicrocastCard: React.FC<MicrocastCardProps> = ({ microcast, onClick }) => 
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1 min-w-0">
             <CardTitle className="text-lg line-clamp-2 mb-2">{microcast.title}</CardTitle>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <Badge variant="outline" className={`${getStatusColor()}`}>
                 <div className="flex items-center gap-1">
                   {getStatusIcon()}
@@ -171,26 +247,59 @@ const MicrocastCard: React.FC<MicrocastCardProps> = ({ microcast, onClick }) => 
                   {formatDuration()}
                 </span>
               )}
+              {formatExpirationText() && (
+                <span className={`text-xs ${isExpired ? 'text-red-600' : 'text-muted-foreground'}`}>
+                  {formatExpirationText()}
+                </span>
+              )}
             </div>
           </div>
           
-          {/* Play/Pause Button */}
+          {/* Play/Pause Button and Actions */}
           {microcast.generation_status === 'completed' && microcast.audio_url && (
-            <Button
-              variant={isCurrentMicrocast ? "default" : "outline"}
-              size="icon"
-              className="ml-3 flex-shrink-0"
-              onClick={togglePlayPause}
-              disabled={loading}
-            >
-              {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : isPlaying ? (
-                <Pause className="h-4 w-4" />
-              ) : (
-                <Play className="h-4 w-4" />
-              )}
-            </Button>
+            <div className="flex items-center gap-2 ml-3 flex-shrink-0">
+              <Button
+                variant={isCurrentMicrocast ? "default" : "outline"}
+                size="icon"
+                onClick={togglePlayPause}
+                disabled={loading}
+              >
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : isPlaying ? (
+                  <Pause className="h-4 w-4" />
+                ) : (
+                  <Play className="h-4 w-4" />
+                )}
+              </Button>
+              
+              {/* Dropdown Menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" disabled={isDeleting}>
+                    {isDeleting ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <MoreVertical className="h-4 w-4" />
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={downloadAudio}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Download
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={handleDelete}
+                    className="text-red-600 focus:text-red-600"
+                    disabled={isDeleting}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           )}
         </div>
 

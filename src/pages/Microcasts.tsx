@@ -8,7 +8,6 @@ import { useMicrocasts } from '@/hooks/useMicrocasts';
 
 import { useNavigate } from 'react-router-dom';
 import MicrocastCard from '@/components/microcasts/MicrocastCard';
-import MicrocastPlayer from '@/components/microcasts/MicrocastPlayer';
 import { OnboardingManager } from '@/components/onboarding/OnboardingManager';
 import { microcastsOnboardingConfig } from '@/components/onboarding/OnboardingConfigs';
 import { useOnboarding } from '@/hooks/useOnboarding';
@@ -17,19 +16,14 @@ const Microcasts = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { microcasts, isLoading, error } = useMicrocasts();
-  const [selectedMicrocast, setSelectedMicrocast] = useState<string | null>(null);
+
   const { needsOnboarding, completeOnboarding, isLoading: onboardingLoading } = useOnboarding('microcasts');
 
   const handleGoToFeed = () => {
     navigate('/');
   };
 
-  const handleMicrocastClick = (microcastId: string) => {
-    setSelectedMicrocast(selectedMicrocast === microcastId ? null : microcastId);
-  };
 
-  const selectedMicrocastData = selectedMicrocast ? 
-    microcasts.find(m => m.id === selectedMicrocast) : null;
 
   // Statistics
   const completedMicrocasts = microcasts.filter(m => m.generation_status === 'completed').length;
@@ -109,23 +103,13 @@ const Microcasts = () => {
                 <MicrocastCard
                   key={microcast.id}
                   microcast={microcast}
-                  onClick={() => handleMicrocastClick(microcast.id)}
                 />
               ))}
             </div>
           </div>
         )}
 
-        {/* Selected Microcast Detail Player */}
-        {selectedMicrocastData && (
-          <div className="mt-8">
-            <h3 className="text-lg font-semibold mb-4">Now Playing</h3>
-            <MicrocastPlayer
-              microcast={selectedMicrocastData}
-              onDeleted={() => setSelectedMicrocast(null)}
-            />
-          </div>
-        )}
+
       </div>
     </main>
   );
