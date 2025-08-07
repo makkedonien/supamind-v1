@@ -12,11 +12,6 @@ export const useLogout = () => {
     try {
       await signOut();
       
-      toast({
-        title: "Signed out",
-        description: "You have been successfully signed out."
-      });
-      
       // Redirect to auth page
       navigate('/auth', { replace: true });
       
@@ -24,12 +19,6 @@ export const useLogout = () => {
       console.error('Logout error:', error);
       
       // Even if there's an error, redirect to auth page
-      toast({
-        title: "Signed out",
-        description: "You have been signed out locally.",
-        variant: "default"
-      });
-      
       navigate('/auth', { replace: true });
     }
   };

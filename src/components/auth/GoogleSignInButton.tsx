@@ -58,11 +58,6 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
       }
 
       console.log('Google Sign-In successful:', data.user?.email);
-      
-      toast({
-        title: "Welcome!",
-        description: "You have successfully signed in with Google.",
-      });
 
       onSignInComplete?.();
     } catch (error: any) {

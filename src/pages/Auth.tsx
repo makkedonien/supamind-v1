@@ -142,7 +142,7 @@ const Auth = () => {
 
           {/* Microcasts Section */}
           <div className="grid lg:grid-cols-2 gap-12 items-center mb-20">
-            <div className="bg-white rounded-lg shadow-lg p-6 border">
+            <div className="bg-white rounded-lg shadow-lg p-6 border order-2 lg:order-1">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-3 h-3 rounded-full bg-red-400"></div>
                 <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
@@ -173,7 +173,7 @@ const Auth = () => {
                 </div>
               </div>
             </div>
-            <div>
+            <div className="order-1 lg:order-2">
               <div className="flex items-center gap-3 mb-6">
                 <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-lg">
                   <Mic className="w-6 h-6 text-green-600" />

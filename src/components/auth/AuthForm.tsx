@@ -52,11 +52,6 @@ const AuthForm = () => {
       }
       
       console.log('Sign in successful:', data.user?.email);
-      
-      toast({
-        title: "Welcome back!",
-        description: "You have successfully signed in.",
-      });
 
       // The AuthContext will handle the redirect automatically
       
