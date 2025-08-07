@@ -7,12 +7,7 @@ import { BookOpen, Mic, FolderOpen, ChevronDown } from 'lucide-react';
 const Auth = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Header */}
-      <div className="w-full px-4 py-6">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <div className="text-2xl font-bold text-gray-900">🧠 Supamind</div>
-        </div>
-      </div>
+
 
       {/* Above the fold - Hero Section */}
       <div className="max-w-4xl mx-auto px-4 py-12 text-center">
