@@ -154,6 +154,9 @@ export type Database = {
           email: string
           full_name: string | null
           id: string
+          onboarding_completed_feed: boolean | null
+          onboarding_completed_microcasts: boolean | null
+          onboarding_completed_notebooks: boolean | null
           summary_prompt: string | null
           updated_at: string
         }
@@ -165,6 +168,9 @@ export type Database = {
           email: string
           full_name?: string | null
           id: string
+          onboarding_completed_feed?: boolean | null
+          onboarding_completed_microcasts?: boolean | null
+          onboarding_completed_notebooks?: boolean | null
           summary_prompt?: string | null
           updated_at?: string
         }
@@ -176,6 +182,9 @@ export type Database = {
           email?: string
           full_name?: string | null
           id?: string
+          onboarding_completed_feed?: boolean | null
+          onboarding_completed_microcasts?: boolean | null
+          onboarding_completed_notebooks?: boolean | null
           summary_prompt?: string | null
           updated_at?: string
         }

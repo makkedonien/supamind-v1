@@ -172,7 +172,7 @@ const AppSidebar = ({ feedFilters, onFeedFiltersChange, feedSourceCounts, proces
 
         {/* Filters Section - Only on Feed page */}
         {isFeedPage && feedSourceCounts && (
-          <SidebarGroup>
+          <SidebarGroup data-onboarding="filters">
             <SidebarGroupLabel>
               <Filter className="h-4 w-4 mr-2" />
               Filters
