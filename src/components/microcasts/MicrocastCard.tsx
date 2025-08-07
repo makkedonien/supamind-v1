@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Play, Pause, Loader2, AlertTriangle, Clock, Mic } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Play, Pause, Loader2, AlertTriangle, Clock, Mic, FileText, Link as LinkIcon, Youtube, Volume2 } from 'lucide-react';
 import { useAudioPlayer } from '@/contexts/AudioPlayerContext';
 import { Tables } from '@/integrations/supabase/types';
+import { useFeedSources } from '@/hooks/useFeedSources';
 
 type Microcast = Tables<'microcasts'>;
 
@@ -15,6 +17,7 @@ interface MicrocastCardProps {
 
 const MicrocastCard: React.FC<MicrocastCardProps> = ({ microcast, onClick }) => {
   const { playerState, playMicrocast, pausePlayback, resumePlayback } = useAudioPlayer();
+  const { allSources } = useFeedSources();
 
   // Check if this microcast is currently playing
   const isCurrentMicrocast = playerState.currentMicrocast?.id === microcast.id;
@@ -88,6 +91,61 @@ const MicrocastCard: React.FC<MicrocastCardProps> = ({ microcast, onClick }) => 
     return null;
   };
 
+  // Get sources for this microcast
+  const microcastSources = allSources.filter(source => 
+    microcast.source_ids.includes(source.id)
+  );
+
+  // Utility functions for source display
+  const getSourceIcon = (type: string) => {
+    switch (type) {
+      case 'pdf':
+        return <FileText className="h-3 w-3 text-red-600" />;
+      case 'website':
+        return <LinkIcon className="h-3 w-3 text-green-600" />;
+      case 'youtube':
+        return <Youtube className="h-3 w-3 text-red-600" />;
+      case 'audio':
+        return <Volume2 className="h-3 w-3 text-purple-600" />;
+      case 'text':
+        return <FileText className="h-3 w-3 text-blue-600" />;
+      default:
+        return <FileText className="h-3 w-3 text-gray-600" />;
+    }
+  };
+
+  const getPlaceholderImage = (sourceType: string) => {
+    switch (sourceType) {
+      case 'pdf':
+        return '/file-types/PDF (1).svg';
+      case 'website':
+        return '/file-types/WEB (1).svg';
+      case 'youtube':
+        return '/file-types/WEB (1).svg';
+      case 'audio':
+        return '/file-types/MP3 (1).png';
+      case 'text':
+        return '/file-types/TXT (1).png';
+      default:
+        return '/file-types/DOC (1).png';
+    }
+  };
+
+  const getDomain = (url: string) => {
+    try {
+      return new URL(url).hostname.replace('www.', '');
+    } catch {
+      return url;
+    }
+  };
+
+  const truncateTitle = (title: string, maxLength: number = 40) => {
+    if (title.length <= maxLength) {
+      return title;
+    }
+    return title.substring(0, maxLength).trim() + '...';
+  };
+
 
   return (
     <Card 
@@ -96,13 +154,24 @@ const MicrocastCard: React.FC<MicrocastCardProps> = ({ microcast, onClick }) => 
       }`}
       onClick={onClick}
     >
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
+      <CardContent className="p-6">
+        {/* Header Section */}
+        <div className="flex items-start justify-between mb-4">
           <div className="flex-1 min-w-0">
-            <CardTitle className="text-lg line-clamp-2">{microcast.title}</CardTitle>
-            <CardDescription className="mt-1">
-              {microcast.source_ids.length} source{microcast.source_ids.length !== 1 ? 's' : ''}
-            </CardDescription>
+            <CardTitle className="text-lg line-clamp-2 mb-2">{microcast.title}</CardTitle>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className={`${getStatusColor()}`}>
+                <div className="flex items-center gap-1">
+                  {getStatusIcon()}
+                  <span className="text-xs">{getStatusText()}</span>
+                </div>
+              </Badge>
+              {formatDuration() && (
+                <span className="text-xs text-muted-foreground">
+                  {formatDuration()}
+                </span>
+              )}
+            </div>
           </div>
           
           {/* Play/Pause Button */}
@@ -124,27 +193,10 @@ const MicrocastCard: React.FC<MicrocastCardProps> = ({ microcast, onClick }) => 
             </Button>
           )}
         </div>
-      </CardHeader>
-
-      <CardContent className="pt-0">
-        <div className="flex items-center justify-between">
-          <Badge variant="outline" className={`${getStatusColor()}`}>
-            <div className="flex items-center gap-1">
-              {getStatusIcon()}
-              <span className="text-xs">{getStatusText()}</span>
-            </div>
-          </Badge>
-          
-          {formatDuration() && (
-            <span className="text-xs text-muted-foreground">
-              {formatDuration()}
-            </span>
-          )}
-        </div>
 
         {/* Progress Bar for Currently Playing */}
         {isCurrentMicrocast && playerState.duration > 0 && (
-          <div className="mt-3">
+          <div className="mb-4">
             <div className="w-full bg-gray-200 rounded-full h-1">
               <div 
                 className="bg-primary h-1 rounded-full transition-all duration-200" 
@@ -156,6 +208,73 @@ const MicrocastCard: React.FC<MicrocastCardProps> = ({ microcast, onClick }) => 
             <div className="flex justify-between text-xs text-muted-foreground mt-1">
               <span>{Math.floor(playerState.currentTime / 60)}:{Math.floor(playerState.currentTime % 60).toString().padStart(2, '0')}</span>
               <span>{Math.floor(playerState.duration / 60)}:{Math.floor(playerState.duration % 60).toString().padStart(2, '0')}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Sources Section */}
+        {microcastSources.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-700">Sources</span>
+              <Badge variant="secondary" className="text-xs">
+                {microcastSources.length}
+              </Badge>
+            </div>
+            
+            <div className="space-y-2">
+              {microcastSources.slice(0, 3).map((source) => (
+                <div key={source.id} className="flex items-center gap-3 p-2 rounded-lg bg-gray-50/50 border border-gray-100">
+                  {/* Source Thumbnail */}
+                  <div className="flex-shrink-0">
+                    <img 
+                      src={source.image_url || getPlaceholderImage(source.type)}
+                      alt={source.title}
+                      className={`w-10 h-10 rounded ${source.image_url ? 'object-cover' : 'object-contain p-1'}`}
+                      onError={(e) => {
+                        const imgElement = e.currentTarget as HTMLImageElement;
+                        if (imgElement.src !== getPlaceholderImage(source.type)) {
+                          imgElement.src = getPlaceholderImage(source.type);
+                          imgElement.className = 'w-10 h-10 rounded object-contain p-1';
+                        }
+                      }}
+                    />
+                  </div>
+                  
+                  {/* Source Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 line-clamp-1">
+                          {truncateTitle(source.title)}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1">
+                          {getSourceIcon(source.type)}
+                          {source.url && (
+                            <div className="flex items-center gap-1">
+                              <Avatar className="h-3 w-3">
+                                <AvatarImage src={`https://www.google.com/s2/favicons?domain=${getDomain(source.url)}&sz=16`} />
+                                <AvatarFallback className="text-xs">{getDomain(source.url)[0]?.toUpperCase()}</AvatarFallback>
+                              </Avatar>
+                              <span className="text-xs text-gray-500 truncate">
+                                {getDomain(source.url)}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              {microcastSources.length > 3 && (
+                <div className="text-center py-1">
+                  <span className="text-xs text-gray-500">
+                    +{microcastSources.length - 3} more source{microcastSources.length - 3 !== 1 ? 's' : ''}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         )}

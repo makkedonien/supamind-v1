@@ -104,7 +104,7 @@ const Microcasts = () => {
         {/* Microcasts Grid */}
         {!isLoading && !error && microcasts.length > 0 && (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-onboarding="microcast-grid">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" data-onboarding="microcast-grid">
               {microcasts.map((microcast) => (
                 <MicrocastCard
                   key={microcast.id}
