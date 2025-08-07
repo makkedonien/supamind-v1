@@ -28,7 +28,9 @@ const Settings = () => {
     profile,
     isLoading: profileLoading,
     updatePrompts,
-    isUpdatingPrompts
+    isUpdatingPrompts,
+    updateProfile,
+    isUpdating
   } = useProfile();
   
   // Form state
@@ -73,12 +75,24 @@ const Settings = () => {
     }
   };
 
-  const handleSaveChanges = () => {
-    updatePrompts({
-      summary_prompt: aiSummaryPrompt.trim() || null,
-      deep_dive_prompt: aiDeepSummaryPrompt.trim() || null,
-      categorization_prompt: aiFeedCategorizationPrompt.trim() || null,
-    });
+  const handleSaveChanges = async () => {
+    try {
+      // Update profile data (name)
+      if (profile && name !== profile.full_name) {
+        updateProfile({
+          full_name: name.trim() || null,
+        });
+      }
+      
+      // Update AI prompts
+      updatePrompts({
+        summary_prompt: aiSummaryPrompt.trim() || null,
+        deep_dive_prompt: aiDeepSummaryPrompt.trim() || null,
+        categorization_prompt: aiFeedCategorizationPrompt.trim() || null,
+      });
+    } catch (error) {
+      console.error('Error saving changes:', error);
+    }
   };
 
   return (
@@ -113,9 +127,13 @@ const Settings = () => {
                   id="email"
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
+                  disabled
+                  className="bg-gray-50 cursor-not-allowed"
                 />
+                <p className="text-xs text-muted-foreground">
+                  Email cannot be changed from this page
+                </p>
               </div>
             </div>
             
@@ -126,7 +144,7 @@ const Settings = () => {
                 <Key className="h-4 w-4" />
                 Reset Password
               </Button>
-              <Button variant="destructive" className="flex items-center gap-2">
+              <Button className="flex items-center gap-2">
                 <Trash2 className="h-4 w-4" />
                 Delete Account
               </Button>
@@ -294,9 +312,9 @@ const Settings = () => {
           <Button 
             onClick={handleSaveChanges} 
             size="lg"
-            disabled={isUpdatingPrompts || profileLoading}
+            disabled={isUpdatingPrompts || isUpdating || profileLoading}
           >
-            {isUpdatingPrompts ? (
+            {(isUpdatingPrompts || isUpdating) ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Saving...

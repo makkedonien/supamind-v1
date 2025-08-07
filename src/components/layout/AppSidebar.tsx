@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { useLogout } from '@/services/authService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserCategories } from '@/hooks/useUserCategories';
+import { useProfile } from '@/hooks/useProfile';
 import Logo from '@/components/ui/Logo';
 
 interface FeedFilters {
@@ -50,6 +51,15 @@ const AppSidebar = ({ feedFilters, onFeedFiltersChange, feedSourceCounts, proces
   const { logout } = useLogout();
   const { user } = useAuth();
   const { categories } = useUserCategories();
+  const { profile } = useProfile();
+
+  // Get display name with fallback logic
+  const getDisplayName = () => {
+    if (profile?.full_name) {
+      return profile.full_name;
+    }
+    return user?.email?.split('@')[0] || 'User';
+  };
 
   const menuItems = [
     {
@@ -291,15 +301,15 @@ const AppSidebar = ({ feedFilters, onFeedFiltersChange, feedSourceCounts, proces
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton 
                   className="w-full"
-                  tooltip={user?.email?.split('@')[0] || 'User'}
+                  tooltip={getDisplayName()}
                 >
                   <div className="flex items-center space-x-2 w-full">
-                    <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-                      <User className="h-3 w-3 text-white" />
+                    <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                      <User className="h-3 w-3 text-primary-foreground" />
                     </div>
                     <div className="flex items-center text-left min-w-0 group-data-[collapsible=icon]:hidden">
                       <span className="text-sm font-medium truncate max-w-[140px]">
-                        {user?.email?.split('@')[0] || 'User'}
+                        {getDisplayName()}
                       </span>
                     </div>
                   </div>
