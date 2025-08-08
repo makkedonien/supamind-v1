@@ -52,37 +52,29 @@ async function ensureAuth() {
 }
 
 async function addCurrentPage() {
-  const session = await ensureAuth();
+  await ensureAuth();
   const url = await getActiveTabUrl();
   if (!url) throw new Error('Unable to read active tab URL');
 
-  const sourcePayload = {
-    title: `Website: ${url}`,
-    type: 'website' as const,
-    url,
-    processing_status: 'processing',
-    metadata: { originalUrl: url, addedToFeed: true, webhookProcessed: true },
-    user_id: session.user.id,
-    notebook_id: null as any,
-  };
-
-  const { data: inserted, error: insertErr } = await supabase
-    .from('sources')
-    .insert(sourcePayload)
-    .select()
-    .single();
-  if (insertErr) throw insertErr;
-
-  const { error: fnErr } = await supabase.functions.invoke('process-feed-sources', {
-    body: {
-      type: 'multiple-websites',
-      userId: session.user.id,
-      urls: [url],
-      sourceIds: [inserted.id],
-      timestamp: new Date().toISOString(),
-    },
+  // Delegate the insert + processing to the background service worker so it
+  // continues even if this popup window closes after auth.
+  await new Promise((resolve, reject) => {
+    try {
+      chrome.runtime.sendMessage({ type: 'ADD_PAGE', url }, (response) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+          return;
+        }
+        if (!response?.ok) {
+          reject(new Error(response?.error || 'Background failed'));
+          return;
+        }
+        resolve(response.result);
+      });
+    } catch (err) {
+      reject(err);
+    }
   });
-  if (fnErr) throw fnErr;
 }
 
 document.getElementById('add-btn')?.addEventListener('click', async () => {
