@@ -208,8 +208,7 @@ const CreateMicrocastDialog: React.FC<CreateMicrocastDialogProps> = ({
               🎙️ How it works
             </h4>
             <p className="text-xs text-blue-800">
-              Your selected sources will be analyzed and turned into an engaging podcast-style conversation with an auto-generated title. 
-              This usually takes 2-5 minutes depending on the content length.
+              Your selected sources will be processed and turned into a podcast-style conversation summarizing your sources and surfacing key takeaways. <strong>This can takes about 5-15 minutes depending on the content length.</strong>
             </p>
           </div>
 
