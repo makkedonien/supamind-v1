@@ -16,6 +16,7 @@ import Notebook from "./pages/Notebook";
 import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import ExtensionAuth from "./pages/ExtensionAuth";
 
 const queryClient = new QueryClient();
 
@@ -70,6 +71,7 @@ const AppContent = () => {
           } 
         />
         <Route path="/auth" element={<Auth />} />
+        <Route path="/extension-auth" element={<ExtensionAuth />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <StickyAudioPlayer />

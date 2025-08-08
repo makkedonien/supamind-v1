@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Supamind – Add to Feed",
+  "version": "0.1.0",
+  "action": {
+    "default_popup": "src/popup.html"
+  },
+  "permissions": ["tabs", "storage", "activeTab"],
+  "host_permissions": [
+    "https://*.supabase.co/*",
+    "https://*/*"
+  ],
+  "background": {
+    "service_worker": "src/background.ts",
+    "type": "module"
+  }
+}
+
+
