@@ -288,26 +288,7 @@ const DetailContent: React.FC<{
               </div>
             )}
             
-            {/* Show placeholder content for actual feed sources since they contain real content */}
-            {(item.summary || item.description !== 'No description available') && (
-              <div className="space-y-4">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h3 className="text-lg font-semibold mb-2 text-blue-900">📄 Source Content</h3>
-                  <p className="text-blue-800 text-sm">
-                    This source has been processed and added to your knowledge base. You can use it in your notebooks for chat and analysis.
-                  </p>
-                </div>
-                
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <h3 className="text-lg font-semibold mb-2 text-gray-900">💡 How to Use</h3>
-                  <ul className="text-gray-700 text-sm space-y-1">
-                    <li>• Create a notebook and add this source to start chatting with the content</li>
-                    <li>• Use the original link below to view the full source material</li>
-                    <li>• Organize sources with categories for better discovery</li>
-                  </ul>
-                </div>
-              </div>
-            )}
+
           </div>
         </div>
       </ScrollArea>
@@ -318,10 +299,6 @@ const DetailContent: React.FC<{
           <Button className="flex-1" onClick={() => window.open(item.url, '_blank')}>
             <ExternalLink className="h-4 w-4 mr-2" />
             View Original
-          </Button>
-          <Button variant="outline">
-            <Plus className="h-4 w-4 mr-2" />
-            Add to Notebook
           </Button>
         </div>
       </div>

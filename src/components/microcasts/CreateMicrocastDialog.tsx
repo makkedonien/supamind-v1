@@ -42,10 +42,10 @@ const CreateMicrocastDialog: React.FC<CreateMicrocastDialogProps> = ({
       return;
     }
 
-    if (selectedSourceIds.length > 5) {
+    if (selectedSourceIds.length > 3) {
       toast({
         title: "Too Many Sources Selected",
-        description: "Please select up to 5 sources for your microcast.",
+        description: "Please select up to 3 sources for your microcast.",
         variant: "destructive",
       });
       return;

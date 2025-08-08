@@ -256,8 +256,9 @@ const MicrocastCard: React.FC<MicrocastCardProps> = ({ microcast, onClick }) => 
           </div>
           
           {/* Play/Pause Button and Actions */}
-          {microcast.generation_status === 'completed' && microcast.audio_url && (
-            <div className="flex items-center gap-2 ml-3 flex-shrink-0">
+          <div className="flex items-center gap-2 ml-3 flex-shrink-0">
+            {/* Play button only for completed microcasts */}
+            {microcast.generation_status === 'completed' && microcast.audio_url && (
               <Button
                 variant={isCurrentMicrocast ? "default" : "outline"}
                 size="icon"
@@ -272,35 +273,39 @@ const MicrocastCard: React.FC<MicrocastCardProps> = ({ microcast, onClick }) => 
                   <Play className="h-4 w-4" />
                 )}
               </Button>
-              
-              {/* Dropdown Menu */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" disabled={isDeleting}>
-                    {isDeleting ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <MoreVertical className="h-4 w-4" />
-                    )}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+            )}
+            
+            {/* Dropdown Menu - always visible */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" disabled={isDeleting}>
+                  {isDeleting ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <MoreVertical className="h-4 w-4" />
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {/* Download option only for completed microcasts */}
+                {microcast.generation_status === 'completed' && microcast.audio_url && (
                   <DropdownMenuItem onClick={downloadAudio}>
                     <Download className="h-4 w-4 mr-2" />
                     Download
                   </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={handleDelete}
-                    className="text-red-600 focus:text-red-600"
-                    disabled={isDeleting}
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          )}
+                )}
+                {/* Delete option always available */}
+                <DropdownMenuItem 
+                  onClick={handleDelete}
+                  className="text-red-600 focus:text-red-600"
+                  disabled={isDeleting}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
 
         {/* Progress Bar for Currently Playing */}

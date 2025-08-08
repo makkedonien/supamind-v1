@@ -223,6 +223,18 @@ const Settings = () => {
 
             <Separator />
 
+            {/* AI Assistant Customization */}
+            <div className="space-y-3">
+              <div>
+                <Label className="text-base font-medium">AI assistant customization</Label>
+                <p className="text-sm text-muted-foreground">
+                  The text fields below allow you to customize the way your AI assistant writes their content summaries, deep dives and how they categorize the content you add to your feed. This is optional, as there are system prompts in place that should generate good output. If you notice that you need to tweak it via custom instructions to fit your specific needs, you can use these input fields to add your preferences.
+                </p>
+              </div>
+            </div>
+
+            <Separator />
+
             {/* AI Prompts */}
             {profileLoading ? (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -280,32 +292,7 @@ const Settings = () => {
           </CardContent>
         </Card>
 
-        {/* Display Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl font-semibold">Display</CardTitle>
-            <CardDescription>
-              Customize the appearance and behavior of the application.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <Label htmlFor="dark-mode" className="text-base font-medium">
-                  Dark Mode
-                </Label>
-                <p className="text-sm text-muted-foreground">
-                  Toggle between light and dark theme.
-                </p>
-              </div>
-              <Switch
-                id="dark-mode"
-                checked={isDarkMode}
-                onCheckedChange={setIsDarkMode}
-              />
-            </div>
-          </CardContent>
-        </Card>
+
 
         {/* Save Button */}
         <div className="flex justify-end">
