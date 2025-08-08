@@ -60,7 +60,7 @@ const MultipleFeedWebsiteUrlsDialog = ({
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
-            <Link className="h-5 w-5 text-green-600" />
+            <Link className="h-5 w-5 text-primary" />
             <span>Add Multiple Website URLs to Feed</span>
           </DialogTitle>
         </DialogHeader>
@@ -98,6 +98,7 @@ https://third-website.org`}
             <Button 
               onClick={handleSubmit} 
               disabled={!isValid || isSubmitting}
+              className="bg-primary hover:bg-[#e8709f]"
             >
               {isSubmitting ? 'Adding to Feed...' : `Add ${validUrls.length} Website${validUrls.length !== 1 ? 's' : ''} to Feed`}
             </Button>

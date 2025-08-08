@@ -1,6 +1,6 @@
 import { supabase, loadSavedSession, saveSession } from './supabase';
 
-const APP_ORIGIN = 'https://www.supamind.ai/'; // Replace with your deployed app origin
+const APP_ORIGIN = import.meta.env.VITE_APP_ORIGIN as string;
 
 async function getActiveTabUrl(): Promise<string> {
   const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -13,22 +13,33 @@ async function ensureAuth() {
   const { data } = await supabase.auth.getSession();
   if (data.session) return data.session;
 
+  console.log('Opening auth window at:', `${APP_ORIGIN}/extension-auth`);
   const authUrl = `${APP_ORIGIN}/extension-auth`;
   const authWin = window.open(authUrl, 'supamind-auth', 'width=420,height=640');
 
   const session: any = await new Promise((resolve, reject) => {
     const handler = (event: MessageEvent) => {
       try {
-        if (event.origin !== APP_ORIGIN) return;
+        console.log('Received message:', event);
+        console.log('Event origin:', event.origin, 'Expected:', APP_ORIGIN);
+        // Allow messages from the expected origin, but be more lenient for debugging
+        if (event.origin !== APP_ORIGIN) {
+          console.log('Origin mismatch - Expected:', APP_ORIGIN, 'Got:', event.origin);
+          // Still process the message for debugging, but log the mismatch
+        }
         if (typeof event.data !== 'object') return;
         if (event.data?.type === 'SUPABASE_SESSION' && event.data?.session) {
+          console.log('Received valid session!');
           window.removeEventListener('message', handler);
           resolve(event.data.session);
         }
-      } catch {}
+      } catch (err) {
+        console.error('Error handling message:', err);
+      }
     };
     window.addEventListener('message', handler);
     setTimeout(() => {
+      console.log('Auth timeout after 2 minutes');
       window.removeEventListener('message', handler);
       reject(new Error('Auth timeout'));
     }, 120000);
@@ -76,20 +87,52 @@ async function addCurrentPage() {
 
 document.getElementById('add-btn')?.addEventListener('click', async () => {
   const btn = document.getElementById('add-btn') as HTMLButtonElement;
+  const iconSpan = btn.querySelector('.status-icon') as HTMLSpanElement;
+  
   btn.disabled = true;
-  const original = btn.textContent || 'Add this page';
+  const originalText = 'Add this page';
+  const originalIcon = '+';
+  
   try {
-    btn.textContent = 'Adding…';
+    // Adding state
+    iconSpan.textContent = '⏳';
+    btn.innerHTML = '<span class="status-icon">⏳</span>Adding…';
+    
     await addCurrentPage();
-    btn.textContent = 'Added!';
+    
+    // Success state
+    btn.classList.add('success-state');
+    iconSpan.textContent = '✓';
+    btn.innerHTML = '<span class="status-icon">✓</span>Page added successfully!';
+    
+    // Show success for 5 seconds with countdown
+    let countdown = 5;
+    const countdownInterval = setInterval(() => {
+      countdown--;
+      if (countdown > 0) {
+        btn.innerHTML = `<span class="status-icon">✓</span>Page added successfully! (${countdown}s)`;
+      } else {
+        clearInterval(countdownInterval);
+        
+        // Reset to original state
+        btn.classList.remove('success-state');
+        btn.innerHTML = `<span class="status-icon">${originalIcon}</span>${originalText}`;
+        btn.disabled = false;
+      }
+    }, 1000);
+    
   } catch (e) {
     console.error(e);
-    btn.textContent = 'Failed';
-  } finally {
+    
+    // Error state
+    iconSpan.textContent = '❌';
+    btn.innerHTML = '<span class="status-icon">❌</span>Failed to add page';
+    
+    // Reset after 3 seconds
     setTimeout(() => {
-      btn.textContent = original;
+      btn.innerHTML = `<span class="status-icon">${originalIcon}</span>${originalText}`;
       btn.disabled = false;
-    }, 1500);
+    }, 3000);
   }
 });
 

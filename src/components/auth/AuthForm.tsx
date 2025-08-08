@@ -20,11 +20,20 @@ const AuthForm = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
 
-  // Redirect to dashboard if already authenticated
+  // Redirect after authentication
   useEffect(() => {
     if (isAuthenticated) {
-      console.log('User is authenticated, redirecting to dashboard');
-      navigate('/', { replace: true });
+      // Check if we came from extension auth
+      const urlParams = new URLSearchParams(window.location.search);
+      const returnTo = urlParams.get('return');
+      
+      if (returnTo === 'extension-auth') {
+        console.log('User authenticated, redirecting back to extension-auth');
+        navigate('/extension-auth', { replace: true });
+      } else {
+        console.log('User is authenticated, redirecting to dashboard');
+        navigate('/', { replace: true });
+      }
     }
   }, [isAuthenticated, navigate]);
 

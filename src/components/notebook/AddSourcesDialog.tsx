@@ -470,7 +470,7 @@ const AddSourcesDialog = ({
               <div className="flex flex-col space-y-4">
                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 rounded-full flex items-center justify-center bg-slate-100">
-                    <Link className="h-4 w-4 text-green-600" />
+                    <Link className="h-4 w-4 text-primary" />
                   </div>
                   <Label className="text-sm font-medium">Add Website URLs</Label>
                 </div>
@@ -508,7 +508,7 @@ https://third-website.org`}
                       <Button 
                         onClick={handleUrlSubmit} 
                         disabled={validUrls.length === 0 || isProcessingFiles}
-                        className="w-full bg-green-600 hover:bg-green-700"
+                        className="w-full bg-primary hover:bg-[#e8709f]"
                       >
                         {isProcessingFiles ? 'Adding...' : validUrls.length > 0 ? `Add ${validUrls.length} Website${validUrls.length !== 1 ? 's' : ''}` : 'Add Websites'}
                       </Button>
@@ -537,7 +537,7 @@ https://third-website.org`}
                   onClick={() => document.getElementById('file-upload')?.click()}
                   disabled={isProcessingFiles}
                 >
-                  <Upload className="h-6 w-6 text-slate-600" />
+                  <Upload className="h-6 w-6 text-primary" />
                   <span className="font-medium">Upload Files</span>
                   <span className="text-sm text-gray-500">PDF, txt, Audio</span>
                 </Button>
@@ -549,7 +549,7 @@ https://third-website.org`}
                 onClick={() => setShowCopiedTextDialog(true)}
                 disabled={isProcessingFiles}
               >
-                <Copy className="h-6 w-6 text-purple-600" />
+                <Copy className="h-6 w-6 text-primary" />
                 <span className="font-medium">Paste Copied Text</span>
                 <span className="text-sm text-gray-500">Add copied content</span>
               </Button>
@@ -567,7 +567,7 @@ https://third-website.org`}
             >
               <div className="flex flex-col items-center space-y-4">
                 <div className="w-12 h-12 rounded-full flex items-center justify-center bg-slate-100">
-                  <Upload className="h-6 w-6 text-slate-600" />
+                  <Upload className="h-6 w-6 text-primary" />
                 </div>
                 <div>
                   <h3 className="font-medium text-gray-900 mb-2">
