@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Key, Trash2, Plus, X, Loader2 } from 'lucide-react';
+import { Key, Trash2, Plus, X, Loader2, Download, Chrome } from 'lucide-react';
 import { useUserCategories } from '@/hooks/useUserCategories';
 import { useProfile } from '@/hooks/useProfile';
 
@@ -93,6 +93,13 @@ const Settings = () => {
     } catch (error) {
       console.error('Error saving changes:', error);
     }
+  };
+
+  const handleDownloadExtension = () => {
+    const link = document.createElement('a');
+    link.href = '/supamind_chrome_extension.zip';
+    link.download = 'supamind_chrome_extension.zip';
+    link.click();
   };
 
   return (
@@ -292,7 +299,54 @@ const Settings = () => {
           </CardContent>
         </Card>
 
-
+        {/* Chrome Extension Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold flex items-center gap-2">
+              <Chrome className="h-5 w-5" />
+              Chrome Extension
+            </CardTitle>
+            <CardDescription>
+              Download the Supamind Chrome extension to save and process web content directly from your browser.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              <div>
+                <h3 className="font-medium text-base">Browser Extension</h3>
+                <p className="text-sm text-muted-foreground">
+                  The Supamind Chrome extension allows you to quickly save web articles, YouTube videos, and other web content to your feed with a single click. The extension integrates seamlessly with your account and processes content using the same AI capabilities.
+                </p>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button 
+                  onClick={handleDownloadExtension}
+                  className="flex items-center gap-2"
+                  variant="default"
+                >
+                  <Download className="h-4 w-4" />
+                  Download Chrome Extension
+                </Button>
+                <div className="text-sm text-muted-foreground self-center">
+                  Version 1.0.0 • Compatible with Chrome
+                </div>
+              </div>
+              
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-medium text-sm text-blue-900 mb-2">Installation Instructions:</h4>
+                <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
+                  <li>Download the extension zip file using the button above</li>
+                  <li>Extract the zip file to a folder on your computer</li>
+                  <li>Open Chrome and go to chrome://extensions/</li>
+                  <li>Enable "Developer mode" in the top right corner</li>
+                  <li>Click "Load unpacked" and select the extracted folder</li>
+                  <li>The Supamind extension will appear in your extensions bar</li>
+                </ol>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Save Button */}
         <div className="flex justify-end">
