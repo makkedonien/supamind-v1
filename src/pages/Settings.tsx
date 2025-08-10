@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Key, Trash2, Plus, X, Loader2, Download, Chrome } from 'lucide-react';
+import { Key, Trash2, Plus, X, Loader2, Download, Chrome, Mail } from 'lucide-react';
 import { useUserCategories } from '@/hooks/useUserCategories';
 import { useProfile } from '@/hooks/useProfile';
 
@@ -173,7 +173,7 @@ const Settings = () => {
               <div>
                 <Label className="text-base font-medium">Categories Management</Label>
                 <p className="text-sm text-muted-foreground">
-                  Add up to 10 categories to organize your content.
+                  Add up to 10 categories to organize your content. Feed content will be automatically categorized based on your defined categories using AI. You can also manually edit the categories for any content item after it's been processed.
                 </p>
               </div>
               
@@ -343,6 +343,39 @@ const Settings = () => {
                   <li>Click "Load unpacked" and select the extracted folder</li>
                   <li>The Supamind extension will appear in your extensions bar</li>
                 </ol>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Email-to-Feed Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold flex items-center gap-2">
+              <Mail className="h-5 w-5" />
+              Email-to-Feed
+            </CardTitle>
+            <CardDescription>
+              Add web articles to your feed by sending URLs via email.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              <div>
+                <h3 className="font-medium text-base">Send URLs to Your Feed</h3>
+                <p className="text-sm text-muted-foreground">
+                  You can easily add web articles to your feed by sending URLs via email. Simply email any web article URL to <strong>mail@supabase.ai</strong> and it will automatically be processed and added to your feed.
+                </p>
+              </div>
+              
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-medium text-sm text-blue-900 mb-2">Important Requirements:</h4>
+                <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
+                  <li>Email must be sent from: <strong>{email || 'your registered email'}</strong></li>
+                  <li>Send the web article URL to: <strong>mail@supabase.ai</strong></li>
+                  <li>Content will appear in your feed within 1-2 minutes</li>
+                  <li>Only web article URLs are supported via email</li>
+                </ul>
               </div>
             </div>
           </CardContent>
