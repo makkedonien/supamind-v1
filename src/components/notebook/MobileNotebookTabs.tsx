@@ -1,7 +1,9 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileText, MessageCircle, NotebookPen } from 'lucide-react';
+import Logo from '@/components/ui/Logo';
 import SourcesSidebar from './SourcesSidebar';
 import ChatArea from './ChatArea';
 import StudioSidebar from './StudioSidebar';
@@ -33,31 +35,41 @@ const MobileNotebookTabs = ({
   setSelectedCitation,
   onCitationClick
 }: MobileNotebookTabsProps) => {
+  const navigate = useNavigate();
+  
+  const handleLogoClick = () => {
+    navigate('/');
+  };
+
   return (
-    <Tabs defaultValue="chat" className="flex-1 flex flex-col overflow-hidden">
-      <TabsList className="grid w-full grid-cols-3 bg-gray-100 p-1 h-12 rounded-none border-b border-gray-200">
-        <TabsTrigger 
-          value="sources" 
-          className="flex items-center space-x-2 text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm"
-        >
-          <FileText className="h-4 w-4" />
-          <span className="hidden sm:inline">Sources</span>
-        </TabsTrigger>
-        <TabsTrigger 
-          value="chat" 
-          className="flex items-center space-x-2 text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm"
-        >
-          <MessageCircle className="h-4 w-4" />
-          <span className="hidden sm:inline">Chat</span>
-        </TabsTrigger>
-        <TabsTrigger 
-          value="studio" 
-          className="flex items-center space-x-2 text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm"
-        >
-          <NotebookPen className="h-4 w-4" />
-          <span className="hidden sm:inline">Notes</span>
-        </TabsTrigger>
-      </TabsList>
+    <div className="flex-1 flex flex-col overflow-hidden">
+      <header className="flex h-16 shrink-0 items-center justify-end border-b px-4 bg-background sticky top-0 z-10">
+        <Logo size="sm" showText={true} onClick={handleLogoClick} />
+      </header>
+      <Tabs defaultValue="chat" className="flex-1 flex flex-col overflow-hidden">
+        <TabsList className="grid w-full grid-cols-3 bg-gray-100 p-1 h-12 rounded-none border-b border-gray-200">
+          <TabsTrigger 
+            value="sources" 
+            className="flex items-center space-x-2 text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm"
+          >
+            <FileText className="h-4 w-4" />
+            <span className="hidden sm:inline">Sources</span>
+          </TabsTrigger>
+          <TabsTrigger 
+            value="chat" 
+            className="flex items-center space-x-2 text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm"
+          >
+            <MessageCircle className="h-4 w-4" />
+            <span className="hidden sm:inline">Chat</span>
+          </TabsTrigger>
+          <TabsTrigger 
+            value="studio" 
+            className="flex items-center space-x-2 text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm"
+          >
+            <NotebookPen className="h-4 w-4" />
+            <span className="hidden sm:inline">Notes</span>
+          </TabsTrigger>
+        </TabsList>
 
       <TabsContent value="sources" className="flex-1 overflow-hidden mt-0">
         <SourcesSidebar 
@@ -84,7 +96,8 @@ const MobileNotebookTabs = ({
           onCitationClick={onCitationClick}
         />
       </TabsContent>
-    </Tabs>
+      </Tabs>
+    </div>
   );
 };
 
