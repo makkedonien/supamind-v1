@@ -299,6 +299,25 @@ const Settings = () => {
           </CardContent>
         </Card>
 
+        {/* Save Button */}
+        <div className="w-full">
+          <Button 
+            onClick={handleSaveChanges} 
+            size="lg"
+            disabled={isUpdatingPrompts || isUpdating || profileLoading}
+            className="w-full"
+          >
+            {(isUpdatingPrompts || isUpdating) ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              'Save Changes'
+            )}
+          </Button>
+        </div>
+
         {/* Chrome Extension Section */}
         <Card>
           <CardHeader>
@@ -380,24 +399,6 @@ const Settings = () => {
             </div>
           </CardContent>
         </Card>
-
-        {/* Save Button */}
-        <div className="flex justify-end">
-          <Button 
-            onClick={handleSaveChanges} 
-            size="lg"
-            disabled={isUpdatingPrompts || isUpdating || profileLoading}
-          >
-            {(isUpdatingPrompts || isUpdating) ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              'Save Changes'
-            )}
-          </Button>
-        </div>
       </div>
     </div>
   );
