@@ -2,16 +2,24 @@ import { supabase, loadSavedSession, saveSession } from './supabase';
 
 const APP_ORIGIN = import.meta.env.VITE_APP_ORIGIN as string;
 
+// State to track pending actions after authentication
+let pendingAction: (() => Promise<void>) | null = null;
+
 async function getActiveTabUrl(): Promise<string> {
   const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
   const tab = tabs[0];
   return tab?.url || '';
 }
 
-async function ensureAuth() {
+async function ensureAuth(retryAction?: () => Promise<void>) {
   await loadSavedSession();
   const { data } = await supabase.auth.getSession();
   if (data.session) return data.session;
+
+  // Store the pending action if provided
+  if (retryAction) {
+    pendingAction = retryAction;
+  }
 
   console.log('Opening auth window at:', `${APP_ORIGIN}/extension-auth`);
   const authUrl = `${APP_ORIGIN}/extension-auth`;
@@ -48,11 +56,24 @@ async function ensureAuth() {
   await supabase.auth.setSession(session);
   await saveSession(session);
   authWin?.close();
+  
+  // Execute pending action if we have one
+  if (pendingAction) {
+    console.log('Executing pending action after successful authentication');
+    const actionToExecute = pendingAction;
+    pendingAction = null; // Clear the pending action
+    try {
+      await actionToExecute();
+    } catch (error) {
+      console.error('Error executing pending action:', error);
+      throw error; // Re-throw so the UI can handle it
+    }
+  }
+  
   return session;
 }
 
-async function addCurrentPage() {
-  await ensureAuth();
+async function addPageToFeed() {
   const url = await getActiveTabUrl();
   if (!url) throw new Error('Unable to read active tab URL');
 
@@ -77,6 +98,20 @@ async function addCurrentPage() {
   });
 }
 
+async function addCurrentPage() {
+  // First check if we're authenticated
+  await loadSavedSession();
+  const { data } = await supabase.auth.getSession();
+  
+  if (data.session) {
+    // Already authenticated, proceed directly
+    await addPageToFeed();
+  } else {
+    // Not authenticated, pass the action to ensureAuth to execute after login
+    await ensureAuth(addPageToFeed);
+  }
+}
+
 document.getElementById('add-btn')?.addEventListener('click', async () => {
   const btn = document.getElementById('add-btn') as HTMLButtonElement;
   const iconSpan = btn.querySelector('.status-icon') as HTMLSpanElement;
@@ -86,9 +121,19 @@ document.getElementById('add-btn')?.addEventListener('click', async () => {
   const originalIcon = '+';
   
   try {
-    // Adding state
-    iconSpan.textContent = '⏳';
-    btn.innerHTML = '<span class="status-icon">⏳</span>Adding…';
+    // Check if we need to authenticate first
+    await loadSavedSession();
+    const { data } = await supabase.auth.getSession();
+    
+    if (!data.session) {
+      // Show authentication state
+      iconSpan.textContent = '🔑';
+      btn.innerHTML = '<span class="status-icon">🔑</span>Sign in required…';
+    } else {
+      // Adding state
+      iconSpan.textContent = '⏳';
+      btn.innerHTML = '<span class="status-icon">⏳</span>Adding…';
+    }
     
     await addCurrentPage();
     
