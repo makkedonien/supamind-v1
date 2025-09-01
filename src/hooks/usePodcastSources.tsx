@@ -3,19 +3,19 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState, useCallback } from 'react';
 
-export const useFeedSources = () => {
+export const usePodcastSources = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [displayLimit, setDisplayLimit] = useState(20); // Start with 20 items
   const [totalCount, setTotalCount] = useState(0);
 
-  // Query for all sources to track total count and handle real-time updates
+  // Query for all podcast sources to track total count and handle real-time updates
   const {
     data: allSources = [],
     isLoading,
     error,
   } = useQuery({
-    queryKey: ['feed-sources', user?.id],
+    queryKey: ['podcast-sources', user?.id],
     queryFn: async () => {
       if (!user) return [];
       
@@ -23,8 +23,8 @@ export const useFeedSources = () => {
         .from('sources')
         .select('*')
         .eq('user_id', user.id)
+        .eq('type', 'podcast') // Filter specifically for podcast type
         .is('notebook_id', null)
-        .neq('type', 'podcast') // Exclude podcast sources
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -54,14 +54,14 @@ export const useFeedSources = () => {
   // Check if there are more sources to load
   const hasMore = displayLimit < totalCount;
 
-  // Set up Realtime subscription for feed sources
+  // Set up Realtime subscription for podcast sources
   useEffect(() => {
     if (!user) return;
 
-    console.log('Setting up Realtime subscription for feed sources, user:', user.id);
+    console.log('Setting up Realtime subscription for podcast sources, user:', user.id);
 
     const channel = supabase
-      .channel('feed-sources-changes')
+      .channel('podcast-sources-changes')
       .on(
         'postgres_changes',
         {
@@ -71,35 +71,35 @@ export const useFeedSources = () => {
           filter: `user_id=eq.${user.id}`,
         },
         (payload: any) => {
-          console.log('Realtime: Feed sources change received:', payload);
+          console.log('Realtime: Podcast sources change received:', payload);
           
-          // Only handle sources without notebook_id (feed sources) and exclude podcasts
+          // Only handle podcast sources without notebook_id
           const source = payload.new || payload.old;
-          if (source?.notebook_id !== null || source?.type === 'podcast') return;
+          if (source?.notebook_id !== null || source?.type !== 'podcast') return;
           
           // Update the query cache based on the event type
-          queryClient.setQueryData(['feed-sources', user.id], (oldSources: any[] = []) => {
+          queryClient.setQueryData(['podcast-sources', user.id], (oldSources: any[] = []) => {
             switch (payload.eventType) {
               case 'INSERT':
                 const newSource = payload.new as any;
                 const existsInsert = oldSources.some(source => source.id === newSource?.id);
                 if (existsInsert) {
-                  console.log('Feed source already exists, skipping INSERT:', newSource?.id);
+                  console.log('Podcast source already exists, skipping INSERT:', newSource?.id);
                   return oldSources;
                 }
-                console.log('Adding new feed source to cache:', newSource);
+                console.log('Adding new podcast source to cache:', newSource);
                 return [newSource, ...oldSources];
                 
               case 'UPDATE':
                 const updatedSource = payload.new as any;
-                console.log('Updating feed source in cache:', updatedSource?.id);
+                console.log('Updating podcast source in cache:', updatedSource?.id);
                 return oldSources.map(source => 
                   source.id === updatedSource?.id ? updatedSource : source
                 );
                 
               case 'DELETE':
                 const deletedSource = payload.old as any;
-                console.log('Removing feed source from cache:', deletedSource?.id);
+                console.log('Removing podcast source from cache:', deletedSource?.id);
                 return oldSources.filter(source => source.id !== deletedSource?.id);
                 
               default:
@@ -110,11 +110,11 @@ export const useFeedSources = () => {
         }
       )
       .subscribe((status) => {
-        console.log('Realtime subscription status for feed sources:', status);
+        console.log('Realtime subscription status for podcast sources:', status);
       });
 
     return () => {
-      console.log('Cleaning up Realtime subscription for feed sources');
+      console.log('Cleaning up Realtime subscription for podcast sources');
       supabase.removeChannel(channel);
     };
   }, [user, queryClient]);
@@ -157,7 +157,7 @@ export const useFeedSources = () => {
       return data;
     },
     onSuccess: (newSource) => {
-      console.log('Feed source added successfully:', newSource);
+      console.log('Podcast source added successfully:', newSource);
       // The Realtime subscription will handle updating the cache
     },
   });
@@ -179,14 +179,14 @@ export const useFeedSources = () => {
       return data;
     },
     onSuccess: () => {
-      console.log('Feed source updated successfully');
+      console.log('Podcast source updated successfully');
       // The Realtime subscription will handle updating the cache
     },
   });
 
   const deleteSource = useMutation({
     mutationFn: async (sourceId: string) => {
-      console.log('Starting feed source deletion process for:', sourceId);
+      console.log('Starting podcast source deletion process for:', sourceId);
       
       try {
         // First, get the source details including file information
@@ -198,11 +198,11 @@ export const useFeedSources = () => {
           .single();
 
         if (fetchError) {
-          console.error('Error fetching feed source:', fetchError);
+          console.error('Error fetching podcast source:', fetchError);
           throw new Error('Failed to find source');
         }
 
-        console.log('Found feed source to delete:', source.title, 'with file_path:', source.file_path);
+        console.log('Found podcast source to delete:', source.title, 'with file_path:', source.file_path);
 
         // Delete the file from storage if it exists
         if (source.file_path) {
@@ -230,35 +230,35 @@ export const useFeedSources = () => {
           .eq('user_id', user?.id); // Ensure user can only delete their own sources
 
         if (deleteError) {
-          console.error('Error deleting feed source from database:', deleteError);
+          console.error('Error deleting podcast source from database:', deleteError);
           throw deleteError;
         }
         
-        console.log('Feed source deleted successfully from database');
+        console.log('Podcast source deleted successfully from database');
 
         // Delete associated documents from vector store
-        console.log('Cleaning up vector embeddings for feed source:', sourceId);
+        console.log('Cleaning up vector embeddings for podcast source:', sourceId);
         const { error: documentsDeleteError } = await supabase
           .from('documents')
           .delete()
           .eq('metadata->>source_id', sourceId);
 
         if (documentsDeleteError) {
-          console.error('Error deleting documents for feed source:', documentsDeleteError);
+          console.error('Error deleting documents for podcast source:', documentsDeleteError);
           // Don't throw here - the source is already deleted, this is just cleanup
           // We'll log the error but continue
         } else {
-          console.log('Vector embeddings cleaned up successfully for feed source');
+          console.log('Vector embeddings cleaned up successfully for podcast source');
         }
 
         return source;
       } catch (error) {
-        console.error('Error in feed source deletion process:', error);
+        console.error('Error in podcast source deletion process:', error);
         throw error;
       }
     },
     onSuccess: () => {
-      console.log('Delete mutation success for feed source');
+      console.log('Delete mutation success for podcast source');
       // The Realtime subscription will handle updating the cache
     },
   });
@@ -288,7 +288,7 @@ export const useFeedSources = () => {
       return data;
     },
     onSuccess: () => {
-      console.log('Feed source favorite status toggled successfully');
+      console.log('Podcast source favorite status toggled successfully');
       // The Realtime subscription will handle updating the cache
     },
   });
@@ -314,4 +314,4 @@ export const useFeedSources = () => {
     toggleFavoriteAsync: toggleFavorite.mutateAsync,
     isTogglingFavorite: toggleFavorite.isPending,
   };
-}; 
+};

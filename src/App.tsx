@@ -11,6 +11,7 @@ import AppLayout from "@/components/layout/AppLayout";
 import StickyAudioPlayer from "@/components/microcasts/StickyAudioPlayer";
 import Feed from "./pages/Feed";
 import Microcasts from "./pages/Microcasts";
+import Podcasts from "./pages/Podcasts";
 import Notebooks from "./pages/Notebooks";
 import Notebook from "./pages/Notebook";
 import Settings from "./pages/Settings";
@@ -40,6 +41,14 @@ const AppContent = () => {
               <AppLayout>
                 <Microcasts />
               </AppLayout>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/podcasts" 
+          element={
+            <ProtectedRoute fallback={<Auth />}>
+              <Podcasts />
             </ProtectedRoute>
           } 
         />

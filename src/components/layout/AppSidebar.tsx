@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Rss, Mic, BookOpen, User, LogOut, Settings, Star, Globe, FileText, Copy, Filter, Loader2, Clock } from 'lucide-react';
+import { Rss, Mic, Radio, BookOpen, User, LogOut, Settings, Star, Globe, FileText, Copy, Filter, Loader2, Clock } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -71,6 +71,11 @@ const AppSidebar = ({ feedFilters, onFeedFiltersChange, feedSourceCounts, proces
       icon: Mic,
       label: 'Microcasts',
       path: '/microcasts',
+    },
+    {
+      icon: Radio,
+      label: 'Podcasts',
+      path: '/podcasts',
     },
     {
       icon: BookOpen,

@@ -112,6 +112,8 @@ const MicrocastCard: React.FC<MicrocastCardProps> = ({ microcast, onClick }) => 
         return <Youtube className="h-3 w-3 text-red-600" />;
       case 'audio':
         return <Volume2 className="h-3 w-3 text-purple-600" />;
+      case 'podcast':
+        return <Mic className="h-3 w-3 text-orange-600" />;
       case 'text':
         return <FileText className="h-3 w-3 text-blue-600" />;
       default:
@@ -128,6 +130,8 @@ const MicrocastCard: React.FC<MicrocastCardProps> = ({ microcast, onClick }) => 
       case 'youtube':
         return '/file-types/WEB (1).svg';
       case 'audio':
+        return '/file-types/MP3 (1).png';
+      case 'podcast':
         return '/file-types/MP3 (1).png';
       case 'text':
         return '/file-types/TXT (1).png';

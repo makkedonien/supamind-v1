@@ -83,6 +83,9 @@ const CreateMicrocastDialog: React.FC<CreateMicrocastDialogProps> = ({
         return <FileText className="h-4 w-4" />;
       case 'text':
         return <Copy className="h-4 w-4" />;
+      case 'audio':
+      case 'podcast':
+        return <Mic className="h-4 w-4" />;
       default:
         return <FileText className="h-4 w-4" />;
     }
@@ -98,6 +101,10 @@ const CreateMicrocastDialog: React.FC<CreateMicrocastDialogProps> = ({
         return 'PDF';
       case 'text':
         return 'Text';
+      case 'audio':
+        return 'Audio';
+      case 'podcast':
+        return 'Podcast';
       default:
         return 'Document';
     }

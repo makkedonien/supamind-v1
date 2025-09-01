@@ -85,6 +85,7 @@ const SourcesSidebar = ({
       'website': '/file-types/WEB.svg',
       'youtube': '/file-types/MP3.png',
       'audio': '/file-types/MP3.png',
+      'podcast': '/file-types/MP3.png',
       'doc': '/file-types/DOC.png',
       'multiple-websites': '/file-types/WEB.svg',
       'copied-text': '/file-types/TXT.png'

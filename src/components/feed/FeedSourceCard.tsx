@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { ExternalLink, Tag, FileText, Link as LinkIcon, Youtube, Volume2, Clock, CheckCircle, XCircle, Loader2, Star, Trash2, Check } from 'lucide-react';
+import { ExternalLink, Tag, FileText, Link as LinkIcon, Youtube, Volume2, Clock, CheckCircle, XCircle, Loader2, Star, Trash2, Check, Mic } from 'lucide-react';
 import { useFeedSources } from '@/hooks/useFeedSources';
 import { useToast } from '@/hooks/use-toast';
 import { safeStringifyForDisplay } from '@/lib/stringUtils';
@@ -12,7 +12,7 @@ import { safeStringifyForDisplay } from '@/lib/stringUtils';
 interface FeedSource {
   id: string;
   title: string;
-  type: 'pdf' | 'text' | 'website' | 'youtube' | 'audio';
+  type: 'pdf' | 'text' | 'website' | 'youtube' | 'audio' | 'podcast';
   url?: string;
   file_path?: string;
   content?: string;
@@ -82,6 +82,8 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
         return <Youtube className="h-4 w-4 text-red-600" />;
       case 'audio':
         return <Volume2 className="h-4 w-4 text-purple-600" />;
+      case 'podcast':
+        return <Mic className="h-4 w-4 text-orange-600" />;
       case 'text':
         return <FileText className="h-4 w-4 text-blue-600" />;
       default:
@@ -141,6 +143,8 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
       case 'youtube':
         return '/file-types/WEB (1).svg';
       case 'audio':
+        return '/file-types/MP3 (1).png';
+      case 'podcast':
         return '/file-types/MP3 (1).png';
       case 'text':
         return '/file-types/TXT (1).png';
