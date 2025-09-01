@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "12.2.3 (519615d)"
+  }
   public: {
     Tables: {
       documents: {
@@ -29,6 +34,50 @@ export type Database = {
           metadata?: Json | null
         }
         Relationships: []
+      }
+      microcasts: {
+        Row: {
+          audio_expires_at: string | null
+          audio_url: string | null
+          created_at: string
+          generation_status: string | null
+          id: string
+          source_ids: string[]
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          audio_expires_at?: string | null
+          audio_url?: string | null
+          created_at?: string
+          generation_status?: string | null
+          id?: string
+          source_ids?: string[]
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          audio_expires_at?: string | null
+          audio_url?: string | null
+          created_at?: string
+          generation_status?: string | null
+          id?: string
+          source_ids?: string[]
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "microcasts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       n8n_chat_histories: {
         Row: {
@@ -145,6 +194,71 @@ export type Database = {
           },
         ]
       }
+      podcast_episodes: {
+        Row: {
+          assemblyai_transcription_id: string | null
+          audio_duration: string | null
+          audio_file_size: number | null
+          audio_url: string | null
+          content: string | null
+          created_at: string
+          file_path: string | null
+          id: string
+          link: string | null
+          podcast_name: string
+          processing_status: string | null
+          pubdate: string
+          summary: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assemblyai_transcription_id?: string | null
+          audio_duration?: string | null
+          audio_file_size?: number | null
+          audio_url?: string | null
+          content?: string | null
+          created_at?: string
+          file_path?: string | null
+          id: string
+          link?: string | null
+          podcast_name: string
+          processing_status?: string | null
+          pubdate: string
+          summary?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assemblyai_transcription_id?: string | null
+          audio_duration?: string | null
+          audio_file_size?: number | null
+          audio_url?: string | null
+          content?: string | null
+          created_at?: string
+          file_path?: string | null
+          id?: string
+          link?: string | null
+          podcast_name?: string
+          processing_status?: string | null
+          pubdate?: string
+          summary?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "podcast_episodes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -195,6 +309,7 @@ export type Database = {
           category: string[] | null
           content: string | null
           created_at: string
+          deep_summary: string | null
           display_name: string | null
           file_path: string | null
           file_size: number | null
@@ -204,6 +319,8 @@ export type Database = {
           metadata: Json | null
           notebook_id: string | null
           processing_status: string | null
+          publisher_name: string | null
+          short_description: string | null
           summary: string | null
           title: string
           type: Database["public"]["Enums"]["source_type"]
@@ -215,6 +332,7 @@ export type Database = {
           category?: string[] | null
           content?: string | null
           created_at?: string
+          deep_summary?: string | null
           display_name?: string | null
           file_path?: string | null
           file_size?: number | null
@@ -224,6 +342,8 @@ export type Database = {
           metadata?: Json | null
           notebook_id?: string | null
           processing_status?: string | null
+          publisher_name?: string | null
+          short_description?: string | null
           summary?: string | null
           title: string
           type: Database["public"]["Enums"]["source_type"]
@@ -235,6 +355,7 @@ export type Database = {
           category?: string[] | null
           content?: string | null
           created_at?: string
+          deep_summary?: string | null
           display_name?: string | null
           file_path?: string | null
           file_size?: number | null
@@ -244,81 +365,14 @@ export type Database = {
           metadata?: Json | null
           notebook_id?: string | null
           processing_status?: string | null
+          publisher_name?: string | null
+          short_description?: string | null
+          summary?: string | null
           title?: string
           type?: Database["public"]["Enums"]["source_type"]
           updated_at?: string
           url?: string | null
           user_id?: string
-        }
-      }
-      microcasts: {
-        Row: {
-          id: string
-          user_id: string
-          title: string
-          source_ids: string[]
-          audio_url: string | null
-          audio_expires_at: string | null
-          generation_status: string
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          title: string
-          source_ids?: string[]
-          audio_url?: string | null
-          audio_expires_at?: string | null
-          generation_status?: string
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          title?: string
-          source_ids?: string[]
-          audio_url?: string | null
-          audio_expires_at?: string | null
-          generation_status?: string
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "microcasts_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      user_categories: {
-        Row: {
-          id: string
-          user_id: string
-          name: string
-          color: string
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          name: string
-          color?: string
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          name?: string
-          color?: string
-          created_at?: string
-          updated_at?: string
         }
         Relationships: [
           {
@@ -337,6 +391,41 @@ export type Database = {
           },
         ]
       }
+      user_categories: {
+        Row: {
+          color: string | null
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_categories_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -345,6 +434,22 @@ export type Database = {
       binary_quantize: {
         Args: { "": string } | { "": unknown }
         Returns: unknown
+      }
+      get_user_sources: {
+        Args: { target_user_id: string }
+        Returns: {
+          content: string
+          created_at: string
+          file_path: string
+          id: string
+          notebook_id: string
+          notebook_title: string
+          processing_status: string
+          summary: string
+          title: string
+          type: Database["public"]["Enums"]["source_type"]
+          url: string
+        }[]
       }
       halfvec_avg: {
         Args: { "": number[] }
@@ -378,6 +483,14 @@ export type Database = {
         Args: { "": unknown }
         Returns: unknown
       }
+      is_notebook_owner: {
+        Args: { notebook_id_param: string }
+        Returns: boolean
+      }
+      is_notebook_owner_for_document: {
+        Args: { doc_metadata: Json }
+        Returns: boolean
+      }
       ivfflat_bit_support: {
         Args: { "": unknown }
         Returns: unknown
@@ -399,10 +512,10 @@ export type Database = {
         Returns: unknown
       }
       match_documents: {
-        Args: { query_embedding: string; match_count?: number; filter?: Json }
+        Args: { filter?: Json; match_count?: number; query_embedding: string }
         Returns: {
-          id: number
           content: string
+          id: number
           metadata: Json
           similarity: number
         }[]
@@ -418,6 +531,10 @@ export type Database = {
       sparsevec_typmod_in: {
         Args: { "": unknown[] }
         Returns: number
+      }
+      user_owns_source: {
+        Args: { source_id_param: string }
+        Returns: boolean
       }
       vector_avg: {
         Args: { "": number[] }
@@ -453,21 +570,25 @@ export type Database = {
   }
 }
 
-type DefaultSchema = Database[Extract<keyof Database, "public">]
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
@@ -485,14 +606,16 @@ export type Tables<
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
@@ -508,14 +631,16 @@ export type TablesInsert<
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
@@ -531,14 +656,16 @@ export type TablesUpdate<
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
@@ -546,14 +673,16 @@ export type Enums<
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
