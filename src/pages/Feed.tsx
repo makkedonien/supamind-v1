@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAudioPlayer } from '@/contexts/AudioPlayerContext';
 import { Card, CardContent, CardDescription } from '@/components/ui/card';
@@ -154,11 +154,28 @@ const DetailContent: React.FC<{
   const { toggleFavoriteAsync, isTogglingFavorite } = useFeedSources();
   const { toast } = useToast();
   const [isFavorite, setIsFavorite] = useState(item.is_favorite || false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   // Sync local state when item changes
   useEffect(() => {
     setIsFavorite(item.is_favorite || false);
   }, [item.id, item.is_favorite]);
+
+  // Handle scroll detection for header collapse
+  useEffect(() => {
+    const scrollElement = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
+    
+    if (!scrollElement) return;
+
+    const handleScroll = () => {
+      const scrollTop = scrollElement.scrollTop;
+      setIsScrolled(scrollTop > 50); // Collapse after 50px scroll
+    };
+
+    scrollElement.addEventListener('scroll', handleScroll);
+    return () => scrollElement.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleToggleFavorite = async () => {
     try {
@@ -180,46 +197,73 @@ const DetailContent: React.FC<{
   };
   return (
     <div className={`flex flex-col ${isMobile ? 'min-h-full' : 'h-full'}`}>
-      {/* Header */}
-      <div className="flex items-center justify-between p-6 border-b">
-        <div className="flex items-center gap-3">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={item.favicon} />
-            <AvatarFallback>{item.domain[0].toUpperCase()}</AvatarFallback>
-          </Avatar>
-          <div>
-            <h3 className="font-semibold text-lg">{item.title}</h3>
-            <p className="text-sm text-muted-foreground">{item.domain}</p>
+      {/* Sticky Header */}
+      <div className={`sticky top-0 z-10 bg-white border-b transition-all duration-300 ${
+        isScrolled && isMobile ? 'py-3 px-4' : 'p-6'
+      }`}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <Avatar className={`${isScrolled && isMobile ? 'h-6 w-6' : 'h-8 w-8'} flex-shrink-0`}>
+              <AvatarImage src={item.favicon} />
+              <AvatarFallback>{item.domain[0].toUpperCase()}</AvatarFallback>
+            </Avatar>
+            <div className="min-w-0 flex-1">
+              {/* Title - Hidden when scrolled on mobile */}
+              <h3 className={`font-semibold transition-all duration-300 ${
+                isScrolled && isMobile 
+                  ? 'opacity-0 h-0 overflow-hidden' 
+                  : `opacity-100 ${isMobile ? 'text-base' : 'text-lg'} line-clamp-2`
+              }`}>
+                {item.title}
+              </h3>
+              {/* Domain - Always visible */}
+              <p className={`text-muted-foreground truncate transition-all duration-300 ${
+                isScrolled && isMobile ? 'text-sm' : 'text-sm'
+              }`}>
+                {item.domain}
+              </p>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="ghost" 
-            size="icon"
-            className="hover:bg-transparent shadow-none hover:shadow-none"
-            onClick={handleToggleFavorite}
-            disabled={isTogglingFavorite}
-          >
-            <Star className={`h-4 w-4 ${isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-600'}`} />
-          </Button>
-          {onCategorize && (
+          <div className="flex items-center gap-2 flex-shrink-0">
             <Button 
               variant="ghost" 
               size="icon"
-              className="hover:bg-transparent shadow-none hover:shadow-none"
-              onClick={() => onCategorize(item)}
+              className={`hover:bg-transparent shadow-none hover:shadow-none ${
+                isScrolled && isMobile ? 'h-8 w-8' : ''
+              }`}
+              onClick={handleToggleFavorite}
+              disabled={isTogglingFavorite}
             >
-              <Tag className="h-4 w-4 text-gray-600" />
+              <Star className={`${isScrolled && isMobile ? 'h-3.5 w-3.5' : 'h-4 w-4'} ${
+                isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-600'
+              }`} />
             </Button>
-          )}
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-4 w-4" />
-          </Button>
+            {onCategorize && (
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className={`hover:bg-transparent shadow-none hover:shadow-none ${
+                  isScrolled && isMobile ? 'h-8 w-8' : ''
+                }`}
+                onClick={() => onCategorize(item)}
+              >
+                <Tag className={`${isScrolled && isMobile ? 'h-3.5 w-3.5' : 'h-4 w-4'} text-gray-600`} />
+              </Button>
+            )}
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={onClose}
+              className={isScrolled && isMobile ? 'h-8 w-8' : ''}
+            >
+              <X className={`${isScrolled && isMobile ? 'h-3.5 w-3.5' : 'h-4 w-4'}`} />
+            </Button>
+          </div>
         </div>
       </div>
 
             {/* Content */}
-      <ScrollArea className="flex-1 p-6">
+      <ScrollArea ref={scrollAreaRef} className="flex-1 p-6">
         <div className="space-y-6">
           {/* Featured Image */}
           <div className="aspect-video rounded-lg overflow-hidden">
