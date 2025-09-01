@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       documents: {
@@ -320,9 +345,12 @@ export type Database = {
           notebook_id: string | null
           processing_status: string | null
           publisher_name: string | null
+          publishing_date: string | null
           short_description: string | null
           summary: string | null
           title: string
+          transcript: string | null
+          transcription_id: string | null
           type: Database["public"]["Enums"]["source_type"]
           updated_at: string
           url: string | null
@@ -343,9 +371,12 @@ export type Database = {
           notebook_id?: string | null
           processing_status?: string | null
           publisher_name?: string | null
+          publishing_date?: string | null
           short_description?: string | null
           summary?: string | null
           title: string
+          transcript?: string | null
+          transcription_id?: string | null
           type: Database["public"]["Enums"]["source_type"]
           updated_at?: string
           url?: string | null
@@ -366,9 +397,12 @@ export type Database = {
           notebook_id?: string | null
           processing_status?: string | null
           publisher_name?: string | null
+          publishing_date?: string | null
           short_description?: string | null
           summary?: string | null
           title?: string
+          transcript?: string | null
+          transcription_id?: string | null
           type?: Database["public"]["Enums"]["source_type"]
           updated_at?: string
           url?: string | null
@@ -688,6 +722,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       source_type: ["pdf", "text", "website", "youtube", "audio"],

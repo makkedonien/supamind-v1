@@ -25,6 +25,9 @@ interface FeedSource {
   metadata?: any;
   image_url?: string;
   is_favorite?: boolean;
+  transcription_id?: string;
+  transcript?: string;
+  publishing_date?: string;
   created_at: string;
   updated_at: string;
 }
