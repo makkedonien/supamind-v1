@@ -266,7 +266,7 @@ const DetailContent: React.FC<{
       <ScrollArea ref={scrollAreaRef} className="flex-1 p-6">
         <div className="space-y-6">
           {/* Featured Image */}
-          <div className="aspect-video rounded-lg overflow-hidden">
+          <div className="max-h-64 rounded-lg overflow-hidden">
             <img 
               src={item.image} 
               alt={item.title}
