@@ -42,9 +42,10 @@ interface FeedSourceCardProps {
   onSelectionChange?: (sourceId: string, selected: boolean) => void;
   onOptimisticDelete?: (sourceId: string) => void;
   onDeleteError?: (sourceId: string) => void;
+  dateField?: 'created_at' | 'publishing_date';
 }
 
-const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode = 'card', isSelected = false, onSelectionChange, onOptimisticDelete, onDeleteError }: FeedSourceCardProps) => {
+const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode = 'card', isSelected = false, onSelectionChange, onOptimisticDelete, onDeleteError, dateField = 'created_at' }: FeedSourceCardProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isAnimatingOut, setIsAnimatingOut] = useState(false);
@@ -418,7 +419,7 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
                 {/* Time and Icon */}
                 <div className="flex items-center space-x-1">
                   {source.type !== 'website' && getSourceIcon()}
-                  <span>{formatDate(source.created_at)}</span>
+                  <span>{formatDate(dateField === 'publishing_date' ? source.publishing_date || source.created_at : source.created_at)}</span>
                 </div>
                 
                 {/* Categories */}
@@ -538,7 +539,7 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
             {/* Time and Icon */}
             <div className="flex items-center space-x-1">
               {source.type !== 'website' && getSourceIcon()}
-              <span>{formatDate(source.created_at)}</span>
+              <span>{formatDate(dateField === 'publishing_date' ? source.publishing_date || source.created_at : source.created_at)}</span>
             </div>
             
             {/* Categories */}

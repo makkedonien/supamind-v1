@@ -821,7 +821,8 @@ const Podcasts = () => {
       favicon: source.url ? `https://www.google.com/s2/favicons?domain=${getDomain(source.url)}&sz=32` : undefined,
       categories: source.category || [],
       url: source.url || '#',
-      publishedAt: source.created_at ? new Date(source.created_at).toLocaleDateString() : undefined,
+      publishedAt: source.publishing_date ? new Date(source.publishing_date).toLocaleDateString() : 
+                   source.created_at ? new Date(source.created_at).toLocaleDateString() : undefined,
       readTime: 5, // Default read time, could be calculated based on content length
       summary: safeStringify(source.summary),
       deep_summary: safeStringify(source.deep_summary),
@@ -1007,6 +1008,7 @@ const Podcasts = () => {
                   onSelectionChange={handleSourceSelection}
                   onOptimisticDelete={handleOptimisticDelete}
                   onDeleteError={handleDeleteError}
+                  dateField="publishing_date"
                 />
               ))}
             </div>
