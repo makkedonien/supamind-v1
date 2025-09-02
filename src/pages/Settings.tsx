@@ -199,7 +199,7 @@ const Settings = () => {
               Podcasts
             </CardTitle>
             <CardDescription>
-              Add podcast RSS feeds to automatically process and sync podcast episodes to your feed.
+              Add podcast RSS feeds to automatically process and sync podcast episodes to your feed. Need help finding a podcast's RSS feed URL? Use this <a href="https://castos.com/tools/find-podcast-rss-feed/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">free RSS feed finder tool</a>.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
