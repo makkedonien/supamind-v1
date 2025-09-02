@@ -8,9 +8,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Key, Trash2, Plus, X, Loader2, Download, Chrome, Mail } from 'lucide-react';
+import { Key, Trash2, Plus, X, Loader2, Download, Chrome, Mail, Radio } from 'lucide-react';
 import { useUserCategories } from '@/hooks/useUserCategories';
 import { useProfile } from '@/hooks/useProfile';
+import { usePodcasts } from '@/hooks/usePodcasts';
 
 const Settings = () => {
   const { user } = useAuth();
@@ -33,6 +34,16 @@ const Settings = () => {
     isUpdating
   } = useProfile();
   
+  const {
+    podcasts,
+    isLoading: podcastsLoading,
+    isAdding: isAddingPodcast,
+    isDeleting: isDeletingPodcast,
+    addPodcast,
+    deletePodcast,
+    rssExists
+  } = usePodcasts();
+  
   // Form state
   const [name, setName] = useState(user?.email?.split('@')[0] || '');
   const [email, setEmail] = useState(user?.email || '');
@@ -41,6 +52,7 @@ const Settings = () => {
   const [aiDeepSummaryPrompt, setAiDeepSummaryPrompt] = useState('');
   const [aiFeedCategorizationPrompt, setAiFeedCategorizationPrompt] = useState('');
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [newPodcastRss, setNewPodcastRss] = useState('');
 
   // Load profile data into form when available
   useEffect(() => {
@@ -92,6 +104,26 @@ const Settings = () => {
       });
     } catch (error) {
       console.error('Error saving changes:', error);
+    }
+  };
+
+  const handleAddPodcast = async () => {
+    if (newPodcastRss.trim() && !rssExists(newPodcastRss.trim())) {
+      const result = await addPodcast(newPodcastRss.trim());
+      if (result) {
+        setNewPodcastRss('');
+      }
+    }
+  };
+
+  const handleRemovePodcast = async (podcastId: string) => {
+    await deletePodcast(podcastId);
+  };
+
+  const handlePodcastKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddPodcast();
     }
   };
 
@@ -155,6 +187,138 @@ const Settings = () => {
                 <Trash2 className="h-4 w-4" />
                 Delete Account
               </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Podcasts Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold flex items-center gap-2">
+              <Radio className="h-5 w-5" />
+              Podcasts
+            </CardTitle>
+            <CardDescription>
+              Add podcast RSS feeds to automatically process and sync podcast episodes to your feed.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              <div>
+                <Label className="text-base font-medium">Add Podcast Feed</Label>
+                <p className="text-sm text-muted-foreground">
+                  Enter the RSS feed URL of a podcast to add it to your list. Episodes will be automatically processed and added to your feed.
+                </p>
+              </div>
+              
+              <div className="flex gap-2">
+                <Input
+                  value={newPodcastRss}
+                  onChange={(e) => setNewPodcastRss(e.target.value)}
+                  onKeyPress={handlePodcastKeyPress}
+                  placeholder="https://example.com/podcast/feed.xml"
+                  className="flex-1"
+                  disabled={isAddingPodcast}
+                />
+                <Button 
+                  onClick={handleAddPodcast}
+                  disabled={!newPodcastRss.trim() || rssExists(newPodcastRss.trim()) || isAddingPodcast}
+                  size="default"
+                  className="whitespace-nowrap"
+                >
+                  {isAddingPodcast ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
+                  Add Podcast Feed
+                </Button>
+              </div>
+              
+              {/* RSS Feed validation message */}
+              {newPodcastRss.trim() && rssExists(newPodcastRss.trim()) && (
+                <p className="text-sm text-destructive">
+                  This podcast feed has already been added.
+                </p>
+              )}
+            </div>
+
+            <Separator />
+
+            {/* Existing Podcasts List */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-base font-medium">Your Podcast Feeds</Label>
+                {podcastsLoading && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading...
+                  </div>
+                )}
+              </div>
+              
+              {podcasts.length === 0 && !podcastsLoading ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Radio className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p className="text-sm">No podcast feeds added yet</p>
+                  <p className="text-xs">Add your first podcast RSS feed above</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {podcasts.map((podcast) => (
+                    <div 
+                      key={podcast.id} 
+                      className="flex items-center justify-between p-3 border rounded-lg"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3">
+                          {podcast.image_url ? (
+                            <img 
+                              src={podcast.image_url} 
+                              alt={podcast.podcast_name}
+                              className="w-10 h-10 rounded-md object-cover flex-shrink-0"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 bg-gray-100 rounded-md flex items-center justify-center flex-shrink-0">
+                              <Radio className="h-5 w-5 text-gray-400" />
+                            </div>
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-medium text-sm truncate">{podcast.podcast_name}</h4>
+                              {podcast.status && (
+                                <Badge 
+                                  variant={podcast.status === 'processing' ? 'default' : 'secondary'} 
+                                  className="text-xs"
+                                >
+                                  {podcast.status === 'processing' ? 'Processing' : podcast.status}
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {podcast.rss_feed}
+                            </p>
+                            {podcast.description && (
+                              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                                {podcast.description}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemovePodcast(podcast.id)}
+                        disabled={isDeletingPodcast}
+                        className="ml-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      >
+                        {isDeletingPodcast ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
