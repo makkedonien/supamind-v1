@@ -232,7 +232,7 @@ const Settings = () => {
               </div>
               
               {/* RSS Feed validation message */}
-              {newPodcastRss.trim() && rssExists(newPodcastRss.trim()) && (
+              {newPodcastRss.trim() && rssExists(newPodcastRss.trim()) && !isAddingPodcast && (
                 <p className="text-sm text-destructive">
                   This podcast feed has already been added.
                 </p>
