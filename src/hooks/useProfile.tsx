@@ -45,7 +45,7 @@ export const useProfile = () => {
         throw error;
       }
 
-      console.log('Fetched profile:', data);
+      console.log('Fetched profile: Profile loaded successfully');
       return data;
     },
     enabled: isAuthenticated && !authLoading,
@@ -60,7 +60,7 @@ export const useProfile = () => {
 
   const updateProfile = useMutation({
     mutationFn: async (updateData: UpdateProfileData) => {
-      console.log('Updating profile with data:', updateData);
+      console.log('Updating profile: Update initiated');
       
       if (!user) {
         console.error('User not authenticated');

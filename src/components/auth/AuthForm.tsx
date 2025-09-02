@@ -42,7 +42,7 @@ const AuthForm = () => {
     setLoading(true);
 
     try {
-      console.log('Attempting sign in for:', email);
+      console.log('Attempting sign in...');
       
       const { error, data } = await supabase.auth.signInWithPassword({
         email,
@@ -60,7 +60,7 @@ const AuthForm = () => {
         }
       }
       
-      console.log('Sign in successful:', data.user?.email);
+      console.log('Sign in successful');
 
       // The AuthContext will handle the redirect automatically
       

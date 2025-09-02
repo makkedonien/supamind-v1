@@ -99,7 +99,7 @@ export const useNotebooks = () => {
   const createNotebook = useMutation({
     mutationFn: async (notebookData: { title: string; description?: string }) => {
       console.log('Creating notebook with data:', notebookData);
-      console.log('Current user:', user?.id);
+      console.log('Creating notebook for authenticated user');
       
       if (!user) {
         console.error('User not authenticated');

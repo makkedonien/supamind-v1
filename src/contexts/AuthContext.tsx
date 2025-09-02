@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [error, setError] = useState<string | null>(null);
 
   const updateAuthState = (newSession: Session | null) => {
-    console.log('AuthContext: Updating auth state:', newSession?.user?.email || 'No session');
+    console.log('AuthContext: Updating auth state:', newSession ? 'User authenticated' : 'No session');
     setSession(newSession);
     setUser(newSession?.user ?? null);
     
@@ -97,7 +97,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       (event, newSession) => {
         if (!mounted) return;
         
-        console.log('AuthContext: Auth state changed:', event, newSession?.user?.email || 'No session');
+        console.log('AuthContext: Auth state changed:', event, newSession ? 'User session active' : 'No session');
         
         // Handle sign out events
         if (event === 'SIGNED_OUT') {
@@ -151,7 +151,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
         
         if (mounted) {
-          console.log('AuthContext: Initial session:', initialSession?.user?.email || 'No session');
+          console.log('AuthContext: Initial session:', initialSession ? 'User session found' : 'No session');
           updateAuthState(initialSession);
           setLoading(false);
         }

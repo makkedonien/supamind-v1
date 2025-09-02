@@ -57,7 +57,7 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
         throw error;
       }
 
-      console.log('Google Sign-In successful:', data.user?.email);
+      console.log('Google Sign-In successful');
 
       onSignInComplete?.();
     } catch (error: any) {

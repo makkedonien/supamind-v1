@@ -19,7 +19,7 @@ export default function ExtensionAuth() {
         // Helper to post session back to the opener
         const postSession = (sess: any) => {
           try {
-            console.log('ExtensionAuth: Posting session to opener:', sess?.user?.email);
+            console.log('ExtensionAuth: Posting session to opener');
             console.log('ExtensionAuth: Target window:', target);
             console.log('ExtensionAuth: Current origin:', window.location.origin);
             // Post to the opener (chrome extension) with wildcard origin
@@ -60,7 +60,7 @@ export default function ExtensionAuth() {
 
         // Also set up listener in case user signs in in this window
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
-          console.log('ExtensionAuth: Auth state changed:', event, newSession?.user?.email);
+          console.log('ExtensionAuth: Auth state changed:', event, newSession ? 'User authenticated' : 'No session');
           if (newSession && event === 'SIGNED_IN') {
             console.log('ExtensionAuth: User signed in, posting session');
             setStatus('success');
