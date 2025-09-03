@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -21,6 +22,42 @@ serve(async (req) => {
     
     const { podcastId, userId, rssFeed } = requestBody;
     console.log(`Processing podcast feed for podcast ${podcastId}, user ${userId}`);
+
+    // Check if user has podcast processing enabled
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    const { data: profile, error: profileError } = await supabaseClient
+      .from('profiles')
+      .select('podcast_processing')
+      .eq('id', userId)
+      .single();
+
+    if (profileError) {
+      console.error('Error fetching user profile:', profileError);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Failed to verify user settings. Please try again.',
+          success: false 
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!profile || profile.podcast_processing === 'disabled') {
+      console.log('Podcast processing is disabled for user:', userId);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Podcast processing is disabled in your settings. Please enable it in Settings > Podcasts to add podcast feeds.',
+          success: false 
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('Podcast processing is enabled for user, proceeding with processing');
 
     // Get the webhook URL from Supabase secrets
     const webhookUrl = Deno.env.get('PODCAST_ADDING_WEBHOOK_URL');

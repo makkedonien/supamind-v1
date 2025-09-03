@@ -54,6 +54,7 @@ const Settings = () => {
   const [aiFeedCategorizationPrompt, setAiFeedCategorizationPrompt] = useState('');
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [newPodcastRss, setNewPodcastRss] = useState('');
+  const [podcastProcessingEnabled, setPodcastProcessingEnabled] = useState(false);
 
   // Load profile data into form when available
   useEffect(() => {
@@ -64,6 +65,7 @@ const Settings = () => {
       setTranscriptApiKey(profile.transcript_api_key || '');
       setName(profile.full_name || user?.email?.split('@')[0] || '');
       setEmail(profile.email || user?.email || '');
+      setPodcastProcessingEnabled(profile.podcast_processing === 'enabled');
     }
   }, [profile, user]);
 
@@ -98,6 +100,17 @@ const Settings = () => {
       }
     } catch (error) {
       console.error('Error saving API key:', error);
+    }
+  };
+
+  const handlePodcastProcessingToggle = async (enabled: boolean) => {
+    try {
+      await updateProfile.mutateAsync({
+        podcast_processing: enabled ? 'enabled' : 'disabled',
+      });
+      setPodcastProcessingEnabled(enabled);
+    } catch (error) {
+      console.error('Error updating podcast processing setting:', error);
     }
   };
 
@@ -264,6 +277,23 @@ const Settings = () => {
               <p className="text-xs text-muted-foreground">
                 Required: Generate an API key with AssemblyAI and submit it here. This is required to enable podcast transcription and summary feature.
               </p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="podcast-processing" className="text-base font-medium">Enable Podcast Processing</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Allow automatic processing and transcription of podcast episodes from RSS feeds.
+                  </p>
+                </div>
+                <Switch
+                  id="podcast-processing"
+                  checked={podcastProcessingEnabled}
+                  onCheckedChange={handlePodcastProcessingToggle}
+                  disabled={isUpdating}
+                />
+              </div>
             </div>
 
             <Separator />

@@ -13,6 +13,7 @@ interface UpdateProfileData {
   full_name?: string | null;
   avatar_url?: string | null;
   transcript_api_key?: string | null;
+  podcast_processing?: 'disabled' | 'enabled' | null;
 }
 
 export const useProfile = () => {

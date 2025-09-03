@@ -296,6 +296,7 @@ export type Database = {
           onboarding_completed_feed: boolean | null
           onboarding_completed_microcasts: boolean | null
           onboarding_completed_notebooks: boolean | null
+          podcast_processing: Database["public"]["Enums"]["podcast_processing_setting"] | null
           summary_prompt: string | null
           transcript_api_key: string | null
           updated_at: string
@@ -311,6 +312,7 @@ export type Database = {
           onboarding_completed_feed?: boolean | null
           onboarding_completed_microcasts?: boolean | null
           onboarding_completed_notebooks?: boolean | null
+          podcast_processing?: Database["public"]["Enums"]["podcast_processing_setting"] | null
           summary_prompt?: string | null
           transcript_api_key?: string | null
           updated_at?: string
@@ -326,6 +328,7 @@ export type Database = {
           onboarding_completed_feed?: boolean | null
           onboarding_completed_microcasts?: boolean | null
           onboarding_completed_notebooks?: boolean | null
+          podcast_processing?: Database["public"]["Enums"]["podcast_processing_setting"] | null
           summary_prompt?: string | null
           transcript_api_key?: string | null
           updated_at?: string
@@ -605,6 +608,7 @@ export type Database = {
       }
     }
     Enums: {
+      podcast_processing_setting: "disabled" | "enabled"
       source_type: "pdf" | "text" | "website" | "youtube" | "audio" | "podcast"
     }
     CompositeTypes: {
