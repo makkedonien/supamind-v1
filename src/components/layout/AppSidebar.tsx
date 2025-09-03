@@ -71,14 +71,14 @@ const AppSidebar = ({ feedFilters, onFeedFiltersChange, feedSourceCounts, proces
       path: '/',
     },
     {
-      icon: Mic,
-      label: 'Microcasts',
-      path: '/microcasts',
-    },
-    {
       icon: Radio,
       label: 'Podcasts',
       path: '/podcasts',
+    },
+    {
+      icon: Mic,
+      label: 'Microcasts',
+      path: '/microcasts',
     },
     {
       icon: BookOpen,
