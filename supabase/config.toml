@@ -62,3 +62,6 @@ verify_jwt = false
 
 [functions.process-additional-sources]
 verify_jwt = true
+
+[functions.scheduled-podcast-processing]
+verify_jwt = false
