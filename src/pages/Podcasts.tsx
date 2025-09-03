@@ -71,6 +71,7 @@ interface FeedFilters {
   pdfs: boolean;
   copiedTexts: boolean;
   categories: string[];
+  podcasts: string[];
 }
 
 // Updated placeholder data
@@ -628,6 +629,7 @@ const Podcasts = () => {
     pdfs: false,
     copiedTexts: false,
     categories: [],
+    podcasts: [],
   });
 
   // Filtered sources based on active filters
@@ -639,7 +641,7 @@ const Podcasts = () => {
       if (optimisticallyDeletedIds.has(source.id)) return false;
 
       // If no filters are active, show all sources
-      const hasActiveFilters = filters.favorites || filters.websites || filters.pdfs || filters.copiedTexts || filters.categories.length > 0;
+      const hasActiveFilters = filters.favorites || filters.websites || filters.pdfs || filters.copiedTexts || filters.categories.length > 0 || filters.podcasts.length > 0;
       if (!hasActiveFilters) return true;
 
       // Check favorites filter
@@ -657,6 +659,13 @@ const Podcasts = () => {
           sourceCategories.includes(filterCategory)
         );
         if (!hasMatchingCategory) return false;
+      }
+
+      // Check podcast filters
+      if (filters.podcasts.length > 0) {
+        if (!source.podcast_id || !filters.podcasts.includes(source.podcast_id)) {
+          return false;
+        }
       }
 
       return true;

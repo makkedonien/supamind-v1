@@ -19,6 +19,7 @@ import { useLogout } from '@/services/authService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserCategories } from '@/hooks/useUserCategories';
 import { useProfile } from '@/hooks/useProfile';
+import { usePodcastsWithCounts } from '@/hooks/usePodcastsWithCounts';
 import Logo from '@/components/ui/Logo';
 
 interface FeedFilters {
@@ -27,6 +28,7 @@ interface FeedFilters {
   pdfs: boolean;
   copiedTexts: boolean;
   categories: string[];
+  podcasts: string[];
 }
 
 interface AppSidebarProps {
@@ -52,6 +54,7 @@ const AppSidebar = ({ feedFilters, onFeedFiltersChange, feedSourceCounts, proces
   const { user } = useAuth();
   const { categories } = useUserCategories();
   const { profile } = useProfile();
+  const { podcasts: podcastsWithCounts } = usePodcastsWithCounts();
 
   // Get display name with fallback logic
   const getDisplayName = () => {
@@ -86,6 +89,9 @@ const AppSidebar = ({ feedFilters, onFeedFiltersChange, feedSourceCounts, proces
 
   // Check if we're on the feed page
   const isFeedPage = location.pathname === '/';
+  
+  // Check if we're on the podcasts page
+  const isPodcastsPage = location.pathname === '/podcasts';
   
   // Filter items for feed page
   const filterItems = feedSourceCounts ? [
@@ -138,6 +144,19 @@ const AppSidebar = ({ feedFilters, onFeedFiltersChange, feedSourceCounts, proces
     onFeedFiltersChange({
       ...feedFilters,
       categories: updatedCategories,
+    });
+  };
+
+  const handlePodcastToggle = (podcastId: string) => {
+    if (!feedFilters || !onFeedFiltersChange) return;
+    
+    const updatedPodcasts = feedFilters.podcasts.includes(podcastId)
+      ? feedFilters.podcasts.filter(id => id !== podcastId)
+      : [...feedFilters.podcasts, podcastId];
+    
+    onFeedFiltersChange({
+      ...feedFilters,
+      podcasts: updatedPodcasts,
     });
   };
 
@@ -241,6 +260,55 @@ const AppSidebar = ({ feedFilters, onFeedFiltersChange, feedSourceCounts, proces
                         {count > 0 && (
                           <Badge variant="secondary" className="ml-auto group-data-[collapsible=icon]:hidden">
                             {count}
+                          </Badge>
+                        )}
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {/* Podcasts Section - Only on Podcasts page */}
+        {isPodcastsPage && podcastsWithCounts && podcastsWithCounts.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>
+              <Radio className="h-4 w-4 mr-2" />
+              Podcasts
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {podcastsWithCounts.map((podcast) => {
+                  const isActive = feedFilters?.podcasts.includes(podcast.id) || false;
+                  
+                  return (
+                    <SidebarMenuItem key={podcast.id}>
+                      <SidebarMenuButton
+                        isActive={isActive}
+                        onClick={() => handlePodcastToggle(podcast.id)}
+                        tooltip={podcast.podcast_name}
+                      >
+                        {podcast.image_url ? (
+                          <img 
+                            src={podcast.image_url} 
+                            alt={podcast.podcast_name}
+                            className="h-4 w-4 rounded object-cover flex-shrink-0"
+                            onError={(e) => {
+                              // Fallback to Radio icon if image fails to load
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              const radioIcon = target.nextElementSibling as HTMLElement;
+                              if (radioIcon) radioIcon.style.display = 'block';
+                            }}
+                          />
+                        ) : null}
+                        <Radio className={`h-4 w-4 ${podcast.image_url ? 'hidden' : ''}`} />
+                        <span className="truncate">{podcast.podcast_name}</span>
+                        {podcast.source_count > 0 && (
+                          <Badge variant="secondary" className="ml-auto group-data-[collapsible=icon]:hidden">
+                            {podcast.source_count}
                           </Badge>
                         )}
                       </SidebarMenuButton>

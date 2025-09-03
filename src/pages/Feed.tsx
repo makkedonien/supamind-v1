@@ -71,6 +71,7 @@ interface FeedFilters {
   pdfs: boolean;
   copiedTexts: boolean;
   categories: string[];
+  podcasts: string[];
 }
 
 // Updated placeholder data
@@ -628,6 +629,7 @@ const Feed = () => {
     pdfs: false,
     copiedTexts: false,
     categories: [],
+    podcasts: [],
   });
 
   // Filtered sources based on active filters

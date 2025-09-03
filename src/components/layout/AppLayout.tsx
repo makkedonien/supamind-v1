@@ -11,6 +11,7 @@ interface FeedFilters {
   pdfs: boolean;
   copiedTexts: boolean;
   categories: string[];
+  podcasts: string[];
 }
 
 interface AppLayoutProps {
