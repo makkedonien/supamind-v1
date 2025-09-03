@@ -28,6 +28,7 @@ interface FeedSource {
   transcription_id?: string;
   transcript?: string;
   publishing_date?: string;
+  podcast_id?: string;
   created_at: string;
   updated_at: string;
 }

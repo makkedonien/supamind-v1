@@ -343,6 +343,8 @@ export type Database = {
           is_favorite: boolean
           metadata: Json | null
           notebook_id: string | null
+          pod_episode_id: string | null
+          podcast_id: string | null
           processing_status: string | null
           publisher_name: string | null
           publishing_date: string | null
@@ -369,6 +371,8 @@ export type Database = {
           is_favorite?: boolean
           metadata?: Json | null
           notebook_id?: string | null
+          pod_episode_id?: string | null
+          podcast_id?: string | null
           processing_status?: string | null
           publisher_name?: string | null
           publishing_date?: string | null
@@ -395,6 +399,8 @@ export type Database = {
           is_favorite?: boolean
           metadata?: Json | null
           notebook_id?: string | null
+          pod_episode_id?: string | null
+          podcast_id?: string | null
           processing_status?: string | null
           publisher_name?: string | null
           publishing_date?: string | null
