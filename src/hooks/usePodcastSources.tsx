@@ -25,6 +25,7 @@ export const usePodcastSources = () => {
         .eq('user_id', user.id)
         .eq('type', 'podcast') // Filter specifically for podcast type
         .is('notebook_id', null)
+        .order('publishing_date', { ascending: false, nullsLast: true })
         .order('created_at', { ascending: false });
 
       if (error) throw error;
