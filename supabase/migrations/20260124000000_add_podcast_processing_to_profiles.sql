@@ -20,3 +20,4 @@ SET podcast_processing = 'disabled'
 WHERE podcast_processing IS NULL;
 
 COMMIT;
+

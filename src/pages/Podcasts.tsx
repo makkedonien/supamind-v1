@@ -878,7 +878,7 @@ const Podcasts = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-xl font-semibold">Your Podcasts</h2>
+            <h2 className="text-xl font-semibold">Your Podcast Summaries</h2>
             <p className="text-sm text-gray-600 mt-1">
               {selectedSources.size > 0 ? (
                 <>
@@ -891,7 +891,7 @@ const Podcasts = () => {
               ) : (
                 <>
                   {filteredSources?.length || 0} source{filteredSources?.length !== 1 ? 's' : ''} 
-                  {(filters.favorites || filters.websites || filters.pdfs || filters.copiedTexts || filters.categories.length > 0) ? ' match filters' : ' in your podcasts'}
+                  {(filters.favorites || filters.websites || filters.pdfs || filters.copiedTexts || filters.categories.length > 0) ? ' match filters' : ' in your podcast feed'}
                   {(filters.favorites || filters.websites || filters.pdfs || filters.copiedTexts || filters.categories.length > 0) && (
                     <>
                       <span className="mx-2">•</span>
