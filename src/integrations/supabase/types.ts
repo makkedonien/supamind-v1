@@ -297,6 +297,7 @@ export type Database = {
           onboarding_completed_microcasts: boolean | null
           onboarding_completed_notebooks: boolean | null
           summary_prompt: string | null
+          transcript_api_key: string | null
           updated_at: string
         }
         Insert: {
@@ -311,6 +312,7 @@ export type Database = {
           onboarding_completed_microcasts?: boolean | null
           onboarding_completed_notebooks?: boolean | null
           summary_prompt?: string | null
+          transcript_api_key?: string | null
           updated_at?: string
         }
         Update: {
@@ -325,6 +327,7 @@ export type Database = {
           onboarding_completed_microcasts?: boolean | null
           onboarding_completed_notebooks?: boolean | null
           summary_prompt?: string | null
+          transcript_api_key?: string | null
           updated_at?: string
         }
         Relationships: []

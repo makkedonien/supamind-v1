@@ -12,6 +12,7 @@ interface UpdateProfileData {
   categorization_prompt?: string | null;
   full_name?: string | null;
   avatar_url?: string | null;
+  transcript_api_key?: string | null;
 }
 
 export const useProfile = () => {
@@ -151,9 +152,9 @@ export const useProfile = () => {
     isLoading: authLoading || isLoading,
     error: error?.message || null,
     isError,
-    updateProfile: updateProfile.mutate,
+    updateProfile,
     isUpdating: updateProfile.isPending,
-    updatePrompts: updatePrompts.mutate,
+    updatePrompts,
     isUpdatingPrompts: updatePrompts.isPending,
   };
 };

@@ -47,6 +47,7 @@ const Settings = () => {
   // Form state
   const [name, setName] = useState(user?.email?.split('@')[0] || '');
   const [email, setEmail] = useState(user?.email || '');
+  const [transcriptApiKey, setTranscriptApiKey] = useState('');
   const [newCategory, setNewCategory] = useState('');
   const [aiSummaryPrompt, setAiSummaryPrompt] = useState('');
   const [aiDeepSummaryPrompt, setAiDeepSummaryPrompt] = useState('');
@@ -60,6 +61,7 @@ const Settings = () => {
       setAiSummaryPrompt(profile.summary_prompt || '');
       setAiDeepSummaryPrompt(profile.deep_dive_prompt || '');
       setAiFeedCategorizationPrompt(profile.categorization_prompt || '');
+      setTranscriptApiKey(profile.transcript_api_key || '');
       setName(profile.full_name || user?.email?.split('@')[0] || '');
       setEmail(profile.email || user?.email || '');
     }
@@ -87,17 +89,48 @@ const Settings = () => {
     }
   };
 
+  const handleSaveApiKey = async () => {
+    try {
+      if (profile && transcriptApiKey !== profile.transcript_api_key) {
+        await updateProfile.mutateAsync({
+          transcript_api_key: transcriptApiKey.trim() || null,
+        });
+      }
+    } catch (error) {
+      console.error('Error saving API key:', error);
+    }
+  };
+
+  const handleApiKeyKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSaveApiKey();
+    }
+  };
+
   const handleSaveChanges = async () => {
     try {
-      // Update profile data (name)
+      // Check if any profile data has changed
+      const profileChanges: any = {};
+      let hasProfileChanges = false;
+
       if (profile && name !== profile.full_name) {
-        updateProfile({
-          full_name: name.trim() || null,
-        });
+        profileChanges.full_name = name.trim() || null;
+        hasProfileChanges = true;
+      }
+
+      if (profile && transcriptApiKey !== profile.transcript_api_key) {
+        profileChanges.transcript_api_key = transcriptApiKey.trim() || null;
+        hasProfileChanges = true;
+      }
+
+      // Update profile data if there are changes
+      if (hasProfileChanges) {
+        await updateProfile.mutateAsync(profileChanges);
       }
       
       // Update AI prompts
-      updatePrompts({
+      await updatePrompts.mutateAsync({
         summary_prompt: aiSummaryPrompt.trim() || null,
         deep_dive_prompt: aiDeepSummaryPrompt.trim() || null,
         categorization_prompt: aiFeedCategorizationPrompt.trim() || null,
@@ -108,7 +141,10 @@ const Settings = () => {
   };
 
   const handleAddPodcast = async () => {
-    if (newPodcastRss.trim() && !rssExists(newPodcastRss.trim())) {
+    if (newPodcastRss.trim() && 
+        podcasts.length < 10 && 
+        !rssExists(newPodcastRss.trim()) &&
+        profile?.transcript_api_key) {
       const result = await addPodcast(newPodcastRss.trim());
       if (result) {
         setNewPodcastRss('');
@@ -199,15 +235,44 @@ const Settings = () => {
               Podcasts
             </CardTitle>
             <CardDescription>
-              Add podcast RSS feeds to automatically process and sync podcast episodes to your feed. Need help finding a podcast's RSS feed URL? Use this <a href="https://castos.com/tools/find-podcast-rss-feed/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">free RSS feed finder tool</a>.
+              Add up to 10 podcast RSS feeds to automatically process and sync podcast episodes to your feed. An AssemblyAI API Key is required for podcast transcription. Need help finding a podcast's RSS feed URL? Use this <a href="https://castos.com/tools/find-podcast-rss-feed/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">free RSS feed finder tool</a>.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="transcript-api-key">AssemblyAI API Key</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="transcript-api-key"
+                  type="password"
+                  value={transcriptApiKey}
+                  onChange={(e) => setTranscriptApiKey(e.target.value)}
+                  onKeyPress={handleApiKeyKeyPress}
+                  placeholder="Enter your transcription service API key from AssemblyAI"
+                  className="flex-1"
+                />
+                <Button 
+                  onClick={handleSaveApiKey}
+                  disabled={!transcriptApiKey.trim() || transcriptApiKey === profile?.transcript_api_key || isUpdating}
+                  size="default"
+                  className="whitespace-nowrap"
+                >
+                  {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  Save API Key
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Required: Generate an API key with AssemblyAI and submit it here. This is required to enable podcast transcription and summary feature.
+              </p>
+            </div>
+
+            <Separator />
+
             <div className="space-y-3">
               <div>
                 <Label className="text-base font-medium">Add Podcast Feed</Label>
                 <p className="text-sm text-muted-foreground">
-                  Enter the RSS feed URL of a podcast to add it to your list. Episodes will be automatically processed and added to your feed.
+                  Enter the RSS feed URL of a podcast to add it to your list (max 10 feeds). An AssemblyAI API Key is required for podcast transcription. Episodes will be automatically processed and added to your feed.
                 </p>
               </div>
               
@@ -218,11 +283,11 @@ const Settings = () => {
                   onKeyPress={handlePodcastKeyPress}
                   placeholder="https://example.com/podcast/feed.xml"
                   className="flex-1"
-                  disabled={isAddingPodcast}
+                  disabled={isAddingPodcast || podcasts.length >= 10 || !profile?.transcript_api_key}
                 />
                 <Button 
                   onClick={handleAddPodcast}
-                  disabled={!newPodcastRss.trim() || rssExists(newPodcastRss.trim()) || isAddingPodcast}
+                  disabled={!newPodcastRss.trim() || rssExists(newPodcastRss.trim()) || isAddingPodcast || podcasts.length >= 10 || !profile?.transcript_api_key}
                   size="default"
                   className="whitespace-nowrap"
                 >
@@ -231,10 +296,20 @@ const Settings = () => {
                 </Button>
               </div>
               
-              {/* RSS Feed validation message */}
+              {/* RSS Feed validation messages */}
+              {!profile?.transcript_api_key && (
+                <p className="text-sm text-destructive">
+                  Please add and save your AssemblyAI API Key above before adding podcast feeds.
+                </p>
+              )}
               {newPodcastRss.trim() && rssExists(newPodcastRss.trim()) && !isAddingPodcast && (
                 <p className="text-sm text-destructive">
                   This podcast feed has already been added.
+                </p>
+              )}
+              {podcasts.length >= 10 && (
+                <p className="text-sm text-destructive">
+                  You've reached the maximum limit of 10 podcast feeds. Remove a feed to add a new one.
                 </p>
               )}
             </div>
@@ -245,12 +320,19 @@ const Settings = () => {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label className="text-base font-medium">Your Podcast Feeds</Label>
-                {podcastsLoading && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Loading...
-                  </div>
-                )}
+                <div className="flex items-center gap-4">
+                  {podcastsLoading && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Loading...
+                    </div>
+                  )}
+                  {!podcastsLoading && (
+                    <span className="text-sm text-muted-foreground">
+                      {podcasts.length}/10 podcast feeds
+                    </span>
+                  )}
+                </div>
               </div>
               
               {podcasts.length === 0 && !podcastsLoading ? (
