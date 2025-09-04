@@ -1,5 +1,5 @@
 {
-  "name": "InsightsLM - Extract Text",
+  "name": "Supamind - Extract Text",
   "nodes": [
     {
       "parameters": {
@@ -14,8 +14,8 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
       "position": [
-        60,
-        180
+        64,
+        192
       ],
       "id": "92f1772c-8782-4c8d-9374-18b599a89655",
       "name": "When Executed by Another Workflow"
@@ -23,7 +23,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://yfvmutoxmibqzvyklggr.supabase.co/storage/v1/object/sign/sources/{{ $json.filePath }}",
+        "url": "=https://ehqdibhqhevjnknojogm.supabase.co/storage/v1/object/sign/sources/{{ $json.filePath }}",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "supabaseApi",
         "sendBody": true,
@@ -34,21 +34,21 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        280,
-        180
+        288,
+        192
       ],
       "id": "eacc6b5c-ff5f-40c1-bfb2-4968317a1ecc",
       "name": "Generate Signed URL",
       "credentials": {
         "supabaseApi": {
-          "id": "OeYUddl4OaIohMCC",
-          "name": "MynotebookLM Supabase"
+          "id": "7GmwvHGWyd47X1M6",
+          "name": "Supabase account"
         }
       }
     },
     {
       "parameters": {
-        "url": "=https://yfvmutoxmibqzvyklggr.supabase.co/storage/v1/{{ $json.signedURL }}",
+        "url": "=https://ehqdibhqhevjnknojogm.supabase.co/storage/v1/{{ $json.signedURL }}",
         "options": {
           "response": {
             "response": {
@@ -60,8 +60,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        500,
-        180
+        512,
+        192
       ],
       "id": "9c5245a7-cbe8-4217-902b-7f1c42bfc3e2",
       "name": "Download File"
@@ -146,7 +146,7 @@
       "typeVersion": 3.2,
       "position": [
         720,
-        180
+        192
       ],
       "id": "b9643850-737a-405f-9ff0-1903d9424cd1",
       "name": "Switch"
@@ -159,8 +159,8 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1,
       "position": [
-        940,
-        -20
+        944,
+        -16
       ],
       "id": "ceeb5000-0dbc-4d18-9a29-7bc2c83ff959",
       "name": "Extract from File"
@@ -174,14 +174,14 @@
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 1.8,
       "position": [
-        940,
-        180
+        944,
+        192
       ],
       "id": "e8c24cd1-0d5e-452e-97ef-cb997a9c603e",
       "name": "OpenAI",
       "credentials": {
         "openAiApi": {
-          "id": "hNalDChhNUDtYG7T",
+          "id": "vyxVe2RGE1yLgSDx",
           "name": "OpenAi account"
         }
       }
@@ -203,8 +203,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        940,
-        380
+        944,
+        384
       ],
       "id": "45462a2a-a13e-45c0-8857-21f924c721ea",
       "name": "Edit Fields1"
@@ -226,8 +226,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1160,
-        180
+        1168,
+        192
       ],
       "id": "83cae3e9-ba19-4cdd-ac7e-0d4b4515eaad",
       "name": "Extracted Text"
@@ -241,27 +241,11 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        1420,
-        100
+        1424,
+        112
       ],
       "id": "a550ac25-8226-46af-8c55-5f42f1abd0e9",
       "name": "Sticky Note"
-    },
-    {
-      "parameters": {
-        "content": "[![The AI Automators](https://www.theaiautomators.com/wp-content/uploads/2025/03/gray-logo.png)](https://www.theaiautomators.com/)\n## InsightsLM\nhttps://github.com/theaiautomators/insights-lm-public",
-        "height": 220,
-        "width": 280,
-        "color": 7
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [
-        60,
-        -200
-      ],
-      "id": "3f1e49b6-b7b4-49d0-a2e7-c50ab1cd8f3d",
-      "name": "Sticky Note8"
     }
   ],
   "pinData": {},
@@ -362,10 +346,10 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "28c069b3-6e86-4169-82b3-50bcfad834f7",
+  "versionId": "390a3495-3832-4ba6-bc3c-9b52d62aee32",
   "meta": {
-    "instanceId": "b5d1ea132a4e071e6288b3143f31284b91560858bdef3f0c88a49f587fc91a29"
+    "instanceId": "f5707d3666ba184efe554775a181f51837c332c4fa57af1133598e1ba699e314"
   },
-  "id": "AzZ5a2zCGU1O3MRV",
+  "id": "ZWr97cxmECcUvIif",
   "tags": []
 }

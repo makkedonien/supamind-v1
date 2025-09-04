@@ -1,5 +1,5 @@
 {
-  "name": "InsightsLM - Process Additional Sources",
+  "name": "Supamind - Process Additional Sources",
   "nodes": [
     {
       "parameters": {
@@ -28,16 +28,17 @@
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "SrQqpK6NKzJPx86v",
+          "value": "L4jfcqHK5HarmFr8",
           "mode": "list",
-          "cachedResultName": "InsightsLM - Upsert to Vector Store"
+          "cachedResultName": "Supamind - Upsert to Vector Store"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
           "value": {
-            "notebook_id": "={{ $('Webhook').item.json.body.notebookId }}",
-            "extracted_text": "={{ $('Webhook').item.json.body.content }}",
-            "source_id": "={{ $('Webhook').item.json.body.sourceId }}"
+            "source_id": "{{ $('Webhook').item.json.body.sourceId }}",
+            "extracted_text": "{{ $('Webhook').item.json.body.content }}",
+            "notebook_id": "{{ $('Webhook').item.json.body.notebookId }}",
+            "user_id": "{{ $('Switch').item.json.body.userId }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -48,8 +49,7 @@
               "defaultMatch": false,
               "display": true,
               "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
+              "type": "string"
             },
             {
               "id": "extracted_text",
@@ -58,8 +58,7 @@
               "defaultMatch": false,
               "display": true,
               "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
+              "type": "string"
             },
             {
               "id": "source_id",
@@ -68,8 +67,16 @@
               "defaultMatch": false,
               "display": true,
               "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
+              "type": "string"
+            },
+            {
+              "id": "user_id",
+              "displayName": "user_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
             }
           ],
           "attemptToConvertTypes": false,
@@ -80,7 +87,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        -960,
+        -336,
         -592
       ],
       "id": "39c1ea5e-793e-4d4f-bac5-d062ed592db0",
@@ -165,7 +172,7 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        -1616,
+        -992,
         -416
       ],
       "id": "856443f3-e9a6-4b60-ac62-27a292716ced",
@@ -179,7 +186,7 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        -1392,
+        -768,
         -304
       ],
       "id": "c5fe2e1a-c2f7-4792-b9f2-d54b82ebe5ad",
@@ -194,7 +201,7 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        -1168,
+        -544,
         -304
       ],
       "id": "257eea62-f3c9-48b6-a709-a75c4591feb0",
@@ -217,11 +224,13 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -592,
+        32,
         112
       ],
       "id": "dcc1945f-d2bf-4577-8107-4c50b8386bf3",
-      "name": "Fetch Webpage with Jina.ai"
+      "name": "Fetch Webpage with Jina.ai",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
     },
     {
       "parameters": {
@@ -229,7 +238,7 @@
           "__rl": true,
           "value": "L4jfcqHK5HarmFr8",
           "mode": "list",
-          "cachedResultName": "InsightsLM - Upsert to Vector Store"
+          "cachedResultName": "Supamind - Upsert to Vector Store"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
@@ -237,7 +246,7 @@
             "notebook_id": "={{ $('Switch').item.json.body.notebookId }}",
             "extracted_text": "={{ $json.content }}",
             "source_id": "={{ $('Switch').item.json.body.sourceIds[$('Loop Over Items').item.pairedItem.item] }}",
-            "user_id": "={{ $('Switch').item.json.body.userId }}"
+            "user_id": "={{ $('Switch').item.json.body.user_id ?? $('Switch').item.json.body.userId }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -286,7 +295,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        368,
+        992,
         -48
       ],
       "id": "1a75596a-a67a-4022-8f77-b36916e6c0b3",
@@ -300,7 +309,7 @@
       "type": "n8n-nodes-base.aggregate",
       "typeVersion": 1,
       "position": [
-        560,
+        1184,
         240
       ],
       "id": "e590c246-da28-42fe-b7d3-9a11bbc8966b",
@@ -321,7 +330,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -128,
+        496,
         32
       ],
       "id": "f3b082c1-14a3-483e-8bdc-63f1d0417360",
@@ -348,7 +357,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -1392,
+        -768,
         -592
       ],
       "id": "1ae5ee5b-2566-43d8-af6b-87130838d255",
@@ -389,7 +398,7 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        -1168,
+        -544,
         -592
       ],
       "id": "f2073de5-7a69-49df-a64a-e70ae3d6451d",
@@ -415,22 +424,6 @@
       ],
       "id": "7967757a-72bf-42a4-bdd8-1c53d083a30a",
       "name": "Sticky Note"
-    },
-    {
-      "parameters": {
-        "content": "[![The AI Automators](https://www.theaiautomators.com/wp-content/uploads/2025/03/gray-logo.png)](https://www.theaiautomators.com/)\n## InsightsLM\nhttps://github.com/theaiautomators/insights-lm-public",
-        "height": 220,
-        "width": 280,
-        "color": 7
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [
-        -1840,
-        -912
-      ],
-      "id": "b3ead267-2cc3-440e-b976-434e493006a0",
-      "name": "Sticky Note8"
     },
     {
       "parameters": {
@@ -533,6 +526,30 @@
                 },
                 "conditions": [
                   {
+                    "id": "03b3f4c7-45f3-4d8c-b921-f6feee2e236e",
+                    "leftValue": "={{ $json['body.urls'] }}",
+                    "rightValue": "https://www.linkedin.com",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Linkedin"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
                     "id": "669bee29-fe2d-4925-a135-56b45362280c",
                     "leftValue": "={{ $json['body.urls'] }}",
                     "rightValue": "",
@@ -555,7 +572,7 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        -960,
+        -336,
         -208
       ],
       "id": "76931b70-e20e-4af0-b292-0ece39261b86",
@@ -565,9 +582,9 @@
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "qsHAeodj1KJE7nsD",
+          "value": "vywdIMxM4CtV7SyK",
           "mode": "list",
-          "cachedResultName": "InsightsLM - URL Content Scraper"
+          "cachedResultName": "Supamind - URL Content Scraper"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
@@ -608,7 +625,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        -592,
+        32,
         -208
       ],
       "id": "fe03dad7-ac97-48fa-8218-d5f549ce5f75",
@@ -629,7 +646,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -128,
+        496,
         -304
       ],
       "id": "9ad86917-2000-44ab-b48e-634c7649a2e5",
@@ -682,7 +699,7 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        64,
+        688,
         -128
       ],
       "id": "c56e3e37-240a-4d63-ad96-635e9a7f71c7",
@@ -778,7 +795,7 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        -416,
+        208,
         -208
       ],
       "id": "7fb3653b-eb7f-4b6d-ae99-ef0a7d1c9e05",
@@ -868,7 +885,7 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        -416,
+        208,
         112
       ],
       "id": "b469094e-61e3-462e-977c-e6755e2359ba",
@@ -915,7 +932,7 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        64,
+        688,
         -304
       ],
       "id": "a654f922-1468-4640-8aeb-75f03de72c5b",
@@ -968,7 +985,7 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        64,
+        688,
         32
       ],
       "id": "a013d34d-2cce-4116-a9ea-91d34d3db034",
@@ -1021,7 +1038,7 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        64,
+        688,
         192
       ],
       "id": "882c6fbb-0061-4f1e-bd26-d28e6235c864",
@@ -1048,7 +1065,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -128,
+        496,
         192
       ],
       "id": "1d8b69cd-aa5b-4af7-a01c-74247410c73c",
@@ -1075,7 +1092,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -128,
+        496,
         -128
       ],
       "id": "72f7936d-c632-4e65-a590-1d0b2692d3d4",
@@ -1086,6 +1103,477 @@
           "name": "Supabase account"
         }
       }
+    },
+    {
+      "parameters": {
+        "mailbox": "Inbox",
+        "options": {
+          "forceReconnect": 5
+        }
+      },
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2.1,
+      "position": [
+        -2352,
+        -672
+      ],
+      "id": "a77887da-1d1d-4760-beca-743d4c315b48",
+      "name": "Email Trigger (IMAP)",
+      "credentials": {
+        "imap": {
+          "id": "onXgFLzXF3N3YhuO",
+          "name": "Supamind Namecheap Email account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the email text from the textPlain field\nconst emailText = $input.first().json.textPlain || '';\n\n// Get the from field\nconst fromField = $input.first().json.from || '';\n\n// Regex to find URLs\nconst urlRegex = /https?:\\/\\/[^\\s\\n\\r]+/g;\n\n// Extract all URLs\nconst urls = emailText.match(urlRegex);\n\n// Get the first URL or return null if none found\nconst firstEmailUrl = urls && urls.length > 0 ? urls[0] : null;\n\n// Extract email address from \"from\" field\n// This regex looks for email in angle brackets: Name <email@domain.com>\nconst emailInBracketsRegex = /<([^>]+@[^>]+)>/;\nconst emailMatch = fromField.match(emailInBracketsRegex);\n\nlet fromEmail = null;\nif (emailMatch) {\n  fromEmail = emailMatch[1]; // Extract email from angle brackets\n} else {\n  // Fallback: try to find any email pattern in the from field\n  const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}/;\n  const fallbackMatch = fromField.match(emailRegex);\n  fromEmail = fallbackMatch ? fallbackMatch[0] : null;\n}\n\nreturn {\n  originalText: emailText,\n  fromField: fromField,\n  fromEmail: fromEmail,\n  firstEmailUrl: firstEmailUrl,\n  allEmailUrls: urls || []\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2192,
+        -672
+      ],
+      "id": "112fefe6-73b5-4aae-b7f1-67bb1c2d24b2",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "profiles",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "email",
+              "condition": "eq",
+              "keyValue": "={{ $json.fromEmail }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -2032,
+        -672
+      ],
+      "id": "dd520f06-5810-4fec-9fb8-fd8edf48b7a4",
+      "name": "Get many rows",
+      "credentials": {
+        "supabaseApi": {
+          "id": "7GmwvHGWyd47X1M6",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "sources",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "title",
+              "fieldValue": "=Website: {{ $('Code').item.json.firstEmailUrl }}"
+            },
+            {
+              "fieldId": "type",
+              "fieldValue": "=website"
+            },
+            {
+              "fieldId": "url",
+              "fieldValue": "={{ $('Code').item.json.firstEmailUrl }}"
+            },
+            {
+              "fieldId": "processing_status",
+              "fieldValue": "=processing"
+            },
+            {
+              "fieldId": "user_id",
+              "fieldValue": "={{ $('Get many rows').item.json.id }}"
+            },
+            {
+              "fieldId": "is_favorite",
+              "fieldValue": "=FALSE"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1600,
+        -672
+      ],
+      "id": "e2ed618e-12f2-4746-bca8-99445b6d37df",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "7GmwvHGWyd47X1M6",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "43f1f4ab-af0e-46d3-a2af-659e28e2e6d8",
+              "name": "body.type",
+              "value": "=feed-multiple-websites",
+              "type": "string"
+            },
+            {
+              "id": "483cdbb8-04c2-4a41-9770-a39273e03af1",
+              "name": "body.userId",
+              "value": "={{ $('Get many rows').item.json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "87618ab1-70bd-4807-9bf6-05f463a86ea0",
+              "name": "body.urls",
+              "value": "=[\"{{ $('Code').item.json.firstEmailUrl }}\"]",
+              "type": "array"
+            },
+            {
+              "id": "a49e9cd8-3740-4a09-befd-01b3b6cab93d",
+              "name": "body.sourceIds",
+              "value": "=[\"{{ $('Create a row').item.json.id }}\"]",
+              "type": "array"
+            },
+            {
+              "id": "3f0577f0-a9a7-45d7-ab56-0329b62cd789",
+              "name": "body.timestamp",
+              "value": "=[\"{{ $('Create a row').item.json.created_at }}\"]",
+              "type": "string"
+            },
+            {
+              "id": "5b980ed8-abec-43dc-8a2d-6832c693693a",
+              "name": "body.context",
+              "value": "=feed",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1216,
+        -672
+      ],
+      "id": "60aabb5c-f2cc-4a97-a622-43e4563c8812",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "sources",
+          "mode": "list",
+          "cachedResultName": "sources"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "is_favorite": false,
+            "file_size": 0,
+            "id": "={{ $json.id }}",
+            "metadata": "={{ JSON.stringify({\n  addedToFeed: true,\n  originalUrl: $('Code').item.json.firstEmailUrl,\n  webhookProcessed: true\n}) }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "notebook_id",
+              "displayName": "notebook_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "type",
+              "displayName": "type",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "options",
+              "canBeUsedToMatch": true,
+              "options": [
+                {
+                  "name": "audio",
+                  "value": "audio"
+                },
+                {
+                  "name": "youtube",
+                  "value": "youtube"
+                },
+                {
+                  "name": "website",
+                  "value": "website"
+                },
+                {
+                  "name": "text",
+                  "value": "text"
+                },
+                {
+                  "name": "pdf",
+                  "value": "pdf"
+                }
+              ]
+            },
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "file_path",
+              "displayName": "file_path",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "file_size",
+              "displayName": "file_size",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "display_name",
+              "displayName": "display_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "content",
+              "displayName": "content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "processing_status",
+              "displayName": "processing_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "metadata",
+              "displayName": "metadata",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "publisher_name",
+              "displayName": "publisher_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "short_description",
+              "displayName": "short_description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "deep_summary",
+              "displayName": "deep_summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "array",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "user_id",
+              "displayName": "user_id",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "image_url",
+              "displayName": "image_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "is_favorite",
+              "displayName": "is_favorite",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1408,
+        -672
+      ],
+      "id": "441c1b6d-23fe-4820-9aad-d53cd2229677",
+      "name": "Update rows in a table",
+      "credentials": {
+        "postgres": {
+          "id": "loHyKG67vLMDy8GM",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "335ca601-98bd-4207-866c-8bd6a4b33d0a",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1872,
+        -672
+      ],
+      "id": "0e2707cc-75c3-4984-9665-8f7aa3d251b5",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "errorMessage": "User ID doesn't exist"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        -1728,
+        -592
+      ],
+      "id": "57424a91-fc1e-47b4-9827-df36c3fb16a2",
+      "name": "Stop and Error"
     }
   ],
   "pinData": {
@@ -1094,8 +1582,8 @@
         "json": {
           "headers": {
             "host": "n8n-railway-production-519d.up.railway.app",
-            "user-agent": "Deno/1.45.2 (variant; SupabaseEdgeRuntime/1.68.2)",
-            "content-length": "250",
+            "user-agent": "Deno/1.45.2 (variant; SupabaseEdgeRuntime/1.68.3)",
+            "content-length": "264",
             "accept": "*/*",
             "accept-encoding": "gzip, br",
             "accept-language": "*",
@@ -1103,13 +1591,13 @@
             "access-control-allow-origin": "*",
             "authorization": "xXoFdKtnFp2f4VpcHPGN3e3XFNBi6u",
             "content-type": "application/json",
-            "x-forwarded-for": "35.181.50.195",
+            "x-forwarded-for": "3.127.85.5",
             "x-forwarded-host": "n8n-railway-production-519d.up.railway.app",
             "x-forwarded-proto": "https",
             "x-railway-edge": "railway/europe-west4-drams3a",
-            "x-railway-request-id": "L-SH0jfoR8eG_GWf0-QtfA",
-            "x-real-ip": "35.181.50.195",
-            "x-request-start": "1753826492372"
+            "x-railway-request-id": "OI7EvQFbR9egOETGw9P4nw",
+            "x-real-ip": "3.127.85.5",
+            "x-request-start": "1754812691324"
           },
           "params": {},
           "query": {},
@@ -1117,16 +1605,47 @@
             "type": "feed-multiple-websites",
             "userId": "ae11b2ca-64c9-4e82-a820-ab3b6a25f9e4",
             "urls": [
-              "https://www.reforge.com/blog/the-coder-framework"
+              "https://www.reforge.com/blog/how-ai-changes-product-management"
             ],
             "sourceIds": [
-              "6badae27-d2ea-4895-bfac-7f39c0ff7c2e"
+              "2827973d-3d37-44f2-9260-53e5bffdf04d"
             ],
-            "timestamp": "2025-07-29T22:01:32.005Z",
+            "timestamp": "2025-08-10T07:58:11.048Z",
             "context": "feed"
           },
           "webhookUrl": "https://n8n-railway-production-519d.up.railway.app/webhook/670882ea-5c1e-4b50-9f41-4792256af985",
           "executionMode": "production"
+        }
+      }
+    ],
+    "Email Trigger (IMAP)": [
+      {
+        "json": {
+          "textHtml": "<div>\r\n\r\n<a href=\"https://www.svpg.com/team-autonomy-and-ai/\">https://www.svpg.com/team-autonomy-and-ai/</a>\r\n</div>\r\n",
+          "textPlain": " https://www.svpg.com/team-autonomy-and-ai/\r\n",
+          "metadata": {
+            "return-path": "<marcknoll@gmail.com>",
+            "delivered-to": "mail@supamind.ai",
+            "received": "from DIR-10 ([10.50.24.21])\tby localhost with LMTP\tid SFW9BK/6mGhGrgEA0J78UA\t(envelope-from <marcknoll@gmail.com>)\tfor <mail@supamind.ai>; Sun, 10 Aug 2025 16:01:51 -0400",
+            "authentication-results": "asp-relay-pe.jellyfish.systems;\tdkim=pass header.d=gmail.com header.s=20230601 header.b=Gwkv10sC;\tspf=pass (asp-relay-pe.jellyfish.systems: domain of marcknoll@gmail.com designates 209.85.218.44 as permitted sender) smtp.mailfrom=marcknoll@gmail.com;\tdmarc=pass (policy=none) header.from=gmail.com",
+            "dkim-signature": "v=1; a=rsa-sha256; c=relaxed/relaxed;        d=gmail.com; s=20230601; t=1754856109; x=1755460909; darn=supamind.ai;        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject         :date:message-id:reply-to;        bh=RjlWTRHeurP7aDkzgSWRCBRb27Izb4pj6EBsMbRQB14=;        b=Gwkv10sCOqHwWqrJCY05lEZZNwFJ5yRjwf6DVHF3Dx4iR/VFo+U0J8ebY+ozTJc33g         2DQbPZOfOa9pxgnnXi0IomL7JFb0CikRpjJDzESay2Iigker6xsBJznUijjV0ufTh0az         N/P+3i4MKr5vmnI6NLZxXBHUnYbF2SR92xmBc5NL7zGbKwoFQV0RmtlDnFc2e/0SnAY8         Vxq1Q0ImXx05uvvnst6LjfIGRHZwxzjy7KTppgh0j0nOcjPqx/QqafPwWgAiRf/XVsVv         fbgajJxlt3quMs8DZL4X5oBYK2mtp4wUHa4WTb5THj/gIjZQ/pnIuLlNAkv81CmofU6M         VSkg==",
+            "x-google-dkim-signature": "v=1; a=rsa-sha256; c=relaxed/relaxed;        d=1e100.net; s=20230601; t=1754856109; x=1755460909;        h=to:subject:message-id:date:from:mime-version:x-gm-message-state         :from:to:cc:subject:date:message-id:reply-to;        bh=RjlWTRHeurP7aDkzgSWRCBRb27Izb4pj6EBsMbRQB14=;        b=RJ5UAxltSjKD8ME4e6uAw/i6h3Va4mgEAgJdd5g2eb3RY4J+CpnkGYODX2OfmbDrgE         Q1MR91rP8etUN9/hrZJox2Z0Q5MH2+7UehUa5gW93H5tUZjWToBwYyC1tBHW4wHKU2vR         Wo566dq0vnYaNLi7eyynDBiYhRNWpctfG1A3etfZiuGVN/8CDD7oVrHXaTMxVWRagBKJ         lSyvLcRtyA5pC07qGQc5DwTFkPPOc0imI66fDkXdipQnIqe7CLoA4F5cQdep8/bhgCBr         DouKlqskc9zj7GJB+5CroMHCA6KmI2SbLRUDPidolmYUn2EqsS7USyJ7V8kRv5Hy4qVy         oE1g==",
+            "x-gm-message-state": "AOJu0YzACEwXX75Xr0Gmpi6eRMLsHxNusrpmpNO7NWqj4rRhhcnasCGP\tjRJ3ST+nW2n7Z8y6/h6/hJw51ZOIMjAywD7OBAUzMo//ACa13Z+4CqI8HUnTRnWs55y5pRin2YR\tUNrIeYiruGW8M5x1k54ZTsSbrY1J74k5goXca",
+            "x-gm-gg": "ASbGncu7GLi1ayhGsof9WQDhqR5YPm69GCMRQ039qrubC821P9Jit4wDhsWDpdspeHh\tTnJAgccpSYZXOQMyH69wPVm6p1c5DkcJs/JIb6+AlPpYp2KFuV3XjaTvqk/br7lGgA21DeLC+JX\tuEwQa+73RoFuHxZF9VgjCgA6Mw7Jd2sGE8n9cQbOgCz8Ez4+rKUb+063UXbP8gCWaTo98mkE6GO\tk5zF6wT",
+            "x-google-smtp-source": "AGHT+IF9mxb7JSSMILhOWdnI4JK5DzfKaJXM9zw0vjAhqnwu8QsARzPyCqD3TtTGHlXu17GB+SBa0UaedVUrwHk4B+o=",
+            "x-received": "by 2002:a17:906:c14b:b0:aec:4ba4:7893 with SMTP id a640c23a62f3a-af9c63316ddmr716842966b.2.1754856108528; Sun, 10 Aug 2025 13:01:48 -0700 (PDT)",
+            "mime-version": "1.0",
+            "x-gm-features": "Ac12FXxBaOJ89GSdVwqZ9HHcRXqGvoidIVzLWCL-lgHKOrTpI6PEv0TC3KOIwRY",
+            "message-id": "<CACewphLgitZ30ZD6JbRcVjCeGnb2YXHU+QedodbYr2MygVFBHA@mail.gmail.com>",
+            "content-type": "multipart/alternative; boundary=\"000000000000fb1b57063c0846b2\""
+          },
+          "attributes": {
+            "uid": 15
+          },
+          "from": "Marc Knoll-Hock <marcknoll@gmail.com>",
+          "date": "Sun, 10 Aug 2025 20:01:37 +0000",
+          "subject": "Team Autonomy and AI - Silicon Valley Product Group : Silicon Valley Product Group",
+          "to": "\"mail@supamind.ai\" <mail@supamind.ai>"
         }
       }
     ]
@@ -1280,6 +1799,7 @@
             "index": 0
           }
         ],
+        [],
         [
           {
             "node": "Fetch Webpage with Jina.ai",
@@ -1426,13 +1946,97 @@
           }
         ]
       ]
+    },
+    "Email Trigger (IMAP)": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "Update rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update rows in a table": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "bd32e421-f409-492d-9302-5eaac51fb7c1",
+  "versionId": "0aa3ee71-e506-4632-9a5f-2615726f807e",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "f5707d3666ba184efe554775a181f51837c332c4fa57af1133598e1ba699e314"

@@ -1,0 +1,1075 @@
+{
+  "name": "Supamind - Podcast Episode Processor",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "acf118a8-df31-4a18-b6cf-27c1e95fe772",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        832,
+        16
+      ],
+      "id": "a00fcb84-0108-4702-83d1-cb3671ffc0db",
+      "name": "RSS Read"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "18e8a5c2-74d4-4482-a997-d5577b136de7",
+        "authentication": "headerAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -208,
+        0
+      ],
+      "id": "58b88156-e403-4cec-ac5e-1f50229b989c",
+      "name": "Webhook",
+      "webhookId": "18e8a5c2-74d4-4482-a997-d5577b136de7",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "gvJYxh53ckvIJCGJ",
+          "name": "Webhook Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a0cd7205-5eb4-4d29-af70-2070dafdb357",
+              "name": "user_id",
+              "value": "={{ $json.user_id }}",
+              "type": "string"
+            },
+            {
+              "id": "e936da9b-e91a-4089-ae55-3149b77e0aab",
+              "name": "url",
+              "value": "={{ $json.url }}",
+              "type": "string"
+            },
+            {
+              "id": "d4e681b2-2d8f-4280-9e65-236a0abdaa43",
+              "name": "podcast_id",
+              "value": "={{ $json.podcast_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        640,
+        16
+      ],
+      "id": "514eb925-05d2-4631-a037-ecf5d639fa2c",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    '{{ $json.user_id }}' as user_id,\n    '{{ $('Edit Fields').item.json.url }}' as url,\n    CASE \n        WHEN EXISTS(\n            SELECT 1 \n            FROM sources \n            WHERE pod_episode_id = '{{ $json.guids[0] }}'\n        )\n        THEN ''\n        ELSE '{{ $json.guids[0] }}'\n    END as new_guid;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1456,
+        16
+      ],
+      "id": "28ef6df0-fc1c-47ce-8284-833312318295",
+      "name": "GUID matching",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "loHyKG67vLMDy8GM",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Podcast RSS Feed Processing\nThis part gets the RSS feed content, then filters it down to include items only after a certain date, and then checks which items are already in the database and then outputs only new items which are not in the db yet.",
+        "height": 272,
+        "width": 1264
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        608,
+        -80
+      ],
+      "typeVersion": 1,
+      "id": "e8edd66a-aa33-45ee-a4fe-5f42bb57da09",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "89017938-6386-4ef3-8986-e58c32ca03a5",
+              "leftValue": "={{ $json.new_guid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1648,
+        16
+      ],
+      "id": "ea2789ca-90e7-4a00-aaa7-757fad7fd304",
+      "name": "Check if new GUIDs exist"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.assemblyai.com/v2/transcript",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.transcript_api_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"audio_url\": \"{{ $('Get GUID & Audio URLs').item.json['audio-file-url'] }}\",\n  \"speaker_labels\": false,\n  \"auto_chapters\": false,\n  \"summarization\": false,\n  \"sentiment_analysis\": false\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2576,
+        16
+      ],
+      "id": "e0e8a625-ebed-4167-bf28-5aae683a612e",
+      "name": "AssemblyAI Transcription"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.assemblyai.com/v2/transcript/{{ $('AssemblyAI Transcription').item.json.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $('Get Transcript API Key').item.json.transcript_api_key }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2944,
+        16
+      ],
+      "id": "cba9724c-97fc-4cf5-a9ba-30fc0eff73a7",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "amount": 15
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2784,
+        16
+      ],
+      "id": "6e90f3a4-7022-4e9c-9195-7b1046039829",
+      "name": "Wait",
+      "webhookId": "dfc93b39-5fa5-41f3-aba0-1d900fbad837"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2f492400-6834-47d8-9144-c994911ef9d9",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "processing",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3120,
+        16
+      ],
+      "id": "609f60e4-e207-4c29-9a05-ec1c4a2050fb",
+      "name": "Check if transcription is still processing"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Podcast Name: {{ $json.podcast_name }}\nHere is the podcast episode transcript: {{ $('Check if transcription is still processing').item.json.text }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "# Daily Podcast Summarizer Prompt\n\nYou are an expert podcast analyst specializing in extracting actionable insights for business leaders. Analyze the provided podcast transcript and create a comprehensive summary that identifies the most valuable business insights, whether they relate to marketing, product development, leadership, or any other relevant business areas.\n\n**IMPORTANT: Your entire response must be formatted in clean, well-structured markdown.**\n\n## Instructions:\n1. **Determine Focus**: Based on the content, identify the primary business areas discussed (marketing, product development, leadership, operations, strategy, finance, technology, culture, sales, etc.). Choose the most relevant areas for the discussion.\n\n2. **Structure your response exactly as follows:**\n\n---\n\n\n### **Podcast Details**\n• **Show:** [Podcast Name]\n• **Host:** [Host Name]\n• **Guest:** [Guest Name and Title/Company]\n• **Focus Areas:** [List the primary business areas covered - e.g., Marketing, Product Development, Leadership, Operations, Strategy, Finance, Technology, Culture, Sales, etc.]\n\n### **Comprehensive Summary**\n[Provide a 2-3 paragraph overview of the entire conversation, highlighting the main discussion points and overall narrative]\n\n### **Key Topics Discussed**\n1. **Topic 1 Headline**: [Topic 1: Brief description]\n2. **Topic 2 Headline**: [Topic 2: Brief description]\n3. **Topic 3 Headline**: [Topic 3: Brief description]\n4. [Continue as needed]\n\n### **Key Themes, Insights & Core Discussion Points**\n[Identify 3-4 overarching key themes, insights and/or discussion points that emerged from the conversation]\n1. [**Theme/Insight 1 Headline**]\n[Brief description]\n[the most valuable, actionable, or insightful quote in regards to the theme/insight with speaker attribution]\n2. [**Theme/Insight 2 Headline**]\n[Brief description]\n[the most valuable, actionable, or insightful quote in regards to the theme/insight with speaker attribution]\n3. [**Theme/Insight 3 Headline**]\n[Brief description]\n[the most valuable, actionable, or insightful quote in regards to the theme/insight with speaker attribution]\n4. [Continue as needed]\n\n### **Actionable Insights**\nBased on the focus area(s) identified, provide specific, implementable takeaways organized by relevant business areas:\n[Organize insights under the most relevant, maximum 3 headings such as:]\n**Marketing:** [If applicable - strategies, tactics, trends, customer insights]\n**Product Development:** [If applicable - methodologies, user research, feature insights, development processes]\n**Leadership:** [If applicable - management approaches, team building, decision-making frameworks]\n**Operations:** [If applicable - process improvements, efficiency tactics, workflow optimization]\n**Strategy:** [If applicable - competitive positioning, market analysis, strategic frameworks]\n**Finance:** [If applicable - funding approaches, financial management, cost optimization]\n**Technology:** [If applicable - tech trends, implementation strategies, tool recommendations]\n**Culture:** [If applicable - team dynamics, company culture, hiring practices]\n**Sales:** [If applicable - sales processes, customer acquisition, relationship building]\n**[Other Areas]:** [Any additional relevant business areas with specific insights]\n\n### **Noteworthy Observations**\n[Highlight 3-4 interesting insights, trends, or perspectives that stood out and could spark further discussion or research]\n1. [**Brief Observation 1 Headline**]: [Brief description of observation]\n2. [**Brief Observation 2 Headline**]: [Brief description of observation]\n3. [**Brief Observation 3 Headline**]: [Brief description of observation]\n4. [Continue as needed]\n\n### **Companies & Tools Mentioned**\n[List companies, products, or tools referenced that could be relevant for business applications]\n1. **Company 1** - [Company URL]\n**Context:** [Brief, one-sentence description in what context the company discussed or mentioned]\n2. **Company 2** - [Company URL]\n**Context:** [Brief, one-sentence description in what context the company discussed or mentioned]\n3. [Continue as needed]\n\n---\n\n## Additional Guidelines:\n- Keep summaries concise but comprehensive\n- Focus on actionable and practical insights across all relevant business areas\n- Preserve the speaker's voice in quotes\n- Highlight contrarian or unique perspectives\n- Identify patterns that could inform business strategy across multiple functions\n- Extract specific methodologies, frameworks, or processes mentioned\n- Don't force insights into predefined categories - let the content guide the focus areas\n- Don't add any other content after the 'Companies & Tools Mentioned' section. Your output has to stop after that."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        3488,
+        16
+      ],
+      "id": "93864a40-0d0d-437f-9030-85f556243414",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        3488,
+        192
+      ],
+      "id": "aac67e47-99b5-4271-80c9-289ca7b43ce4",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "vyxVe2RGE1yLgSDx",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "sources",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "title",
+              "fieldValue": "={{ $('Limit1').item.json.title }}"
+            },
+            {
+              "fieldId": "type",
+              "fieldValue": "podcast"
+            },
+            {
+              "fieldId": "url",
+              "fieldValue": "={{ $('Limit1').item.json.link }}"
+            },
+            {
+              "fieldId": "summary",
+              "fieldValue": "={{ $('Basic LLM Chain').item.json.text }}"
+            },
+            {
+              "fieldId": "processing_status",
+              "fieldValue": "completed"
+            },
+            {
+              "fieldId": "metadata",
+              "fieldValue": "={\n  \"addedToFeed\": true,\n  \"originalUrl\": \"{{ $('Limit1').item.json.link }}\",\n  \"webhookProcessed\": true\n}"
+            },
+            {
+              "fieldId": "publisher_name",
+              "fieldValue": "={{ $('Get Podcast Info').item.json.podcast_name }}"
+            },
+            {
+              "fieldId": "short_description",
+              "fieldValue": "={{ $('Limit1').item.json.contentSnippet }}"
+            },
+            {
+              "fieldId": "user_id",
+              "fieldValue": "={{ $('Get GUIDs, User_ID, Podcast_ID').item.json.user_id }}"
+            },
+            {
+              "fieldId": "image_url",
+              "fieldValue": "={{ $('Get Podcast Info').item.json.image_url }}"
+            },
+            {
+              "fieldId": "transcription_id",
+              "fieldValue": "={{ $('AssemblyAI Transcription').item.json.id }}"
+            },
+            {
+              "fieldId": "publishing_date",
+              "fieldValue": "={{ $('Limit1').item.json.isoDate }}"
+            },
+            {
+              "fieldId": "podcast_id",
+              "fieldValue": "={{ $('Get Podcast Info').item.json.id }}"
+            },
+            {
+              "fieldId": "pod_episode_id",
+              "fieldValue": "={{ $('Get GUID & Audio URLs').item.json.guid }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        3808,
+        16
+      ],
+      "id": "b2ce4ede-c976-4009-aeb1-3dc974879017",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "7GmwvHGWyd47X1M6",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "user_id"
+            },
+            {
+              "name": "url"
+            },
+            {
+              "name": "podcast_id"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -208,
+        -176
+      ],
+      "id": "9cf2426b-38dc-40eb-83b1-31660ccd34cf",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get data from the specific trigger node\nconst inputData = $('When Executed by Another Workflow').all();\n\n// Debug: log the input structure to understand what we're working with\nconsole.log('Input data:', JSON.stringify(inputData, null, 2));\n\nlet dataToProcess;\n\n// Handle different input scenarios\nif (inputData.length === 1 && Array.isArray(inputData[0].json)) {\n  // Scenario 1: Single item containing an array\n  dataToProcess = inputData[0].json;\n} else if (Array.isArray(inputData)) {\n  // Scenario 2: Multiple items, each containing an object\n  dataToProcess = inputData.map(item => item.json);\n} else {\n  // Fallback: try to use the input as-is\n  dataToProcess = inputData;\n}\n\n// Transform to n8n format including podcast_id\nreturn dataToProcess.map(item => {\n  return {\n    json: {\n      url: item.url,\n      user_id: item.user_id,\n      podcast_id: item.podcast_id\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        -176
+      ],
+      "id": "0f179793-feb6-40e3-ae45-01dcddbf2ff7",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const guids = $input.all().map(item => item.json.guid);\nconst userId = $('Edit Fields').first().json.user_id;\nconst podcastId = $('Edit Fields').first().json.podcast_id;\n\nreturn [{\n  json: {\n    guids: guids,\n    user_id: userId,\n    podcast_id: podcastId,\n    guidArray: `{${guids.map(g => `\"${g}\"`).join(',')}}`  // Proper quotes\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1248,
+        16
+      ],
+      "id": "dbadb14d-afcb-4d14-93dd-56d42d80a9da",
+      "name": "Get GUIDs, User_ID, Podcast_ID"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b05f1b50-1027-4dee-8a05-538fe7e63a2a",
+              "name": "audio-file-url",
+              "value": "={{ $('Limit1').item.json.enclosure.url }}",
+              "type": "string"
+            },
+            {
+              "id": "63edc4df-1ab2-4974-a723-72d0e157dd3b",
+              "name": "guid",
+              "value": "={{ $json.new_guid }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1920,
+        16
+      ],
+      "id": "65ef1994-d21a-4fa6-92d1-11444d197439",
+      "name": "Get GUID & Audio URLs"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "podcasts",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "rss_feed",
+              "keyValue": "={{ $('Edit Fields').first().json.url }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        3328,
+        16
+      ],
+      "id": "ccbe10a5-2b25-46b9-ac4b-b4f6ef3ae64e",
+      "name": "Get Podcast Info",
+      "credentials": {
+        "supabaseApi": {
+          "id": "7GmwvHGWyd47X1M6",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "errorMessage": "Error: No Transcription API Key found"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        2576,
+        224
+      ],
+      "id": "21d2c703-76d4-44d1-8e51-5c48b911cacb",
+      "name": "Stop and Error"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the input data from the Webhook node\nconst inputData = $('Webhook').all();\n\n// Extract the body array from the input\nconst body = inputData[0].json.body;\n\n// Return each item in the body array as a separate n8n item\nreturn body.map(item => ({ json: item }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "4a27c218-a92b-436a-a348-f0cf2c92fc1a",
+      "name": "Code"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        16
+      ],
+      "id": "6ecc8a75-48db-41de-a9d1-eb624c9262cb",
+      "name": "Limit1"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT transcript_api_key FROM profiles\nWHERE id = '{{ $('Get GUIDs, User_ID, Podcast_ID').item.json.user_id }}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2144,
+        16
+      ],
+      "id": "95fcf169-7f01-4105-aa2a-cc42072f0a4d",
+      "name": "Get Transcript API Key",
+      "credentials": {
+        "postgres": {
+          "id": "loHyKG67vLMDy8GM",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "7919085089",
+        "text": "=Supamind Source Added\n\nUser: {{ $('Get GUIDs, User_ID, Podcast_ID').item.json.user_id }}\nPodcast: {{ $('Get Podcast Info').item.json.podcast_name }}\nTitle: {{ $('Limit1').item.json.title }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3984,
+        16
+      ],
+      "id": "9b82aa3d-b1cb-49f4-b28b-78498dbc5f97",
+      "name": "Send a text message",
+      "webhookId": "1b714c8b-0f25-4bde-aa0c-7e8da0ec1b72",
+      "credentials": {
+        "telegramApi": {
+          "id": "LEiEsL0XzYtYlFrf",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "7919085089",
+        "text": "=Supamind: \nPodcast Episode Processing started via other workflow",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        -176
+      ],
+      "id": "87e5edc9-c9c4-4db9-bcc3-d772122a38f5",
+      "name": "Send a text message1",
+      "webhookId": "1b714c8b-0f25-4bde-aa0c-7e8da0ec1b72",
+      "credentials": {
+        "telegramApi": {
+          "id": "LEiEsL0XzYtYlFrf",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "7919085089",
+        "text": "=Supamind: \nPodcast Episode Processing started via webhook",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f61a452d-f45a-408f-bed0-e9d4730edb2a",
+      "name": "Send a text message2",
+      "webhookId": "1b714c8b-0f25-4bde-aa0c-7e8da0ec1b72",
+      "credentials": {
+        "telegramApi": {
+          "id": "LEiEsL0XzYtYlFrf",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Podcast Audio Transcription\n",
+        "height": 272,
+        "width": 1376
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1888,
+        -80
+      ],
+      "typeVersion": 1,
+      "id": "1a73063d-e63a-464b-9da3-4c0f6d28722e",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1c86e65b-5122-4149-90d8-dcd9e2878e3b",
+              "leftValue": "={{ $json.transcript_api_key }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2336,
+        16
+      ],
+      "id": "ba38d601-c43e-4ae7-997d-a39718bc5abe",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "content": "## Transcript Summary and DB table data entry\n",
+        "height": 272,
+        "width": 880
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3280,
+        -80
+      ],
+      "typeVersion": 1,
+      "id": "6578211d-1d3a-438e-a015-a23bec8fb4d9",
+      "name": "Sticky Note2"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "user_id": "ae11b2ca-64c9-4e82-a820-ab3b6a25f9e4",
+          "url": "https://anchor.fm/s/45369a8/podcast/rss",
+          "podcast_id": "597f580b-93a7-445c-9a83-4cd557b485e9"
+        }
+      }
+    ],
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n-railway-production-519d.up.railway.app",
+            "user-agent": "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.69.4)",
+            "content-length": "1079",
+            "accept": "*/*",
+            "accept-encoding": "gzip,br",
+            "accept-language": "*",
+            "authorization": "xXoFdKtnFp2f4VpcHPGN3e3XFNBi6u",
+            "content-type": "application/json",
+            "x-forwarded-for": "18.194.244.149",
+            "x-forwarded-host": "n8n-railway-production-519d.up.railway.app",
+            "x-forwarded-proto": "https",
+            "x-railway-edge": "railway/europe-west4-drams3a",
+            "x-railway-request-id": "KkNzEx2JTD2gpH9T5nX1uw",
+            "x-real-ip": "18.194.244.149",
+            "x-request-start": "1756930273593"
+          },
+          "params": {},
+          "query": {},
+          "body": [
+            {
+              "user_id": "ae11b2ca-64c9-4e82-a820-ab3b6a25f9e4",
+              "url": "https://anchor.fm/s/1035b1568/podcast/rss",
+              "podcast_id": "c378b5fb-1ccd-4751-90d2-d9ec7617baaf"
+            },
+            {
+              "user_id": "ae11b2ca-64c9-4e82-a820-ab3b6a25f9e4",
+              "url": "https://feeds.transistor.fm/sub-club",
+              "podcast_id": "f8fc68d8-a2e0-4424-b622-3e3142926ed1"
+            },
+            {
+              "user_id": "ae11b2ca-64c9-4e82-a820-ab3b6a25f9e4",
+              "url": "https://feeds.megaphone.fm/marketingagainstthegrain",
+              "podcast_id": "c042fd93-547a-4e7f-8f27-b70fdef83442"
+            },
+            {
+              "user_id": "ae11b2ca-64c9-4e82-a820-ab3b6a25f9e4",
+              "url": "https://anchor.fm/s/10b6b3a8/podcast/rss",
+              "podcast_id": "48e1020c-96d1-4e0c-aa3a-0b7e04f361d8"
+            },
+            {
+              "user_id": "ae11b2ca-64c9-4e82-a820-ab3b6a25f9e4",
+              "url": "https://anchor.fm/s/fcc8f274/podcast/rss",
+              "podcast_id": "37c9240b-a617-4051-83fd-661b6fe6b640"
+            },
+            {
+              "user_id": "ae11b2ca-64c9-4e82-a820-ab3b6a25f9e4",
+              "url": "https://anchor.fm/s/45369a8/podcast/rss",
+              "podcast_id": "536b8c61-a333-4a97-95d0-95850ff943cd"
+            },
+            {
+              "user_id": "ae11b2ca-64c9-4e82-a820-ab3b6a25f9e4",
+              "url": "https://api.substack.com/feed/podcast/10845.rss",
+              "podcast_id": "79d35639-95aa-4551-ae5e-9439b3126174"
+            }
+          ],
+          "webhookUrl": "https://n8n-railway-production-519d.up.railway.app/webhook/18e8a5c2-74d4-4482-a997-d5577b136de7",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Limit1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GUID matching": {
+      "main": [
+        [
+          {
+            "node": "Check if new GUIDs exist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if new GUIDs exist": {
+      "main": [
+        [
+          {
+            "node": "Get GUID & Audio URLs",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AssemblyAI Transcription": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Check if transcription is still processing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if transcription is still processing": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Podcast Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get GUIDs, User_ID, Podcast_ID": {
+      "main": [
+        [
+          {
+            "node": "GUID matching",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get GUID & Audio URLs": {
+      "main": [
+        [
+          {
+            "node": "Get Transcript API Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Podcast Info": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit1": {
+      "main": [
+        [
+          {
+            "node": "Get GUIDs, User_ID, Podcast_ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Transcript API Key": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message1": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message2": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "AssemblyAI Transcription",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "48da561c-a42c-441a-95aa-b12783ec972b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f5707d3666ba184efe554775a181f51837c332c4fa57af1133598e1ba699e314"
+  },
+  "id": "5ip36Kc6l1pyK64i",
+  "tags": []
+}

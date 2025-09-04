@@ -1,5 +1,5 @@
 {
-  "name": "InsightsLM - Generate Notebook Details",
+  "name": "Supamind - Generate Notebook Details",
   "nodes": [
     {
       "parameters": {
@@ -12,16 +12,16 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        140,
-        -200
+        144,
+        -208
       ],
       "id": "010f9da2-e94a-4eeb-8abc-7a11b5df02d3",
       "name": "Webhook",
       "webhookId": "0c488f50-8d6a-48a0-b056-5f7cfca9efe2",
       "credentials": {
         "httpHeaderAuth": {
-          "id": "39evQ95L86jhtb3I",
-          "name": "MyNoteBookLM Auth"
+          "id": "gvJYxh53ckvIJCGJ",
+          "name": "Webhook Header Auth account"
         }
       }
     },
@@ -33,7 +33,7 @@
       "typeVersion": 1.2,
       "position": [
         1616,
-        -200
+        -208
       ],
       "id": "d617ebc0-0500-403b-babc-205733ce36a4",
       "name": "Respond to Webhook"
@@ -54,8 +54,8 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.6,
       "position": [
-        1240,
-        -200
+        1248,
+        -208
       ],
       "id": "66e19df1-eae3-43f0-93d1-56def58c1432",
       "name": "Generate Title & Description"
@@ -67,8 +67,8 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.2,
       "position": [
-        1388,
-        20
+        1392,
+        32
       ],
       "id": "5800e2a7-6e7f-4227-a124-43d05b2a8542",
       "name": "Structured Output Parser"
@@ -86,14 +86,14 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.2,
       "position": [
-        1268,
-        20
+        1280,
+        32
       ],
       "id": "fb70591a-e3fb-4430-8902-70da6a397200",
       "name": "OpenAI Chat Model",
       "credentials": {
         "openAiApi": {
-          "id": "hNalDChhNUDtYG7T",
+          "id": "vyxVe2RGE1yLgSDx",
           "name": "OpenAi account"
         }
       }
@@ -102,9 +102,9 @@
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "AzZ5a2zCGU1O3MRV",
+          "value": "ZWr97cxmECcUvIif",
           "mode": "list",
-          "cachedResultName": "InsightsLM - Extract Text"
+          "cachedResultName": "Supamind - Extract Text"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
@@ -134,7 +134,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1020,
+        1024,
         0
       ],
       "id": "df36e109-47a6-4f1b-a775-740b4b3ceb7e",
@@ -178,8 +178,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        360,
-        -200
+        368,
+        -208
       ],
       "id": "fdb03c27-aa2b-4ce4-a627-100599928646",
       "name": "If"
@@ -212,8 +212,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        580,
-        -300
+        592,
+        -304
       ],
       "id": "3fe02905-4fd7-45bc-bdec-72de6a6d8a97",
       "name": "If1"
@@ -235,7 +235,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1020,
+        1024,
         -400
       ],
       "id": "6ca2f532-9da2-46cf-a88e-edc2264fd3a7",
@@ -259,7 +259,7 @@
       "typeVersion": 4.2,
       "position": [
         800,
-        -200
+        -208
       ],
       "id": "7f96ba8f-875b-4368-9022-94c06acd9936",
       "name": "Fetch Webpage with Jina.ai"
@@ -281,8 +281,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1020,
-        -200
+        1024,
+        -208
       ],
       "id": "0e106e48-8a5c-4142-8906-e2b5291d11e2",
       "name": "Set Text1"
@@ -297,26 +297,10 @@
       "typeVersion": 1,
       "position": [
         1360,
-        -440
+        -448
       ],
       "id": "2011755c-70ad-4bd7-811b-e6bface53763",
       "name": "Sticky Note"
-    },
-    {
-      "parameters": {
-        "content": "[![The AI Automators](https://www.theaiautomators.com/wp-content/uploads/2025/03/gray-logo.png)](https://www.theaiautomators.com/)\n## InsightsLM\nhttps://github.com/theaiautomators/insights-lm-public",
-        "height": 220,
-        "width": 280,
-        "color": 7
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [
-        140,
-        -580
-      ],
-      "id": "b0e56210-db45-4b10-b513-ddbac2e7d222",
-      "name": "Sticky Note8"
     }
   ],
   "pinData": {},
@@ -450,18 +434,10 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "dd220d9f-8dc3-44bc-889d-726cde238df3",
+  "versionId": "55f1225e-24d9-4516-8ab2-74d14e0ede4d",
   "meta": {
-    "templateCredsSetupCompleted": true,
-    "instanceId": "b5d1ea132a4e071e6288b3143f31284b91560858bdef3f0c88a49f587fc91a29"
+    "instanceId": "f5707d3666ba184efe554775a181f51837c332c4fa57af1133598e1ba699e314"
   },
-  "id": "5I6KohfDxYQ2xvQ7",
-  "tags": [
-    {
-      "createdAt": "2025-05-12T13:43:59.783Z",
-      "updatedAt": "2025-05-12T13:43:59.783Z",
-      "id": "d3ygIhrGjDmzgrW0",
-      "name": "TheAIAutomators.com"
-    }
-  ]
+  "id": "HhqXwaELqpD9TG1t",
+  "tags": []
 }

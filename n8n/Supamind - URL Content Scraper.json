@@ -1,5 +1,5 @@
 {
-  "name": "InsightsLM - URL Content Scraper",
+  "name": "Supamind - URL Content Scraper",
   "nodes": [
     {
       "parameters": {
@@ -10,7 +10,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "Here goes your API key"
+              "value": "Bearer fc-c77abf3248f848c3a9bf24541139a56c"
             }
           ]
         },
@@ -22,10 +22,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -1220,
-        460
+        0,
+        352
       ],
-      "id": "0ed405c3-9e6a-4c0f-b82a-566e089e0b89",
+      "id": "0ecf828b-f785-4425-821a-19baf98f78e2",
       "name": "HTTP Request"
     },
     {
@@ -36,10 +36,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -1220,
-        120
+        0,
+        0
       ],
-      "id": "8d8db6cb-516d-4306-85e8-03b4d56e4c33",
+      "id": "696a5b84-67ec-4cdc-845d-8e1e39707eb6",
       "name": "HTTP Request2"
     },
     {
@@ -51,10 +51,10 @@
       "type": "n8n-nodes-base.markdown",
       "typeVersion": 1,
       "position": [
-        -760,
-        120
+        464,
+        0
       ],
-      "id": "b3aa27dd-a1df-498d-95eb-b5be7ce5ed48",
+      "id": "5b4c4929-42c7-4f9a-b991-a8543ca88e0c",
       "name": "Markdown"
     },
     {
@@ -87,10 +87,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -880,
-        640
+        352,
+        528
       ],
-      "id": "7b01c699-f5ec-46d6-91b6-332c57f3a056",
+      "id": "c3cc0c5a-af67-48e6-be56-b19e39d6e7df",
       "name": "HTTP Request3"
     },
     {
@@ -201,10 +201,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        -1520,
-        340
+        -304,
+        224
       ],
-      "id": "77681c77-56f2-472f-b34a-40f9c54fe623",
+      "id": "d13b463a-ffef-4975-ac57-26431fcde751",
       "name": "URL Switch"
     },
     {
@@ -216,22 +216,22 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "Here goes your API key"
+              "value": "Bearer fc-c77abf3248f848c3a9bf24541139a56c"
             }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"url\": \"{{ $json.url }}\",\n  \"formats\": [\n    \"markdown\"\n  ],\n  \"onlyMainContent\": true,\n  \"waitFor\": 5000,\n  \"headers\": {\n    \"cookie\": \"__stripe_mid=1713fb77-d9c5-4914-97e4-a68f5284dd22420b17;wordpress_logged_in_240259a5d3f6770f12e9bf70696c0c0d=marcknoll%40gmail.com%7C1751002499%7CP6beHER13ixXeIW0vzdyOwJeBPZttn14VSSC5egC0AQ%7C7f7e427fc08d5c2839a2de48d116c8ad65d0f290b7b86440691113d86085b611\"\n  }\n}",
+        "jsonBody": "={\n  \"url\": \"{{ $json.url }}\",\n  \"formats\": [\n    \"markdown\"\n  ],\n  \"onlyMainContent\": true,\n  \"waitFor\": 5000,\n  \"headers\": {\n    \"cookie\": \"wordpress_test_cookie=WP%20Cookie%20check;__stripe_mid=1713fb77-d9c5-4914-97e4-a68f5284dd22420b17;wordpress_logged_in_240259a5d3f6770f12e9bf70696c0c0d=marcknoll%40gmail.com%7C1754858972%7C2pYgDpHT06xhNeSL359ii6UBepO66sYM7FfAUr7VlJn%7C17f4fbcbb58324a8872a5a8252d25f7d2c8cb10ce38684f14189508c6be67581\"\n  }\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -1220,
-        280
+        0,
+        160
       ],
-      "id": "c95fb21a-171e-470d-b411-05bd4cbf7b78",
+      "id": "be035018-78e7-485e-bc8b-d89730a741fd",
       "name": "HTTP Mobile Dev Memo"
     },
     {
@@ -241,10 +241,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1220,
-        640
+        0,
+        528
       ],
-      "id": "12f9dd9a-93f4-4806-9c97-12cfcc76c6c7",
+      "id": "63a99427-d7f3-4692-a04e-f1067acde4c5",
       "name": "Code"
     },
     {
@@ -256,10 +256,10 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.7,
       "position": [
-        -580,
-        120
+        640,
+        0
       ],
-      "id": "5f1d5d75-0f06-4683-afbd-724441c92b5c",
+      "id": "b60144a3-13fe-4c21-bb24-7b85d86139e3",
       "name": "Basic LLM Chain1"
     },
     {
@@ -269,10 +269,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1060,
-        120
+        160,
+        0
       ],
-      "id": "71e6cd63-6eb3-4515-87b8-f76833f4957d",
+      "id": "f33423ab-b963-4168-bed1-f406f3f4b05a",
       "name": "Code2"
     },
     {
@@ -282,10 +282,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -920,
-        120
+        304,
+        0
       ],
-      "id": "468d2da7-ee30-405e-94f4-c10c5793095f",
+      "id": "8a866b38-e263-44c9-8735-4cc231ba502e",
       "name": "Code3"
     },
     {
@@ -341,10 +341,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -720,
-        460
+        512,
+        352
       ],
-      "id": "96d67378-22e0-4868-b11e-0bd74b6803d0",
+      "id": "81c753a1-d0df-4c83-a869-b995e326b390",
       "name": "Edit Fields"
     },
     {
@@ -400,10 +400,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -720,
-        280
+        512,
+        160
       ],
-      "id": "4e07b064-bb6e-4ac3-a393-a4b09414de67",
+      "id": "3469be4a-6233-4293-adea-75371be95cf1",
       "name": "Edit Fields1"
     },
     {
@@ -416,14 +416,14 @@
       "type": "n8n-nodes-base.youTube",
       "typeVersion": 1,
       "position": [
-        -1040,
-        640
+        192,
+        528
       ],
-      "id": "e925591c-9dbc-438e-8a72-88700144e01f",
+      "id": "2ae8de7a-ee06-428d-8be3-d311646a77e4",
       "name": "YouTube",
       "credentials": {
         "youTubeOAuth2Api": {
-          "id": "YnKofT99MJp5cvS7",
+          "id": "gxKHLaj7ditcfrYR",
           "name": "YouTube account"
         }
       }
@@ -459,7 +459,7 @@
             {
               "id": "22cb3c11-8fe8-43d7-8e6f-47eaf41ac458",
               "name": "image_url",
-              "value": "={{ $('YouTube').item.json.snippet.thumbnails.maxres.url }}",
+              "value": "={{ $('YouTube').item.json.snippet.thumbnails.standard.url }}",
               "type": "string"
             },
             {
@@ -481,10 +481,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -720,
-        640
+        512,
+        528
       ],
-      "id": "9081d76a-5486-4ca0-bd97-4fdb0e71e2d0",
+      "id": "a23ce8f6-d852-4052-a448-bc0e2ecf4b3f",
       "name": "Edit Fields2"
     },
     {
@@ -503,10 +503,10 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
       "position": [
-        -1900,
-        360
+        -688,
+        240
       ],
-      "id": "32d5b75e-b3c7-4ffa-898f-537a20800325",
+      "id": "3df318c0-0574-451f-908b-1f2a59c9e7fe",
       "name": "When Executed by Another Workflow"
     },
     {
@@ -516,14 +516,14 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1,
       "position": [
-        -540,
-        180
+        688,
+        64
       ],
-      "id": "70ea5053-ca50-4b11-8011-9a74824e71cf",
+      "id": "12285a87-7fcc-43ea-8c6a-90a268f0901e",
       "name": "Google Gemini Chat Model1",
       "credentials": {
         "googlePalmApi": {
-          "id": "cSYzD9b0mOz2UD8Y",
+          "id": "0Cl9BqX4cx9pQwrD",
           "name": "Google Gemini(PaLM) Api account"
         }
       }
@@ -535,10 +535,10 @@
       "type": "@n8n/n8n-nodes-langchain.chatTrigger",
       "typeVersion": 1.1,
       "position": [
-        -2080,
-        560
+        -864,
+        448
       ],
-      "id": "2af9fd0d-fe5f-4bc3-b061-e9425a5bfcd5",
+      "id": "ad53c4aa-12d6-4bac-9439-729d7ea166b6",
       "name": "When chat message received",
       "webhookId": "97f8159d-90fe-4eab-bc68-48b1669d8307"
     },
@@ -559,10 +559,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -1860,
-        560
+        -640,
+        448
       ],
-      "id": "a82f9999-1e4b-46f0-9004-634b1e6847e7",
+      "id": "d8f05d24-27bf-4320-8ee5-ff6c24b77269",
       "name": "Edit Fields3"
     },
     {
@@ -618,14 +618,23 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -240,
-        120
+        992,
+        0
       ],
-      "id": "f39136c0-92ad-439f-be88-12c2379e02a7",
+      "id": "bb6769ba-0c0d-493c-baa5-d2187f6314c5",
       "name": "Edit Fields7"
     }
   ],
-  "pinData": {},
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "url": "https://www.youtube.com/watch?v=Ty7TqjHKBZo",
+          "userId": "ae11b2ca-64c9-4e82-a820-ab3b6a25f9e4"
+        }
+      }
+    ]
+  },
   "connections": {
     "HTTP Request": {
       "main": [
@@ -814,15 +823,15 @@
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "870fb0bf-7406-4732-89c7-be8329465b4d",
+  "versionId": "1bae62ba-3d7b-4891-a73e-468c38c18e68",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "f5707d3666ba184efe554775a181f51837c332c4fa57af1133598e1ba699e314"
   },
-  "id": "qsHAeodj1KJE7nsD",
+  "id": "vywdIMxM4CtV7SyK",
   "tags": []
 }

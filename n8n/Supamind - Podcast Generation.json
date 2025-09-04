@@ -1,5 +1,5 @@
 {
-  "name": "InsightsLM - Podcast Generation",
+  "name": "Supamind - Podcast Generation",
   "nodes": [
     {
       "parameters": {
@@ -221,9 +221,9 @@
       "parameters": {
         "model": {
           "__rl": true,
-          "value": "gpt-4.1",
+          "value": "gpt-4.1-mini",
           "mode": "list",
-          "cachedResultName": "gpt-4.1"
+          "cachedResultName": "gpt-4.1-mini"
         },
         "options": {}
       },
@@ -379,7 +379,7 @@
         "nodeCredentialType": "supabaseApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"expiresIn\": 86400\n}",
+        "jsonBody": "={\n  \"expiresIn\": 432000\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -399,7 +399,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  const now = new Date();\n  const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000); // Add 1 day in ms\n  item.json.timestamp = tomorrow.toISOString(); // Compatible with Supabase timestampz\n}\n\nreturn $input.all();\n"
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  const now = new Date();\n  const tomorrow = new Date(now.getTime() + 5* 24 * 60 * 60 * 1000); // Add 1 day in ms\n  item.json.timestamp = tomorrow.toISOString(); // Compatible with Supabase timestampz\n}\n\nreturn $input.all();\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -509,7 +509,7 @@
       "parameters": {
         "aggregate": "aggregateAllItemData",
         "include": "specifiedFields",
-        "fieldsToInclude": "title,content",
+        "fieldsToInclude": "title, publisher_name,content",
         "options": {}
       },
       "type": "n8n-nodes-base.aggregate",
@@ -528,7 +528,7 @@
             {
               "id": "c3743cbc-c838-401a-8f65-95a386707ded",
               "name": "prompt",
-              "value": "=You'll create a podcast script where two expert hosts take turns presenting comprehensive summaries of different content sources. Each host covers one source at a time, alternating throughout the episode. The tone should be that of a knowledgeable friend sharing fascinating finds with clear \"so what?\" implications.\nCRITICAL: This is a no-fluff podcast. Get to the point immediately. Every second counts. Start with impact, maintain momentum, deliver value.\nHOST PERSONAS\nBoth Hosts: Expert curators who are genuinely excited about sharing knowledge. They speak with authority but remain approachable, like that friend who always has the most interesting articles to share and knows exactly why they matter. Zero fluff, maximum insight, infectious enthusiasm.\nSTRUCTURAL FRAMEWORK (DIRECT & FAST)\nOpening (Max 15 seconds)\nHost 1: [Number] game-changing pieces coming at you. I'm [name], here with [name].\nHost 2: We're diving into [brief topic area]. Let's jump straight in.\nOR\nHost 1: Welcome back. I'm [name] with [name]. Today: [ultra-brief topic teaser].\nHost 2: [Number] pieces that'll change how you think. Here we go.\nExample of immediate transition to content:\nHost 1: Three mind-blowing discoveries about the future of work. I'm Sarah, with James.\nHost 2: Each one's a game-changer. Let's dive in.\nHost 1: MIT shattered everything we thought we knew about productivity. They discovered that...\nContent Presentation Format\nIMPORTANT: After the brief 15-second opening, Host 1 should immediately launch into the first source with energy and no additional preamble. Think \"cold open\" - hit them with the most interesting fact/finding within the first sentence of covering Source 1.\nFor each content source, the presenting host should:\n1. The Hook (10-15 seconds)\n\nStart with the most surprising/impactful finding\nOr pose the central question the content addresses\nExample: \"So imagine finding out that [surprising fact]. That's exactly what researchers discovered in...\"\nAlternative direct start: \"Forget everything you know about [topic]. This new study just proved...\"\n\n2. Source Introduction (5-10 seconds)\n\nUltra-brief: \"This comes from [source/author].\"\nOr integrated: \"MIT researchers discovered...\" (weaving source into the narrative)\nOr skip entirely if the source speaks for itself through the content\nOnly mention credentials if crucial to understanding the weight of the findings\nNote: No publication dates will be provided - focus on the content, not timing\n\n3. The Core Summary (45-75 seconds)\n\n3-4 key points delivered with punch\nLead with results, not methodology\n\"They found [shocking result]. How? [brief explanation]\"\nKeep momentum: \"But wait—it gets better...\"\nUse specifics: numbers, percentages, concrete outcomes\n\n4. The \"So What?\" (20-30 seconds)\n\nImmediate impact: \"Starting tomorrow, this means...\"\nPersonal stakes: \"If you use [X], this changes everything\"\nBigger picture: \"We're looking at a world where...\"\nOne clear takeaway the listener can use or share\n\n5. The Handoff (5-10 seconds)\n\nQuick synthesis: \"So [one-sentence summary]. [Other host], what've you got?\"\nDirect pass: \"That's [topic 1]. Your turn, [name].\"\nFast connection: \"Which brings us to your piece on...\"\n\nTONE AND DELIVERY GUIDELINES\nExpert Friend Approach\n\nDirect and impactful: Start with the meat, skip the appetizer\nKnowledgeable but not condescending: \"Here's what changes everything...\"\nGenuine enthusiasm: \"This completely upends what we thought...\"\nClear stakes: \"This matters because...\"\nNo throat-clearing: Jump straight to the insight after the 15-second intro\n\nLanguage Patterns\n\nStart segments with impact: \"Breaking: [key finding]\"\nUse \"Here's the thing...\" only for crucial pivots\nInclude reactions: \"This floored me...\"\nMake it urgent: \"You need to know about this...\"\n\nMaking Complex Ideas Stick\n\nQuick analogies: \"It's like [familiar thing] but for [new context]\"\nShocking numbers: \"That's 10x bigger than [familiar comparison]\"\nInstant scenarios: \"Tomorrow, you could...\"\nMemory anchors: \"One thing to remember: [key point]\"\n\nPACING AND LENGTH\n\nTarget Length: 7-15 minutes total\n\n2 sources: 7-9 minutes\n3 sources: 9-11 minutes\n4+ sources: 11-15 minutes\n\n\nPer source: 90-150 seconds each (1.5-2.5 minutes)\nOpening: Max 15 seconds - straight to content\nEnding: 15-20 seconds - quick wrap\nSpeaking pace: Energetic but not rushed\nPauses: Brief moments after major revelations\n\nTime breakdown for 3-source episode (~10 min):\n\nOpening: 15 sec\nSource 1: 2 min\nTransition: 5-10 sec\nSource 2: 2 min\nTransition: 5-10 sec\nSource 3: 2 min\nEnding: 20 sec\nTotal: ~6.5-7 min content + natural pacing = ~10 min\n\nTRANSITION TECHNIQUES\nBetween sources, create swift bridges (5-10 seconds max):\n\nDirect handoff: \"That's [topic 1]. Now here's [Host 2] with something equally mind-blowing.\"\nQuick contrast: \"From [topic 1] to something completely different...\"\nFast connection: \"Speaking of disruption, you found...\"\nSimple pass: \"Over to you, [name].\"\n\nSPECIFIC PHRASES AND PATTERNS\nOpening a segment:\n\nDirect start: \"A Stanford study shattered our understanding of...\"\nQuestion hook: \"What if everything we believed about [topic] was wrong?\"\nData shock: \"90% of people don't realize that...\"\nStory entry: \"Researchers stumbled upon something that changes everything...\"\nBreaking finding: \"Scientists discovered [shocking fact]...\"\n\nExplaining significance:\n\n\"Why care? Because...\"\n\"This changes everything for...\"\n\"Here's what happens next...\"\n\"The impact? Massive. Here's why...\"\n\nClosing a segment:\n\n\"Bottom line: [Key takeaway in one sentence]\"\n\"Remember this: [Most important point]\"\n\"The takeaway? [Action or insight]\"\n\nENDING (15-20 seconds)\nHost 1: That's [number] pieces that'll change how you think about [topic].\nHost 2: Links in the show notes. Until next time!\nOR\nHost 2: The thread connecting all of this? [One-sentence insight].\nHost 1: Everything's linked below. Stay curious!\nHANDLING MULTIPLE SOURCES\n\nSpeed: Each source gets its point across fast\nVariety: Mix shocking stats, breakthrough research, practical applications\nBuild: Each source adds to the bigger picture\nNo repetition: If sources overlap, synthesize don't repeat\n\nQUALITY CHECKLIST\nFor each source segment, ensure:\n\n Immediate, exciting hook within first sentence\n Zero fluff or unnecessary setup\n Source/author credibility established in one sentence\n 3-4 concrete takeaways, not just vague summaries\n Specific \"so what?\" that connects to listener's life/interests\n Natural transition to next host/topic\n At least one memorable analogy or example\n The excitement feels genuine, not manufactured\n\nWHAT TO AVOID\n❌ \"Hey everyone, how's it going?\"\n❌ \"Before we get started...\"\n❌ \"I want to talk to you about...\"\n❌ \"Let me tell you why this is interesting...\"\n❌ Long-winded explanations\n❌ Repetitive transitions\n❌ Any form of \"warming up\" to the topic\n❌ References to when something was published (dates not provided)\n✅ Instead: Start with the revelation, build from there\nOUTPUT FORMAT\nPlease read aloud the following in a podcast style:\nHost 1: [Brief opening - max 15 seconds]\nHost 2: [Quick acknowledgment/addition if needed]\nHost 1: [Immediately launches into Source 1 with hook]\nHost 2: [Covers Source 2]\n[Continue alternating as needed]\nEXAMPLE SOURCE SEGMENT:\nHost 1: Your smartphone is literally rewiring your brain—and neuroscientists have proved it. Stanford researchers scanned 200 brains before and after a 30-day digital detox. The results? Shocking. Gray matter in the attention centers increased by 15% in just one month. That's the same growth you'd see from learning a new language. But here's the kicker—the anxiety centers? They shrunk. First time we've seen reversible brain changes from tech use. So every notification, every scroll—you're physically reshaping your neural pathways. The good news? It's completely reversible. Take a real break from your phone for 30 days, and your brain bounces back. Bottom line: your device addiction isn't just psychological—it's carved into your brain structure. Over to you, James.\n\n# SOURCE(S) TO CREATE TRANSCRIPT FROM\n\n{{ JSON.stringify($json.data) }}\n\n# OTHER\n\nIMPORTANT: Only output the transcript and use \\n in between speakers dialog\nIMPORTANT: Your response must start with ...\n\"Please read aloud the following in a podcast interview style:\nHost 1: \"",
+              "value": "=You'll create a podcast script where two expert hosts take turns presenting comprehensive summaries of different content sources. Each host covers one source at a time, alternating throughout the episode. The tone should be that of a knowledgeable friend sharing fascinating summaries with clear \"so what?\" implications.\n\nCRITICAL: This is a comprehensive yet engaging podcast. While we dive deep into content, every second should deliver value. Start with impact, maintain momentum throughout detailed explanations.\n\nHOST PERSONAS\nBoth Hosts: Expert curators who are genuinely excited about sharing knowledge. They speak with authority but remain approachable, like that friend who always has the most interesting articles to share and knows exactly why they matter. They guide listeners through complex content with clarity and enthusiasm.\n\nSTRUCTURAL FRAMEWORK (COMPREHENSIVE & ENGAGING)\n\nOpening (Max 15 seconds)\nHost 1: [Number] fascinating deep dives coming your way. I'm [name], here with [name].\nHost 2: We're exploring [brief topic area]. Let's jump in.\nOR\nHost 1: Welcome back. I'm [name] with [name]. Today: [ultra-brief topic teaser].\nHost 2: [Number] pieces that'll expand your understanding. Here we go.\n\nContent Presentation Format\n\nFor each content source, the presenting host should:\n\n1. Introduction & Hook (15 seconds)\n- Start with publisher name and source title\n- Provide high-level outline that hooks the listener\n- Give first idea of what the source covers\nExample: \"This comes from [Publisher Name] with the title '[Source Title]'. They're exploring how [high-level topic], uncovering [intriguing angle]. What they found challenges everything we thought about [subject].\"\nAlternative: \"[Publisher Name] just released '[Source Title]', and it's a deep dive into [topic]. They're essentially arguing that [main thesis], and the evidence they present is compelling.\"\n\n2. The Core Summary (120-180 seconds)\n- Comprehensive walkthrough of the content\n- Cover ALL relevant key points and ideas\n- Include specifics: numbers, percentages, concrete outcomes\n- Structure as a narrative journey through the article\n- Use transitions like: \"They start by explaining...\" \"Then they dive into...\" \"What's fascinating is how they connect...\"\n- Include important context and background\n- Mention methodology if it strengthens understanding\n- Quote key phrases if particularly impactful\n- Address counterarguments or limitations mentioned\nExample flow: \"Let me walk you through this. They begin with [opening point]. The research shows [specific finding with numbers]. But here's where it gets interesting - they discovered [key insight]. This connects to [broader context]. They also found [additional finding], which means [implication]...\"\n\n3. The \"So What?\" (30-120 seconds)\n- Key takeaways clearly articulated\n- Immediate impacts on listeners' lives\n- Bigger picture implications\n- Multiple actionable insights\n- What to remember and why it matters\nStructure: \"So what does this mean for you? First, [immediate application]. Second, [broader implication]. If you're someone who [relevant situation], this fundamentally changes [specific aspect]. The key things to remember: [bullet-point style takeaways]. This shifts our understanding of [field/topic] because [reason].\"\n\n4. The Handoff (5-10 seconds)\n- Quick synthesis: \"So [one-sentence summary]. [Other host], what've you got?\"\n- Direct pass: \"That's [topic 1]. Your turn, [name].\"\n- Fast connection: \"Which brings us to your piece on...\"\n\nTONE AND DELIVERY GUIDELINES\n\nExpert Guide Approach\n- Comprehensive but accessible: \"Let me break this down for you...\"\n- Knowledgeable walkthrough: \"What they're really saying here is...\"\n- Patient explanation: \"To understand this, you need to know...\"\n- Genuine enthusiasm: \"This part completely changed my perspective...\"\n- Clear signposting: \"There are three main arguments here...\"\n\nLanguage Patterns\n- Guide through complexity: \"Follow me on this journey...\"\n- Build understanding: \"Once you grasp this, the next part makes sense...\"\n- Connect dots: \"This relates back to what we discussed about...\"\n- Highlight significance: \"Don't miss this crucial point...\"\n\nMaking Complex Ideas Accessible\n- Layer information: Start simple, build complexity\n- Use analogies throughout: \"Think of it like...\"\n- Provide context: \"To put this in perspective...\"\n- Summarize periodically: \"So far, we've learned...\"\n\nPACING AND LENGTH\n\nTarget Length: 10-22 minutes total\n- 2 sources: 6-11 minutes\n- 3 sources: 9-17 minutes\n- 4+ sources: 12-22 minutes\n\nPer source: 3-5.5 minutes each\n- Introduction & Hook: 15 seconds\n- Core Summary: 2-3 minutes (120-180 seconds)\n- \"So What?\": 30 seconds-2 minutes (30-120 seconds)\n- Handoff: 5-10 seconds\n\nOpening: Max 15 seconds\nEnding: 20-30 seconds\nSpeaking pace: Measured but engaging\nPauses: Strategic moments for absorption\n\nTRANSITION TECHNIQUES\nBetween sources, create smooth bridges:\n- Thematic connection: \"From [topic 1]'s implications, [Host 2] has something that builds on this...\"\n- Contrast bridge: \"While I covered [angle 1], you found a completely different perspective...\"\n- Natural flow: \"That transformation story sets up your piece perfectly...\"\n\nSPECIFIC PHRASES AND PATTERNS\n\nOpening a segment:\n- Publisher intro: \"[Publisher] published '[Title]', and it's a masterclass in [topic]...\"\n- Context setting: \"To understand '[Title]' from [Publisher], you need to know...\"\n- Thesis statement: \"[Publisher]'s '[Title]' makes a bold claim: [main argument]...\"\n\nWalking through content:\n- \"The authors argue that...\"\n- \"They present three main pieces of evidence...\"\n- \"What struck me most was their point about...\"\n- \"They systematically demonstrate...\"\n- \"The data reveals something unexpected...\"\n\nExplaining significance:\n- \"Here's why this matters to you...\"\n- \"The implications are far-reaching...\"\n- \"This fundamentally changes how we should...\"\n- \"What you need to take away from this...\"\n\nENDING (20-30 seconds)\nHost 1: That's [number] deep dives into [topic area].\nHost 2: We've covered [brief summary of journey]. Links to everything in the show notes.\nHost 1: Until next time, keep exploring!\n\nQUALITY CHECKLIST\nFor each source segment, ensure:\n☑ Publisher and title clearly stated upfront\n☑ Comprehensive coverage of all main points\n☑ Specific data and examples included\n☑ Complex ideas made accessible\n☑ Multiple clear takeaways provided\n☑ Natural narrative flow throughout\n☑ Genuine enthusiasm and expertise conveyed\n☑ Sufficient depth without losing clarity\n\nWHAT TO AVOID\n❌ Rushing through complex ideas\n❌ Skipping important context\n❌ Vague summaries without specifics\n❌ Missing key arguments or evidence\n❌ Superficial treatment of deep content\n✅ Instead: Guide thoroughly through the material while maintaining engagement\n\nOUTPUT FORMAT\nPlease read aloud the following in a podcast style:\n\nHost 1: [Brief opening - max 15 seconds]\nHost 2: [Quick acknowledgment]\n\nHost 1: [Publisher/Title introduction and hook - 15 seconds]\n[Core summary - 2-3 minutes]\n[So what? - 30 seconds-2 minutes]\n[Handoff]\n\nHost 2: [Publisher/Title introduction and hook - 15 seconds]\n[Core summary - 2-3 minutes]\n[So what? - 30 seconds-2 minutes]\n[Handoff]\n\n[Continue alternating as needed]\n\nEXAMPLE SOURCE SEGMENT:\nHost 1: This comes from Nature Neuroscience with the title 'Digital Detox and Neural Plasticity'. They're investigating whether our smartphones are physically changing our brain structure, and spoiler alert: they absolutely are.\n\nLet me walk you through what they found. The Stanford team scanned 200 participants' brains before and after a 30-day complete digital detox - no smartphones, minimal computer use. They used fMRI imaging to track changes in gray matter density across different brain regions. \n\nInitially, they documented the baseline: heavy smartphone users showed 20% less gray matter in the prefrontal cortex compared to historical data from pre-smartphone era. That's your executive function center - decision-making, impulse control, attention management. But here's where it gets fascinating - after just 30 days offline, participants showed a 15% increase in gray matter in these exact regions. That's comparable to the neural growth from intensive language learning.\n\nThey also tracked the amygdala - your brain's alarm system. Heavy users started with enlarged amygdalas, indicating chronic stress response. Post-detox? An average 12% reduction in size, correlating with self-reported anxiety dropping by 40%. The researchers noted this is the first documented case of reversible structural brain changes from behavioral tech modification.\n\nBut they went deeper. They found that notification sounds triggered fight-or-flight responses identical to predator sounds in evolutionary terms. Your brain literally can't distinguish between a text alert and a tiger roar at the neurochemical level. They measured cortisol spikes of 23% within two seconds of notification sounds.\n\nSo what does this mean for you? First, every interaction with your phone is a neurological event that reshapes your brain. This isn't metaphorical - it's measurable, physical change. Second, the damage is reversible, but it requires actual abstinence, not just reduction. Their data showed that even checking your phone once daily prevented most recovery. \n\nThird, and this is crucial - the study suggests we're in the middle of an uncontrolled experiment in human neural modification. No previous technology has shown this level of structural brain impact this quickly. If you're struggling with focus, anxiety, or decision-making, your phone might be literally eroding the brain regions responsible for these functions.\n\nThe takeaway? A true 30-day detox could be the most powerful cognitive enhancement tool available. The researchers are calling for device-free periods to become as common as sleep hygiene. Your brain's plasticity is both the problem and the solution.\n\nSo that's the neuroscience of why your phone feels addictive - because it's physically addicting your brain. Sarah, what've you got?\n\n# SOURCE(S) TO CREATE TRANSCRIPT FROM\n\n{{ JSON.stringify($json.data) }}\n\n# OTHER\n\nIMPORTANT: Only output the transcript and use \\n in between speakers dialog\nIMPORTANT: Your response must start with ...\n\"Please read aloud the following in a podcast interview style:\nHost 1: \"",
               "type": "string"
             }
           ]
@@ -571,7 +571,9 @@
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\n  \"contents\": [{\n    \"parts\":[{\n      \"text\": {{ JSON.stringify($json.text) }}\n    }]\n  }],\n  \"generationConfig\": {\n    \"responseModalities\": [\"AUDIO\"],\n    \"speechConfig\": {\n      \"multiSpeakerVoiceConfig\": {\n        \"speakerVoiceConfigs\": [{\n            \"speaker\": \"Joe\",\n            \"voiceConfig\": {\n              \"prebuiltVoiceConfig\": {\n                \"voiceName\": \"Algenib\"\n              }\n            }\n          }, {\n            \"speaker\": \"Jane\",\n            \"voiceConfig\": {\n              \"prebuiltVoiceConfig\": {\n                \"voiceName\": \"Kore\"\n              }\n            }\n          }]\n      }\n    }\n  },\n  \"model\": \"gemini-2.5-flash-preview-tts\"\n}",
-        "options": {}
+        "options": {
+          "timeout": 1800000
+        }
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -583,7 +585,7 @@
       "name": "Generate Audio1",
       "retryOnFail": true,
       "waitBetweenTries": 5000,
-      "maxTries": 5,
+      "maxTries": 2,
       "credentials": {
         "googlePalmApi": {
           "id": "0Cl9BqX4cx9pQwrD",
@@ -699,7 +701,7 @@
         "nodeCredentialType": "supabaseApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"expiresIn\": 86400\n}",
+        "jsonBody": "={\n  \"expiresIn\": 432000\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -719,12 +721,12 @@
     },
     {
       "parameters": {
-        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  const now = new Date();\n  const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000); // Add 1 day in ms\n  item.json.timestamp = tomorrow.toISOString(); // Compatible with Supabase timestampz\n}\n\nreturn $input.all();\n"
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  const now = new Date();\n  const tomorrow = new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000); // Add 1 day in ms\n  item.json.timestamp = tomorrow.toISOString(); // Compatible with Supabase timestampz\n}\n\nreturn $input.all();\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3472,
+        3296,
         912
       ],
       "id": "9ddae48f-4857-4782-96b5-1ee615c8524b",
@@ -801,9 +803,9 @@
       "parameters": {
         "model": {
           "__rl": true,
-          "value": "gpt-4.1",
+          "value": "gpt-4.1-mini",
           "mode": "list",
-          "cachedResultName": "gpt-4.1"
+          "cachedResultName": "gpt-4.1-mini"
         },
         "options": {}
       },
@@ -872,7 +874,7 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        3648,
+        3552,
         912
       ],
       "id": "3cc01404-5892-43ae-942e-286d3ed1a2d6",
@@ -891,11 +893,56 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3264,
-        912
+        432,
+        928
       ],
       "id": "3064b26b-ab7a-4756-bab0-baee75ccb7ed",
       "name": "Generating timestamp title"
+    },
+    {
+      "parameters": {
+        "chatId": "7919085089",
+        "text": "=Supamind microcast created by: \n{{ $('Execute a SQL query1').item.json.full_name }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        4032,
+        1040
+      ],
+      "id": "bb8dd773-dd59-433c-bdc8-345b353ddc31",
+      "name": "Send a text message",
+      "webhookId": "1b714c8b-0f25-4bde-aa0c-7e8da0ec1b72",
+      "credentials": {
+        "telegramApi": {
+          "id": "LEiEsL0XzYtYlFrf",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT full_name\nFROM profiles\nWHERE id = '{{ $('Webhook').item.json.body.user_id }}';",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        3840,
+        1040
+      ],
+      "id": "78473071-a52c-47ad-b5ef-fc9ba2cf20da",
+      "name": "Execute a SQL query1",
+      "credentials": {
+        "postgres": {
+          "id": "loHyKG67vLMDy8GM",
+          "name": "Postgres account"
+        }
+      }
     }
   ],
   "pinData": {
@@ -905,25 +952,26 @@
           "headers": {
             "host": "n8n-railway-production-519d.up.railway.app",
             "user-agent": "Deno/1.45.2 (variant; SupabaseEdgeRuntime/1.68.3)",
-            "content-length": "259",
+            "content-length": "298",
             "accept": "*/*",
             "accept-encoding": "gzip, br",
             "accept-language": "*",
             "authorization": "xXoFdKtnFp2f4VpcHPGN3e3XFNBi6u",
             "content-type": "application/json",
-            "x-forwarded-for": "63.179.55.147",
+            "x-forwarded-for": "18.192.178.229",
             "x-forwarded-host": "n8n-railway-production-519d.up.railway.app",
             "x-forwarded-proto": "https",
             "x-railway-edge": "railway/europe-west4-drams3a",
-            "x-railway-request-id": "Ybb9RZU2SmGriSc7m3z_FQ",
-            "x-real-ip": "63.179.55.147",
-            "x-request-start": "1754252285478"
+            "x-railway-request-id": "xtFDFfFDT6S20goess7a6g",
+            "x-real-ip": "18.192.178.229",
+            "x-request-start": "1754599197478"
           },
           "params": {},
           "query": {},
           "body": {
-            "microcast_id": "58bafaff-aa86-4fc5-835b-f91886028520",
+            "microcast_id": "50507083-af5f-4166-84ae-f326ae88016a",
             "source_ids": [
+              "fa7ea9bc-4975-4bed-a94b-0852c4695cc9",
               "fa326b2a-f303-4ec5-a218-4d24c9036e68"
             ],
             "user_id": "ae11b2ca-64c9-4e82-a820-ab3b6a25f9e4",
@@ -1244,7 +1292,7 @@
       "main": [
         [
           {
-            "node": "Generating timestamp title",
+            "node": "Generate Timestamp for Expires1",
             "type": "main",
             "index": 0
           }
@@ -1266,7 +1314,7 @@
       "main": [
         [
           {
-            "node": "Code",
+            "node": "Generating timestamp title",
             "type": "main",
             "index": 0
           }
@@ -1306,7 +1354,40 @@
       "main": [
         [
           {
-            "node": "Generate Timestamp for Expires1",
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query1",
             "type": "main",
             "index": 0
           }
@@ -1318,7 +1399,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "f8f5ef47-add6-4d52-9f67-a32e47bb90e5",
+  "versionId": "80765c21-42f0-4efb-821d-cbe58bb586bc",
   "meta": {
     "instanceId": "f5707d3666ba184efe554775a181f51837c332c4fa57af1133598e1ba699e314"
   },

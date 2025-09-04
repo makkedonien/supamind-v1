@@ -1,0 +1,205 @@
+{
+  "name": "Supamind - New user sign-up notification",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "d71e28bf-f36d-498d-a2fe-8e3ba7801836",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "114eac94-ec30-45bc-bc96-02f03e4ca934",
+      "name": "Webhook",
+      "webhookId": "d71e28bf-f36d-498d-a2fe-8e3ba7801836"
+    },
+    {
+      "parameters": {
+        "chatId": "7919085089",
+        "text": "=Supamind: New user authentication\nName: {{ $json.body.record.raw_user_meta_data.full_name }}\nEmail: {{ $json.body.record.email }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "e404c518-9f2a-4a0e-ad77-4e73d53a902b",
+      "name": "Send a text message",
+      "webhookId": "b7f7c651-a8cc-447a-ae7b-f3aa5fcb56f1",
+      "credentials": {
+        "telegramApi": {
+          "id": "LEiEsL0XzYtYlFrf",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n-railway-production-519d.up.railway.app",
+            "user-agent": "pg_net/0.14.0",
+            "content-length": "1623",
+            "accept": "*/*",
+            "authentication": "xXoFdKtnFp2f4VpcHPGN3e3XFNBi6u",
+            "content-type": "application/json",
+            "x-forwarded-for": "3.127.227.195",
+            "x-forwarded-host": "n8n-railway-production-519d.up.railway.app",
+            "x-forwarded-proto": "https",
+            "x-railway-edge": "railway/europe-west4-drams3a",
+            "x-railway-request-id": "hnbGMl1YSq6WCPi0ss7a6g",
+            "x-real-ip": "3.127.227.195",
+            "x-request-start": "1754927824918",
+            "accept-encoding": "gzip"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "type": "INSERT",
+            "table": "users",
+            "record": {
+              "id": "eb2ca25c-547f-4897-95b3-ec59f59a87a4",
+              "aud": "authenticated",
+              "role": "",
+              "email": "marc.knoll@taxfix.de",
+              "phone": null,
+              "created_at": "2025-08-11T15:57:04.100344+00:00",
+              "deleted_at": null,
+              "invited_at": null,
+              "updated_at": "2025-08-11T15:57:04.100344+00:00",
+              "instance_id": "00000000-0000-0000-0000-000000000000",
+              "is_sso_user": false,
+              "banned_until": null,
+              "confirmed_at": null,
+              "email_change": "",
+              "is_anonymous": false,
+              "phone_change": "",
+              "is_super_admin": null,
+              "recovery_token": "",
+              "last_sign_in_at": null,
+              "recovery_sent_at": null,
+              "raw_app_meta_data": {
+                "provider": "google",
+                "providers": [
+                  "google"
+                ]
+              },
+              "confirmation_token": "",
+              "email_confirmed_at": null,
+              "encrypted_password": "",
+              "phone_change_token": "",
+              "phone_confirmed_at": null,
+              "raw_user_meta_data": {
+                "iss": "https://accounts.google.com",
+                "sub": "107364811749993308291",
+                "name": "Marc Knoll",
+                "email": "marc.knoll@taxfix.de",
+                "picture": "https://lh3.googleusercontent.com/a/ACg8ocKQiKFAX1-K92ukLNDzX52XQt59FReiHm8jDHyM0TaVM4Wkh1s=s96-c",
+                "full_name": "Marc Knoll",
+                "avatar_url": "https://lh3.googleusercontent.com/a/ACg8ocKQiKFAX1-K92ukLNDzX52XQt59FReiHm8jDHyM0TaVM4Wkh1s=s96-c",
+                "provider_id": "107364811749993308291",
+                "custom_claims": {
+                  "hd": "taxfix.de"
+                },
+                "email_verified": true,
+                "phone_verified": false
+              },
+              "confirmation_sent_at": null,
+              "email_change_sent_at": null,
+              "phone_change_sent_at": null,
+              "email_change_token_new": "",
+              "reauthentication_token": "",
+              "reauthentication_sent_at": null,
+              "email_change_token_current": "",
+              "email_change_confirm_status": 0
+            },
+            "schema": "auth",
+            "old_record": null
+          },
+          "webhookUrl": "https://n8n-railway-production-519d.up.railway.app/webhook-test/d71e28bf-f36d-498d-a2fe-8e3ba7801836",
+          "executionMode": "test"
+        }
+      }
+    ],
+    "Send a text message": [
+      {
+        "json": {
+          "ok": true,
+          "result": {
+            "message_id": 292,
+            "from": {
+              "id": 7741066415,
+              "is_bot": true,
+              "first_name": "N8N Agent",
+              "username": "n8nMakkeBot"
+            },
+            "chat": {
+              "id": 7919085089,
+              "first_name": "Marc",
+              "last_name": "Knoll-Hock",
+              "username": "makkedonien",
+              "type": "private"
+            },
+            "date": 1754927986,
+            "text": "Supamind: New user authentication\nName: Marc Knoll\nEmail: marc.knoll@taxfix.de\n\nThis message was sent automatically with n8n",
+            "entities": [
+              {
+                "offset": 58,
+                "length": 20,
+                "type": "email"
+              },
+              {
+                "offset": 80,
+                "length": 41,
+                "type": "italic"
+              },
+              {
+                "offset": 121,
+                "length": 3,
+                "type": "text_link",
+                "url": "https://n8n.io/?utm_source=n8n-internal&utm_medium=powered_by&utm_campaign=n8n-nodes-base.telegram_f5707d3666ba184efe554775a181f51837c332c4fa57af1133598e1ba699e314"
+              }
+            ],
+            "link_preview_options": {
+              "is_disabled": true
+            }
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "656bc7db-f132-47e8-9d16-23ebbe55fe66",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f5707d3666ba184efe554775a181f51837c332c4fa57af1133598e1ba699e314"
+  },
+  "id": "PlzXsKIW9wMxfCe3",
+  "tags": []
+}
