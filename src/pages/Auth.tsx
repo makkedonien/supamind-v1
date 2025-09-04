@@ -2,7 +2,7 @@ import React from 'react';
 import AuthForm from '@/components/auth/AuthForm';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Mic, FolderOpen, ChevronDown } from 'lucide-react';
+import { BookOpen, Mic, FolderOpen, ChevronDown, Radio } from 'lucide-react';
 
 const Auth = () => {
   return (
@@ -140,9 +140,112 @@ const Auth = () => {
             </div>
           </div>
 
+          {/* Podcast Feed Section */}
+          <div className="grid lg:grid-cols-2 gap-12 items-center mb-20">
+            <div className="bg-white rounded-lg shadow-lg p-4 border max-h-96 overflow-hidden order-2 lg:order-1">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+                <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                <div className="text-xs text-gray-500 ml-auto">Podcast Feed</div>
+              </div>
+              <div className="space-y-3">
+                {/* Podcast Episode 1 */}
+                <div className="border rounded-lg p-3 bg-gray-50">
+                  <div className="flex items-start gap-3">
+                    <div className="w-12 h-12 bg-purple-100 rounded flex items-center justify-center flex-shrink-0">
+                      <span className="text-lg">🎙️</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-gray-900 text-sm truncate">The Future of AI in Healthcare</h4>
+                      <p className="text-xs text-gray-600 mt-1">Exploring how artificial intelligence is revolutionizing...</p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <Badge variant="secondary" className="text-xs">Podcast</Badge>
+                        <span className="text-xs text-gray-400">42:15</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Podcast Episode 2 */}
+                <div className="border rounded-lg p-3 bg-gray-50">
+                  <div className="flex items-start gap-3">
+                    <div className="w-12 h-12 bg-green-100 rounded flex items-center justify-center flex-shrink-0">
+                      <span className="text-lg">🎧</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-gray-900 text-sm truncate">Startup Funding Strategies</h4>
+                      <p className="text-xs text-gray-600 mt-1">Expert insights on raising capital in 2024...</p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <Badge variant="secondary" className="text-xs">Podcast</Badge>
+                        <span className="text-xs text-gray-400">38:42</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Podcast Episode 3 */}
+                <div className="border rounded-lg p-3 bg-gray-50">
+                  <div className="flex items-start gap-3">
+                    <div className="w-12 h-12 bg-blue-100 rounded flex items-center justify-center flex-shrink-0">
+                      <span className="text-lg">🎙️</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-gray-900 text-sm truncate">Climate Tech Innovations</h4>
+                      <p className="text-xs text-gray-600 mt-1">Breakthrough technologies fighting climate change...</p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <Badge variant="secondary" className="text-xs">Podcast</Badge>
+                        <span className="text-xs text-gray-400">51:28</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Podcast Episode 4 */}
+                <div className="border rounded-lg p-3 bg-gray-50">
+                  <div className="flex items-start gap-3">
+                    <div className="w-12 h-12 bg-orange-100 rounded flex items-center justify-center flex-shrink-0">
+                      <span className="text-lg">🎧</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-gray-900 text-sm truncate">Remote Work Revolution</h4>
+                      <p className="text-xs text-gray-600 mt-1">How distributed teams are reshaping business...</p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <Badge variant="secondary" className="text-xs">Podcast</Badge>
+                        <span className="text-xs text-gray-400">29:14</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="order-1 lg:order-2">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="flex items-center justify-center w-12 h-12 bg-orange-100 rounded-lg">
+                  <Radio className="w-6 h-6 text-orange-600" />
+                </div>
+                <h3 className="text-2xl font-semibold text-gray-900">Podcast Feed</h3>
+              </div>
+              <p className="text-lg text-gray-600 leading-relaxed">
+                Stay updated with your favorite podcasts automatically. Subscribe to podcast feeds and let Supamind automatically process new episodes as they're released. Get intelligent summaries, key insights, and searchable transcripts for every episode - never miss important content from your trusted sources.
+              </p>
+            </div>
+          </div>
+
           {/* Microcasts Section */}
           <div className="grid lg:grid-cols-2 gap-12 items-center mb-20">
-            <div className="bg-white rounded-lg shadow-lg p-6 border order-2 lg:order-1">
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-lg">
+                  <Mic className="w-6 h-6 text-green-600" />
+                </div>
+                <h3 className="text-2xl font-semibold text-gray-900">Microcasts</h3>
+              </div>
+              <p className="text-lg text-gray-600 leading-relaxed">
+                Transform your saved content into personalized audio experiences. Select content pieces and let Supamind create a crisp, engaging podcast recap of your content. Perfect for commutes, workouts, or whenever you prefer listening over reading.
+              </p>
+            </div>
+            <div className="bg-white rounded-lg shadow-lg p-6 border">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-3 h-3 rounded-full bg-red-400"></div>
                 <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
@@ -173,22 +276,11 @@ const Auth = () => {
                 </div>
               </div>
             </div>
-            <div className="order-1 lg:order-2">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-lg">
-                  <Mic className="w-6 h-6 text-green-600" />
-                </div>
-                <h3 className="text-2xl font-semibold text-gray-900">Microcasts</h3>
-              </div>
-              <p className="text-lg text-gray-600 leading-relaxed">
-                Transform your saved content into personalized audio experiences. Select content pieces and let Supamind create a crisp, engaging podcast recap of your content. Perfect for commutes, workouts, or whenever you prefer listening over reading.
-              </p>
-            </div>
           </div>
 
           {/* Notebooks Section */}
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
+            <div className="order-2">
               <div className="flex items-center gap-3 mb-6">
                 <div className="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-lg">
                   <BookOpen className="w-6 h-6 text-purple-600" />
@@ -199,7 +291,7 @@ const Auth = () => {
                 Build comprehensive knowledge bases around specific topics. Add multiple sources, chat with your content using AI, and generate podcast discussions from your sources. Whether you're studying, researching, or exploring ideas, Notebooks help you connect the dots across all your sources.
               </p>
             </div>
-            <div className="bg-white rounded-lg shadow-lg p-6 border">
+            <div className="bg-white rounded-lg shadow-lg p-6 border order-1">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-3 h-3 rounded-full bg-red-400"></div>
                 <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
