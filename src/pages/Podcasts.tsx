@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAudioPlayer } from '@/contexts/AudioPlayerContext';
 import { Card, CardContent, CardDescription } from '@/components/ui/card';
@@ -970,12 +971,8 @@ const Podcasts = () => {
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">No sources in your podcasts yet</h3>
             <p className="text-sm text-gray-600 mb-4">
-              Add PDFs, articles, websites, or text content to start building your personal podcast library.
+              To add podcasts, go to your <Link to="/settings" className="text-blue-600 hover:text-blue-800 underline">user settings</Link> and add your first Podcast feed.
             </p>
-            <Button onClick={() => setShowAddSourceDialog(true)} data-onboarding="add-source-button">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Your First Source
-            </Button>
           </div>
         )}
 
@@ -1066,17 +1063,6 @@ const Podcasts = () => {
         onClearSelection={() => setSelectedSources(new Set())}
       />
 
-      {/* Floating Add Source Button */}
-      <Button
-        onClick={() => setShowAddSourceDialog(true)}
-        size="icon"
-        className={`fixed right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all z-50 ${
-          playerState.currentMicrocast ? 'bottom-[120px]' : 'bottom-6'
-        }`}
-        data-onboarding="add-source-button"
-      >
-        <Plus className="h-6 w-6" />
-      </Button>
       </main>
     </AppLayout>
   );
