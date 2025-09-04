@@ -13,11 +13,11 @@ const Auth = () => {
       <div className="max-w-4xl mx-auto px-4 py-12 text-center">
         <div className="space-y-6">
           <div className="space-y-4">
-            <h1 className="text-5xl font-bold text-gray-900">
+            <h1 className="text-3xl font-bold text-gray-900">
               🧠 Supamind
             </h1>
-            <p className="text-xl text-gray-600">
-              Your AI-powered content memory and deep dive assistant
+            <p className="text-lg text-gray-600 max-w-[500px] mx-auto">
+              Stop drowning in content - Supamind is your AI-powered assistant that turns any web article, YouTube video, PDF, or podcast into digestible and actionable summaries.
             </p>
           </div>
           
@@ -41,7 +41,7 @@ const Auth = () => {
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Everything you need to store and dive into your content
+              Everything you need to store and summarize valuable content you discover
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Supamind helps you capture, consume, and transform your content into actionable insights with the power of AI.
