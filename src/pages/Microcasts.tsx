@@ -8,16 +8,12 @@ import { useMicrocasts } from '@/hooks/useMicrocasts';
 
 import { useNavigate } from 'react-router-dom';
 import MicrocastCard from '@/components/microcasts/MicrocastCard';
-import { OnboardingManager } from '@/components/onboarding/OnboardingManager';
-import { microcastsOnboardingConfig } from '@/components/onboarding/OnboardingConfigs';
-import { useOnboarding } from '@/hooks/useOnboarding';
 
 const Microcasts = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { microcasts, isLoading, error } = useMicrocasts();
 
-  const { needsOnboarding, completeOnboarding, isLoading: onboardingLoading } = useOnboarding('microcasts');
 
   const handleGoToFeed = () => {
     navigate('/');
@@ -33,12 +29,6 @@ const Microcasts = () => {
 
   return (
     <main className="max-w-7xl mx-auto px-6 py-8">
-      {needsOnboarding && !onboardingLoading && (
-        <OnboardingManager
-          config={microcastsOnboardingConfig}
-          onComplete={completeOnboarding}
-        />
-      )}
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -50,7 +40,7 @@ const Microcasts = () => {
           </div>
           
           <div className="flex items-center gap-3">
-            <Button onClick={handleGoToFeed} data-onboarding="create-microcast-button">
+            <Button onClick={handleGoToFeed}>
               <Plus className="h-4 w-4 mr-2" />
               Create Microcast
             </Button>
@@ -88,7 +78,7 @@ const Microcasts = () => {
             <p className="text-gray-600 mb-6">
               Create your first microcast by selecting sources from your feed and generating an AI-powered podcast conversation.
             </p>
-            <Button onClick={handleGoToFeed} data-onboarding="go-to-feed-button">
+            <Button onClick={handleGoToFeed}>
               <Plus className="h-4 w-4 mr-2" />
               Create Your First Microcast
             </Button>
@@ -98,7 +88,7 @@ const Microcasts = () => {
         {/* Microcasts Grid */}
         {!isLoading && !error && microcasts.length > 0 && (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" data-onboarding="microcast-grid">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {microcasts.map((microcast) => (
                 <MicrocastCard
                   key={microcast.id}

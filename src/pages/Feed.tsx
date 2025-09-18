@@ -22,9 +22,6 @@ import { safeStringify } from '@/lib/stringUtils';
 import CreateMicrocastDialog from '@/components/microcasts/CreateMicrocastDialog';
 import AppLayout from '@/components/layout/AppLayout';
 import EnhancedMarkdownRenderer from '@/components/chat/EnhancedMarkdownRenderer';
-import { OnboardingManager } from '@/components/onboarding/OnboardingManager';
-import { feedOnboardingConfig } from '@/components/onboarding/OnboardingConfigs';
-import { useOnboarding } from '@/hooks/useOnboarding';
 
 // Helper function to detect mobile synchronously on initial render
 const getInitialMobileState = (): boolean => {
@@ -583,7 +580,6 @@ const Feed = () => {
   const { playerState } = useAudioPlayer();
   const [viewMode, setViewMode] = useState<'list' | 'card'>(getInitialViewMode);
   const isMobile = useIsMobile();
-  const { needsOnboarding, completeOnboarding, isLoading: onboardingLoading } = useOnboarding('feed');
   
   // Feed sources state
   const [showAddSourceDialog, setShowAddSourceDialog] = useState(false);
@@ -858,12 +854,6 @@ const Feed = () => {
       feedSourceCounts={sourceCounts}
       processingSources={processingSources}
     >
-      {needsOnboarding && !onboardingLoading && (
-        <OnboardingManager
-          config={feedOnboardingConfig}
-          onComplete={completeOnboarding}
-        />
-      )}
       <main className="w-full px-6 py-8 2xl:max-w-[1480px] 2xl:mx-auto">
           {/* Content Feed Section */}
           <div className="space-y-6">
@@ -915,7 +905,7 @@ const Feed = () => {
             {!isMobile && (
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">View:</span>
-                <div className="flex border rounded-md p-1 bg-muted/50" data-onboarding="view-toggle">
+                <div className="flex border rounded-md p-1 bg-muted/50">
                   <Button
                     variant={viewMode === 'list' ? 'default' : 'ghost'}
                     size="sm"
@@ -964,7 +954,7 @@ const Feed = () => {
             <p className="text-sm text-gray-600 mb-4">
               Add PDFs, articles, websites, or text content to start building your personal knowledge feed.
             </p>
-            <Button onClick={() => setShowAddSourceDialog(true)} data-onboarding="add-source-button">
+            <Button onClick={() => setShowAddSourceDialog(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Add Your First Source
             </Button>
@@ -992,7 +982,7 @@ const Feed = () => {
 
         {/* Feed Sources Grid */}
         {!isLoading && !error && allSources && allSources.length > 0 && filteredSources.length > 0 && (
-          <div className="space-y-6" data-onboarding="feed-content">
+          <div className="space-y-6">
             <div className={viewMode === 'list' 
               ? "space-y-4 w-full" 
               : "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
@@ -1064,7 +1054,6 @@ const Feed = () => {
         className={`fixed right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all z-50 ${
           playerState.currentMicrocast ? 'bottom-[120px]' : 'bottom-6'
         }`}
-        data-onboarding="add-source-button"
       >
         <Plus className="h-6 w-6" />
       </Button>

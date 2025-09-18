@@ -3,14 +3,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNotebooks } from '@/hooks/useNotebooks';
 import NotebookGrid from '@/components/dashboard/NotebookGrid';
 import EmptyDashboard from '@/components/dashboard/EmptyDashboard';
-import { OnboardingManager } from '@/components/onboarding/OnboardingManager';
-import { notebooksOnboardingConfig } from '@/components/onboarding/OnboardingConfigs';
-import { useOnboarding } from '@/hooks/useOnboarding';
 
 const Notebooks = () => {
   const { user } = useAuth();
   const { notebooks, isLoading, isError, error } = useNotebooks();
-  const { needsOnboarding, completeOnboarding, isLoading: onboardingLoading } = useOnboarding('notebooks');
   
   const hasNotebooks = notebooks && notebooks.length > 0;
 
@@ -51,12 +47,6 @@ const Notebooks = () => {
 
   return (
     <main className="max-w-7xl mx-auto px-6 py-[60px]">
-      {needsOnboarding && !onboardingLoading && (
-        <OnboardingManager
-          config={notebooksOnboardingConfig}
-          onComplete={completeOnboarding}
-        />
-      )}
       {hasNotebooks ? <NotebookGrid /> : <EmptyDashboard />}
     </main>
   );

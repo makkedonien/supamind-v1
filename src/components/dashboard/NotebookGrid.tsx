@@ -75,7 +75,6 @@ const NotebookGrid = () => {
           className="bg-black hover:bg-gray-800 text-white rounded-full px-6" 
           onClick={handleCreateNotebook} 
           disabled={isCreating}
-          data-onboarding="create-notebook-button"
         >
           {isCreating ? 'Creating...' : '+ Create new'}
         </Button>
@@ -102,7 +101,7 @@ const NotebookGrid = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" data-onboarding="notebook-grid">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {sortedNotebooks.map(notebook => <div key={notebook.id} onClick={e => handleNotebookClick(notebook.id, e)}>
             <NotebookCard notebook={{
           id: notebook.id,

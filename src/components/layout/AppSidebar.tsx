@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Rss, Mic, Radio, BookOpen, User, LogOut, Settings, Star, Globe, FileText, Copy, Filter, Loader2, Clock } from 'lucide-react';
+import { Rss, Mic, Radio, User, LogOut, Settings, Star, Globe, FileText, Copy, Filter, Loader2, Clock } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -201,7 +201,7 @@ const AppSidebar = ({ feedFilters, onFeedFiltersChange, feedSourceCounts, proces
 
         {/* Filters Section - Only on Feed page */}
         {isFeedPage && feedSourceCounts && (
-          <SidebarGroup data-onboarding="filters">
+          <SidebarGroup>
             <SidebarGroupLabel>
               <Filter className="h-4 w-4 mr-2" />
               Filters

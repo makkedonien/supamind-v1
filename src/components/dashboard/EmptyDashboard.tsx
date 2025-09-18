@@ -62,7 +62,6 @@ const EmptyDashboard = () => {
         size="lg" 
         className="bg-blue-600 hover:bg-blue-700" 
         disabled={isCreating}
-        data-onboarding="create-notebook-button"
       >
         <Upload className="h-5 w-5 mr-2" />
         {isCreating ? 'Creating...' : 'Create notebook'}

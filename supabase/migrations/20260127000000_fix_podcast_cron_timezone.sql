@@ -1,12 +1,9 @@
--- Migration: Set up scheduled podcast processing cron job
--- File: supabase/migrations/20260125000000_setup_podcast_cron_job.sql
+-- Migration: Fix podcast cron job timezone for Central Time
+-- File: supabase/migrations/20260127000000_fix_podcast_cron_timezone.sql
 
 BEGIN;
 
--- Enable pg_cron extension if not already enabled
-CREATE EXTENSION IF NOT EXISTS pg_cron;
-
--- Remove any existing podcast processing cron job to avoid duplicates (ignore if it doesn't exist)
+-- Remove the existing cron job (ignore if it doesn't exist)
 DO $$
 BEGIN
     PERFORM cron.unschedule('scheduled-podcast-processing');
@@ -16,16 +13,19 @@ EXCEPTION
         NULL;
 END $$;
 
--- Schedule the podcast processing function to run daily at 10:00 AM UTC
--- The cron schedule '0 10 * * *' means:
+-- Schedule the podcast processing function to run daily at 10:00 AM Central Time
+-- Central Standard Time (CST) is UTC-6, so 10:00 AM CST = 16:00 UTC (4:00 PM UTC)
+-- Central Daylight Time (CDT) is UTC-5, so 10:00 AM CDT = 15:00 UTC (3:00 PM UTC)
+-- We'll use 15:00 UTC (3:00 PM UTC) to account for daylight saving time most of the year
+-- The cron schedule '0 15 * * *' means:
 -- - 0 minutes
--- - 10 hours (10 AM)
+-- - 15 hours (3:00 PM UTC = 10:00 AM CDT)
 -- - every day of month (*)
 -- - every month (*)
 -- - every day of week (*)
 SELECT cron.schedule(
     'scheduled-podcast-processing',
-    '0 10 * * *',
+    '0 15 * * *',
     $$
     SELECT
       net.http_post(

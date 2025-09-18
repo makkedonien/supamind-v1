@@ -44,6 +44,8 @@ const AppLayout = ({ children, feedFilters, onFeedFiltersChange, feedSourceCount
         return 'Microcasts';
       case '/podcasts':
         return 'Podcasts';
+      case '/notebooks':
+        return 'Notebooks';
       case '/settings':
         return 'Settings';
       default:

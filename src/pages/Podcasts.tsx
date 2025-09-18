@@ -23,9 +23,6 @@ import { safeStringify } from '@/lib/stringUtils';
 import CreateMicrocastDialog from '@/components/microcasts/CreateMicrocastDialog';
 import AppLayout from '@/components/layout/AppLayout';
 import EnhancedMarkdownRenderer from '@/components/chat/EnhancedMarkdownRenderer';
-import { OnboardingManager } from '@/components/onboarding/OnboardingManager';
-import { feedOnboardingConfig } from '@/components/onboarding/OnboardingConfigs';
-import { useOnboarding } from '@/hooks/useOnboarding';
 
 // Helper function to detect mobile synchronously on initial render
 const getInitialMobileState = (): boolean => {
@@ -584,7 +581,6 @@ const Podcasts = () => {
   const { playerState } = useAudioPlayer();
   const [viewMode, setViewMode] = useState<'list' | 'card'>(getInitialViewMode);
   const isMobile = useIsMobile();
-  const { needsOnboarding, completeOnboarding, isLoading: onboardingLoading } = useOnboarding('feed');
   
   // Feed sources state
   const [showAddSourceDialog, setShowAddSourceDialog] = useState(false);
@@ -867,12 +863,6 @@ const Podcasts = () => {
       feedSourceCounts={sourceCounts}
       processingSources={processingSources}
     >
-      {needsOnboarding && !onboardingLoading && (
-        <OnboardingManager
-          config={feedOnboardingConfig}
-          onComplete={completeOnboarding}
-        />
-      )}
       <main className="w-full px-6 py-8 2xl:max-w-[1480px] 2xl:mx-auto">
           {/* Content Feed Section */}
           <div className="space-y-6">
@@ -924,7 +914,7 @@ const Podcasts = () => {
             {!isMobile && (
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">View:</span>
-                <div className="flex border rounded-md p-1 bg-muted/50" data-onboarding="view-toggle">
+                <div className="flex border rounded-md p-1 bg-muted/50">
                   <Button
                     variant={viewMode === 'list' ? 'default' : 'ghost'}
                     size="sm"
@@ -997,7 +987,7 @@ const Podcasts = () => {
 
         {/* Feed Sources Grid */}
         {!isLoading && !error && allSources && allSources.length > 0 && filteredSources.length > 0 && (
-          <div className="space-y-6" data-onboarding="feed-content">
+          <div className="space-y-6">
             <div className={viewMode === 'list' 
               ? "space-y-4 w-full" 
               : "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"

@@ -293,9 +293,6 @@ export type Database = {
           email: string
           full_name: string | null
           id: string
-          onboarding_completed_feed: boolean | null
-          onboarding_completed_microcasts: boolean | null
-          onboarding_completed_notebooks: boolean | null
           podcast_processing: Database["public"]["Enums"]["podcast_processing_setting"] | null
           summary_prompt: string | null
           transcript_api_key: string | null
@@ -309,9 +306,6 @@ export type Database = {
           email: string
           full_name?: string | null
           id: string
-          onboarding_completed_feed?: boolean | null
-          onboarding_completed_microcasts?: boolean | null
-          onboarding_completed_notebooks?: boolean | null
           podcast_processing?: Database["public"]["Enums"]["podcast_processing_setting"] | null
           summary_prompt?: string | null
           transcript_api_key?: string | null
@@ -325,9 +319,6 @@ export type Database = {
           email?: string
           full_name?: string | null
           id?: string
-          onboarding_completed_feed?: boolean | null
-          onboarding_completed_microcasts?: boolean | null
-          onboarding_completed_notebooks?: boolean | null
           podcast_processing?: Database["public"]["Enums"]["podcast_processing_setting"] | null
           summary_prompt?: string | null
           transcript_api_key?: string | null
