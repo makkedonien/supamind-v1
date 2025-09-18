@@ -79,11 +79,6 @@ const AppSidebar = ({ feedFilters, onFeedFiltersChange, feedSourceCounts, proces
       icon: Mic,
       label: 'Microcasts',
       path: '/microcasts',
-    },
-    {
-      icon: BookOpen,
-      label: 'Notebooks',
-      path: '/notebooks',
     }
   ];
 
