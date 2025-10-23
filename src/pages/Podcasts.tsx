@@ -629,16 +629,24 @@ const Podcasts = () => {
     podcasts: [],
   });
 
+  // Check if any filters are active
+  const hasActiveFilters = useMemo(() => {
+    return filters.favorites || filters.websites || filters.pdfs || filters.copiedTexts || filters.categories.length > 0 || filters.podcasts.length > 0;
+  }, [filters]);
+
   // Filtered sources based on active filters
   const filteredSources = useMemo(() => {
-    if (!sources) return [];
+    // When filters are active, search through ALL sources
+    // When no filters are active, use paginated sources
+    const sourcesToFilter = hasActiveFilters ? allSources : sources;
+    
+    if (!sourcesToFilter) return [];
 
-    return sources.filter(source => {
+    return sourcesToFilter.filter(source => {
       // Exclude optimistically deleted items
       if (optimisticallyDeletedIds.has(source.id)) return false;
 
-      // If no filters are active, show all sources
-      const hasActiveFilters = filters.favorites || filters.websites || filters.pdfs || filters.copiedTexts || filters.categories.length > 0 || filters.podcasts.length > 0;
+      // If no filters are active, show all sources (already handled by sourcesToFilter selection)
       if (!hasActiveFilters) return true;
 
       // Check favorites filter
@@ -667,7 +675,7 @@ const Podcasts = () => {
 
       return true;
     });
-  }, [sources, filters, optimisticallyDeletedIds]);
+  }, [sources, allSources, filters, optimisticallyDeletedIds, hasActiveFilters]);
 
   // Calculate source counts for sidebar
   const sourceCounts = useMemo(() => {
@@ -882,8 +890,8 @@ const Podcasts = () => {
               ) : (
                 <>
                   {filteredSources?.length || 0} source{filteredSources?.length !== 1 ? 's' : ''} 
-                  {(filters.favorites || filters.websites || filters.pdfs || filters.copiedTexts || filters.categories.length > 0) ? ' match filters' : ' in your podcast feed'}
-                  {(filters.favorites || filters.websites || filters.pdfs || filters.copiedTexts || filters.categories.length > 0) && (
+                  {hasActiveFilters ? ' match filters' : ' in your podcast feed'}
+                  {hasActiveFilters && (
                     <>
                       <span className="mx-2">•</span>
                       {allSources?.length || 0} total
@@ -978,7 +986,7 @@ const Podcasts = () => {
             </p>
             <Button 
               variant="outline" 
-              onClick={() => setFilters({ favorites: false, websites: false, pdfs: false, copiedTexts: false, categories: [] })}
+              onClick={() => setFilters({ favorites: false, websites: false, pdfs: false, copiedTexts: false, categories: [], podcasts: [] })}
             >
               Clear Filters
             </Button>
@@ -1009,8 +1017,8 @@ const Podcasts = () => {
               ))}
             </div>
 
-            {/* Load More Button - Only show if total count > 20 and there are more to load */}
-            {totalCount > 20 && hasMore && (
+            {/* Load More Button - Only show if no filters active, total count > 20, and there are more to load */}
+            {!hasActiveFilters && totalCount > 20 && hasMore && (
               <div className="flex justify-center pt-6">
                 <Button 
                   variant="outline" 

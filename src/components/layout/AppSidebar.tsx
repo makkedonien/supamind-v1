@@ -266,6 +266,35 @@ const AppSidebar = ({ feedFilters, onFeedFiltersChange, feedSourceCounts, proces
           </SidebarGroup>
         )}
 
+        {/* Filters Section - Only on Podcasts page */}
+        {isPodcastsPage && feedSourceCounts && (
+          <SidebarGroup>
+            <SidebarGroupLabel>
+              <Filter className="h-4 w-4 mr-2" />
+              Filters
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    isActive={feedFilters?.favorites || false}
+                    onClick={() => handleFilterToggle('favorites')}
+                    tooltip="Favorites"
+                  >
+                    <Star className="h-4 w-4" />
+                    <span>Favorites</span>
+                    {feedSourceCounts.favorites > 0 && (
+                      <Badge variant="secondary" className="ml-auto group-data-[collapsible=icon]:hidden">
+                        {feedSourceCounts.favorites}
+                      </Badge>
+                    )}
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
         {/* Podcasts Section - Only on Podcasts page */}
         {isPodcastsPage && podcastsWithCounts && podcastsWithCounts.length > 0 && (
           <SidebarGroup>
