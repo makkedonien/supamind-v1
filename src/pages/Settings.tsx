@@ -48,6 +48,8 @@ const Settings = () => {
   const [name, setName] = useState(user?.email?.split('@')[0] || '');
   const [email, setEmail] = useState(user?.email || '');
   const [transcriptApiKey, setTranscriptApiKey] = useState('');
+  const [openaiApiKey, setOpenaiApiKey] = useState('');
+  const [geminiApiKey, setGeminiApiKey] = useState('');
   const [newCategory, setNewCategory] = useState('');
   const [aiSummaryPrompt, setAiSummaryPrompt] = useState('');
   const [aiDeepSummaryPrompt, setAiDeepSummaryPrompt] = useState('');
@@ -63,6 +65,8 @@ const Settings = () => {
       setAiDeepSummaryPrompt(profile.deep_dive_prompt || '');
       setAiFeedCategorizationPrompt(profile.categorization_prompt || '');
       setTranscriptApiKey(profile.transcript_api_key || '');
+      setOpenaiApiKey(profile.openai_api_key || '');
+      setGeminiApiKey(profile.gemini_api_key || '');
       setName(profile.full_name || user?.email?.split('@')[0] || '');
       setEmail(profile.email || user?.email || '');
       setPodcastProcessingEnabled(profile.podcast_processing === 'enabled');
@@ -103,6 +107,30 @@ const Settings = () => {
     }
   };
 
+  const handleSaveOpenaiApiKey = async () => {
+    try {
+      if (profile && openaiApiKey !== profile.openai_api_key) {
+        await updateProfile.mutateAsync({
+          openai_api_key: openaiApiKey.trim() || null,
+        });
+      }
+    } catch (error) {
+      console.error('Error saving OpenAI API key:', error);
+    }
+  };
+
+  const handleSaveGeminiApiKey = async () => {
+    try {
+      if (profile && geminiApiKey !== profile.gemini_api_key) {
+        await updateProfile.mutateAsync({
+          gemini_api_key: geminiApiKey.trim() || null,
+        });
+      }
+    } catch (error) {
+      console.error('Error saving Gemini API key:', error);
+    }
+  };
+
   const handlePodcastProcessingToggle = async (enabled: boolean) => {
     try {
       await updateProfile.mutateAsync({
@@ -121,6 +149,20 @@ const Settings = () => {
     }
   };
 
+  const handleOpenaiApiKeyKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSaveOpenaiApiKey();
+    }
+  };
+
+  const handleGeminiApiKeyKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSaveGeminiApiKey();
+    }
+  };
+
   const handleSaveChanges = async () => {
     try {
       // Check if any profile data has changed
@@ -134,6 +176,16 @@ const Settings = () => {
 
       if (profile && transcriptApiKey !== profile.transcript_api_key) {
         profileChanges.transcript_api_key = transcriptApiKey.trim() || null;
+        hasProfileChanges = true;
+      }
+
+      if (profile && openaiApiKey !== profile.openai_api_key) {
+        profileChanges.openai_api_key = openaiApiKey.trim() || null;
+        hasProfileChanges = true;
+      }
+
+      if (profile && geminiApiKey !== profile.gemini_api_key) {
+        profileChanges.gemini_api_key = geminiApiKey.trim() || null;
         hasProfileChanges = true;
       }
 
@@ -252,6 +304,60 @@ const Settings = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="openai-api-key">OpenAI API Key</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="openai-api-key"
+                  type="password"
+                  value={openaiApiKey}
+                  onChange={(e) => setOpenaiApiKey(e.target.value)}
+                  onKeyPress={handleOpenaiApiKeyKeyPress}
+                  placeholder="Enter your OpenAI API key"
+                  className="flex-1"
+                />
+                <Button 
+                  onClick={handleSaveOpenaiApiKey}
+                  disabled={!openaiApiKey.trim() || openaiApiKey === profile?.openai_api_key || isUpdating}
+                  size="default"
+                  className="whitespace-nowrap"
+                >
+                  {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  Save API Key
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Optional: Enter your OpenAI API key to use your own OpenAI account for AI features.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="gemini-api-key">Gemini API Key</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="gemini-api-key"
+                  type="password"
+                  value={geminiApiKey}
+                  onChange={(e) => setGeminiApiKey(e.target.value)}
+                  onKeyPress={handleGeminiApiKeyKeyPress}
+                  placeholder="Enter your Gemini API key"
+                  className="flex-1"
+                />
+                <Button 
+                  onClick={handleSaveGeminiApiKey}
+                  disabled={!geminiApiKey.trim() || geminiApiKey === profile?.gemini_api_key || isUpdating}
+                  size="default"
+                  className="whitespace-nowrap"
+                >
+                  {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  Save API Key
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Optional: Enter your Gemini API key to use your own Google Gemini account for AI features.
+              </p>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="transcript-api-key">AssemblyAI API Key</Label>
               <div className="flex gap-2">
