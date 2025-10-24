@@ -145,8 +145,8 @@ const CreateMicrocastDialog: React.FC<CreateMicrocastDialogProps> = ({
           {/* Selected Sources */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label className={selectedSources.length > 5 ? "text-red-600" : ""}>
-                Selected Sources ({selectedSources.length}{selectedSources.length > 5 ? "/5 max" : ""})
+              <Label className={selectedSources.length > 3 ? "text-red-600" : ""}>
+                Selected Sources ({selectedSources.length}{selectedSources.length > 3 ? "/3 max" : ""})
               </Label>
               {selectedSources.length > 0 && !isCreating && (
                 <Button
@@ -225,13 +225,13 @@ const CreateMicrocastDialog: React.FC<CreateMicrocastDialogProps> = ({
           )}
 
           {/* Warning for too many sources */}
-          {selectedSources.length > 5 && (
+          {selectedSources.length > 3 && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-3">
               <h4 className="text-sm font-medium text-red-900 mb-1">
                 ⚠️ Too Many Sources
               </h4>
               <p className="text-xs text-red-800">
-                You can select up to 5 sources for a microcast. Please remove {selectedSources.length - 5} source{selectedSources.length - 5 === 1 ? '' : 's'} to continue.
+                You can select up to 3 sources for a microcast. Please remove {selectedSources.length - 3} source{selectedSources.length - 3 === 1 ? '' : 's'} to continue.
               </p>
             </div>
           )}
@@ -257,7 +257,7 @@ const CreateMicrocastDialog: React.FC<CreateMicrocastDialogProps> = ({
             </Button>
             <Button
               type="submit"
-              disabled={isCreating || selectedSources.length === 0 || selectedSources.length > 5 || !profile?.openai_key_vault_secret || !profile?.gemini_key_vault_secret}
+              disabled={isCreating || selectedSources.length === 0 || selectedSources.length > 3 || !profile?.openai_key_vault_secret || !profile?.gemini_key_vault_secret}
             >
               {isCreating ? (
                 <>
