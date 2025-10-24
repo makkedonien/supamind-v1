@@ -12,9 +12,9 @@ interface UpdateProfileData {
   categorization_prompt?: string | null;
   full_name?: string | null;
   avatar_url?: string | null;
-  transcript_api_key?: string | null;
-  openai_api_key?: string | null;
-  gemini_api_key?: string | null;
+  transcript_key_vault_secret?: string | null;
+  openai_key_vault_secret?: string | null;
+  gemini_key_vault_secret?: string | null;
   podcast_processing?: 'disabled' | 'enabled' | null;
 }
 

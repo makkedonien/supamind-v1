@@ -12,6 +12,7 @@ import { Key, Trash2, Plus, X, Loader2, Download, Chrome, Mail, Radio } from 'lu
 import { useUserCategories } from '@/hooks/useUserCategories';
 import { useProfile } from '@/hooks/useProfile';
 import { usePodcasts } from '@/hooks/usePodcasts';
+import { supabase } from '@/integrations/supabase/client';
 
 const Settings = () => {
   const { user } = useAuth();
@@ -64,9 +65,10 @@ const Settings = () => {
       setAiSummaryPrompt(profile.summary_prompt || '');
       setAiDeepSummaryPrompt(profile.deep_dive_prompt || '');
       setAiFeedCategorizationPrompt(profile.categorization_prompt || '');
-      setTranscriptApiKey(profile.transcript_api_key || '');
-      setOpenaiApiKey(profile.openai_api_key || '');
-      setGeminiApiKey(profile.gemini_api_key || '');
+      // Show masked value if API key exists in vault, otherwise empty
+      setTranscriptApiKey(profile.transcript_key_vault_secret ? '••••••••' : '');
+      setOpenaiApiKey(profile.openai_key_vault_secret ? '••••••••' : '');
+      setGeminiApiKey(profile.gemini_key_vault_secret ? '••••••••' : '');
       setName(profile.full_name || user?.email?.split('@')[0] || '');
       setEmail(profile.email || user?.email || '');
       setPodcastProcessingEnabled(profile.podcast_processing === 'enabled');
@@ -97,11 +99,27 @@ const Settings = () => {
 
   const handleSaveApiKey = async () => {
     try {
-      if (profile && transcriptApiKey !== profile.transcript_api_key) {
-        await updateProfile.mutateAsync({
-          transcript_api_key: transcriptApiKey.trim() || null,
-        });
+      if (!user || !transcriptApiKey || transcriptApiKey === '••••••••') return;
+      
+      // Store the API key in vault first
+      const { data: secretId, error: vaultError } = await supabase.rpc('store_user_api_key', {
+        p_user_id: user.id,
+        p_api_key: transcriptApiKey.trim(),
+        p_key_name: 'transcript'
+      });
+
+      if (vaultError) {
+        console.error('Error storing API key in vault:', vaultError);
+        throw vaultError;
       }
+
+      // Update profile with the vault secret UUID
+      await updateProfile.mutateAsync({
+        transcript_key_vault_secret: secretId,
+      });
+
+      // Clear the input and show masked value
+      setTranscriptApiKey('••••••••');
     } catch (error) {
       console.error('Error saving API key:', error);
     }
@@ -109,11 +127,27 @@ const Settings = () => {
 
   const handleSaveOpenaiApiKey = async () => {
     try {
-      if (profile && openaiApiKey !== profile.openai_api_key) {
-        await updateProfile.mutateAsync({
-          openai_api_key: openaiApiKey.trim() || null,
-        });
+      if (!user || !openaiApiKey || openaiApiKey === '••••••••') return;
+      
+      // Store the API key in vault first
+      const { data: secretId, error: vaultError } = await supabase.rpc('store_user_api_key', {
+        p_user_id: user.id,
+        p_api_key: openaiApiKey.trim(),
+        p_key_name: 'openai'
+      });
+
+      if (vaultError) {
+        console.error('Error storing API key in vault:', vaultError);
+        throw vaultError;
       }
+
+      // Update profile with the vault secret UUID
+      await updateProfile.mutateAsync({
+        openai_key_vault_secret: secretId,
+      });
+
+      // Clear the input and show masked value
+      setOpenaiApiKey('••••••••');
     } catch (error) {
       console.error('Error saving OpenAI API key:', error);
     }
@@ -121,13 +155,107 @@ const Settings = () => {
 
   const handleSaveGeminiApiKey = async () => {
     try {
-      if (profile && geminiApiKey !== profile.gemini_api_key) {
-        await updateProfile.mutateAsync({
-          gemini_api_key: geminiApiKey.trim() || null,
-        });
+      if (!user || !geminiApiKey || geminiApiKey === '••••••••') return;
+      
+      // Store the API key in vault first
+      const { data: secretId, error: vaultError } = await supabase.rpc('store_user_api_key', {
+        p_user_id: user.id,
+        p_api_key: geminiApiKey.trim(),
+        p_key_name: 'gemini'
+      });
+
+      if (vaultError) {
+        console.error('Error storing API key in vault:', vaultError);
+        throw vaultError;
       }
+
+      // Update profile with the vault secret UUID
+      await updateProfile.mutateAsync({
+        gemini_key_vault_secret: secretId,
+      });
+
+      // Clear the input and show masked value
+      setGeminiApiKey('••••••••');
     } catch (error) {
       console.error('Error saving Gemini API key:', error);
+    }
+  };
+
+  const handleRemoveTranscriptApiKey = async () => {
+    try {
+      if (!user || !profile?.transcript_key_vault_secret) return;
+
+      // Delete from vault
+      const { error: vaultError } = await supabase.rpc('delete_user_api_key', {
+        p_secret_id: profile.transcript_key_vault_secret,
+        p_user_id: user.id
+      });
+
+      if (vaultError) {
+        console.error('Error deleting API key from vault:', vaultError);
+        throw vaultError;
+      }
+
+      // Update profile to null
+      await updateProfile.mutateAsync({
+        transcript_key_vault_secret: null,
+      });
+
+      setTranscriptApiKey('');
+    } catch (error) {
+      console.error('Error removing API key:', error);
+    }
+  };
+
+  const handleRemoveOpenaiApiKey = async () => {
+    try {
+      if (!user || !profile?.openai_key_vault_secret) return;
+
+      // Delete from vault
+      const { error: vaultError } = await supabase.rpc('delete_user_api_key', {
+        p_secret_id: profile.openai_key_vault_secret,
+        p_user_id: user.id
+      });
+
+      if (vaultError) {
+        console.error('Error deleting API key from vault:', vaultError);
+        throw vaultError;
+      }
+
+      // Update profile to null
+      await updateProfile.mutateAsync({
+        openai_key_vault_secret: null,
+      });
+
+      setOpenaiApiKey('');
+    } catch (error) {
+      console.error('Error removing OpenAI API key:', error);
+    }
+  };
+
+  const handleRemoveGeminiApiKey = async () => {
+    try {
+      if (!user || !profile?.gemini_key_vault_secret) return;
+
+      // Delete from vault
+      const { error: vaultError } = await supabase.rpc('delete_user_api_key', {
+        p_secret_id: profile.gemini_key_vault_secret,
+        p_user_id: user.id
+      });
+
+      if (vaultError) {
+        console.error('Error deleting API key from vault:', vaultError);
+        throw vaultError;
+      }
+
+      // Update profile to null
+      await updateProfile.mutateAsync({
+        gemini_key_vault_secret: null,
+      });
+
+      setGeminiApiKey('');
+    } catch (error) {
+      console.error('Error removing Gemini API key:', error);
     }
   };
 
@@ -174,21 +302,6 @@ const Settings = () => {
         hasProfileChanges = true;
       }
 
-      if (profile && transcriptApiKey !== profile.transcript_api_key) {
-        profileChanges.transcript_api_key = transcriptApiKey.trim() || null;
-        hasProfileChanges = true;
-      }
-
-      if (profile && openaiApiKey !== profile.openai_api_key) {
-        profileChanges.openai_api_key = openaiApiKey.trim() || null;
-        hasProfileChanges = true;
-      }
-
-      if (profile && geminiApiKey !== profile.gemini_api_key) {
-        profileChanges.gemini_api_key = geminiApiKey.trim() || null;
-        hasProfileChanges = true;
-      }
-
       // Update profile data if there are changes
       if (hasProfileChanges) {
         await updateProfile.mutateAsync(profileChanges);
@@ -209,7 +322,7 @@ const Settings = () => {
     if (newPodcastRss.trim() && 
         podcasts.length < 10 && 
         !rssExists(newPodcastRss.trim()) &&
-        profile?.transcript_api_key) {
+        profile?.transcript_key_vault_secret) {
       const result = await addPodcast(newPodcastRss.trim());
       if (result) {
         setNewPodcastRss('');
@@ -313,18 +426,30 @@ const Settings = () => {
                   value={openaiApiKey}
                   onChange={(e) => setOpenaiApiKey(e.target.value)}
                   onKeyPress={handleOpenaiApiKeyKeyPress}
-                  placeholder="Enter your OpenAI API key"
+                  placeholder={profile?.openai_key_vault_secret ? "API key is set (masked)" : "Enter your OpenAI API key"}
                   className="flex-1"
                 />
                 <Button 
                   onClick={handleSaveOpenaiApiKey}
-                  disabled={!openaiApiKey.trim() || openaiApiKey === profile?.openai_api_key || isUpdating}
+                  disabled={!openaiApiKey.trim() || openaiApiKey === '••••••••' || isUpdating}
                   size="default"
                   className="whitespace-nowrap"
                 >
                   {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                   Save API Key
                 </Button>
+                {profile?.openai_key_vault_secret && (
+                  <Button 
+                    onClick={handleRemoveOpenaiApiKey}
+                    disabled={isUpdating}
+                    size="default"
+                    variant="destructive"
+                    className="whitespace-nowrap"
+                  >
+                    {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
+                    Remove
+                  </Button>
+                )}
               </div>
               <p className="text-xs text-muted-foreground">
                 Optional: Enter your OpenAI API key to use your own OpenAI account for AI features.
@@ -340,18 +465,30 @@ const Settings = () => {
                   value={geminiApiKey}
                   onChange={(e) => setGeminiApiKey(e.target.value)}
                   onKeyPress={handleGeminiApiKeyKeyPress}
-                  placeholder="Enter your Gemini API key"
+                  placeholder={profile?.gemini_key_vault_secret ? "API key is set (masked)" : "Enter your Gemini API key"}
                   className="flex-1"
                 />
                 <Button 
                   onClick={handleSaveGeminiApiKey}
-                  disabled={!geminiApiKey.trim() || geminiApiKey === profile?.gemini_api_key || isUpdating}
+                  disabled={!geminiApiKey.trim() || geminiApiKey === '••••••••' || isUpdating}
                   size="default"
                   className="whitespace-nowrap"
                 >
                   {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                   Save API Key
                 </Button>
+                {profile?.gemini_key_vault_secret && (
+                  <Button 
+                    onClick={handleRemoveGeminiApiKey}
+                    disabled={isUpdating}
+                    size="default"
+                    variant="destructive"
+                    className="whitespace-nowrap"
+                  >
+                    {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
+                    Remove
+                  </Button>
+                )}
               </div>
               <p className="text-xs text-muted-foreground">
                 Optional: Enter your Gemini API key to use your own Google Gemini account for AI features.
@@ -367,18 +504,30 @@ const Settings = () => {
                   value={transcriptApiKey}
                   onChange={(e) => setTranscriptApiKey(e.target.value)}
                   onKeyPress={handleApiKeyKeyPress}
-                  placeholder="Enter your transcription service API key from AssemblyAI"
+                  placeholder={profile?.transcript_key_vault_secret ? "API key is set (masked)" : "Enter your transcription service API key from AssemblyAI"}
                   className="flex-1"
                 />
                 <Button 
                   onClick={handleSaveApiKey}
-                  disabled={!transcriptApiKey.trim() || transcriptApiKey === profile?.transcript_api_key || isUpdating}
+                  disabled={!transcriptApiKey.trim() || transcriptApiKey === '••••••••' || isUpdating}
                   size="default"
                   className="whitespace-nowrap"
                 >
                   {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                   Save API Key
                 </Button>
+                {profile?.transcript_key_vault_secret && (
+                  <Button 
+                    onClick={handleRemoveTranscriptApiKey}
+                    disabled={isUpdating}
+                    size="default"
+                    variant="destructive"
+                    className="whitespace-nowrap"
+                  >
+                    {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
+                    Remove
+                  </Button>
+                )}
               </div>
               <p className="text-xs text-muted-foreground">
                 Required: Generate an API key with AssemblyAI and submit it here. This is required to enable podcast transcription and summary feature.
@@ -419,11 +568,11 @@ const Settings = () => {
                   onKeyPress={handlePodcastKeyPress}
                   placeholder="https://example.com/podcast/feed.xml"
                   className="flex-1"
-                  disabled={isAddingPodcast || podcasts.length >= 10 || !profile?.transcript_api_key}
+                  disabled={isAddingPodcast || podcasts.length >= 10 || !profile?.transcript_key_vault_secret}
                 />
                 <Button 
                   onClick={handleAddPodcast}
-                  disabled={!newPodcastRss.trim() || rssExists(newPodcastRss.trim()) || isAddingPodcast || podcasts.length >= 10 || !profile?.transcript_api_key}
+                  disabled={!newPodcastRss.trim() || rssExists(newPodcastRss.trim()) || isAddingPodcast || podcasts.length >= 10 || !profile?.transcript_key_vault_secret}
                   size="default"
                   className="whitespace-nowrap"
                 >
@@ -433,7 +582,7 @@ const Settings = () => {
               </div>
               
               {/* RSS Feed validation messages */}
-              {!profile?.transcript_api_key && (
+              {!profile?.transcript_key_vault_secret && (
                 <p className="text-sm text-destructive">
                   Please add and save your AssemblyAI API Key above before adding podcast feeds.
                 </p>

@@ -292,10 +292,12 @@ export type Database = {
           deep_dive_prompt: string | null
           email: string
           full_name: string | null
+          gemini_key_vault_secret: string | null
           id: string
+          openai_key_vault_secret: string | null
           podcast_processing: Database["public"]["Enums"]["podcast_processing_setting"] | null
           summary_prompt: string | null
-          transcript_api_key: string | null
+          transcript_key_vault_secret: string | null
           updated_at: string
         }
         Insert: {
@@ -305,10 +307,12 @@ export type Database = {
           deep_dive_prompt?: string | null
           email: string
           full_name?: string | null
+          gemini_key_vault_secret?: string | null
           id: string
+          openai_key_vault_secret?: string | null
           podcast_processing?: Database["public"]["Enums"]["podcast_processing_setting"] | null
           summary_prompt?: string | null
-          transcript_api_key?: string | null
+          transcript_key_vault_secret?: string | null
           updated_at?: string
         }
         Update: {
@@ -318,10 +322,12 @@ export type Database = {
           deep_dive_prompt?: string | null
           email?: string
           full_name?: string | null
+          gemini_key_vault_secret?: string | null
           id?: string
+          openai_key_vault_secret?: string | null
           podcast_processing?: Database["public"]["Enums"]["podcast_processing_setting"] | null
           summary_prompt?: string | null
-          transcript_api_key?: string | null
+          transcript_key_vault_secret?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -571,6 +577,14 @@ export type Database = {
       }
       user_owns_source: {
         Args: { source_id_param: string }
+        Returns: boolean
+      }
+      store_user_api_key: {
+        Args: { p_user_id: string; p_api_key: string; p_key_name: string }
+        Returns: string
+      }
+      delete_user_api_key: {
+        Args: { p_secret_id: string; p_user_id: string }
         Returns: boolean
       }
       vector_avg: {
