@@ -1,22 +1,40 @@
 
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { getCorsHeaders, handleCorsPreflightRequest, createCorsResponse, validateOrigin } from '../_shared/cors.ts'
+import { validateChatMessage, sanitizeString } from '../_shared/validation.ts'
 
 serve(async (req) => {
+  const origin = req.headers.get('origin');
+
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return handleCorsPreflightRequest(req);
   }
 
+  // Validate origin
+  const originError = validateOrigin(req);
+  if (originError) return originError;
+
   try {
-    const { session_id, message, user_id } = await req.json();
+    const body = await req.json();
     
-    console.log('Received message:', { session_id, message, user_id });
+    // Validate input
+    const validation = validateChatMessage(body);
+    if (!validation.valid) {
+      return createCorsResponse(
+        { error: 'Validation failed', details: validation.errors },
+        400,
+        origin
+      );
+    }
+
+    const { session_id, message, user_id } = body;
+    
+    // Sanitize message
+    const sanitizedMessage = sanitizeString(message, 50000);
+    
+    console.log('Received message:', { session_id, user_id, message_length: sanitizedMessage.length });
 
     // Get the webhook URL and auth header from environment
     const webhookUrl = Deno.env.get('NOTEBOOK_CHAT_URL');
@@ -41,7 +59,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         session_id,
-        message,
+        message: sanitizedMessage,
         user_id,
         timestamp: new Date().toISOString()
       })
@@ -55,32 +73,21 @@ serve(async (req) => {
     }
 
     const webhookData = await webhookResponse.json();
-    console.log('Webhook response:', webhookData);
+    console.log('Webhook response received');
 
-    return new Response(
-      JSON.stringify({ success: true, data: webhookData }),
-      { 
-        headers: { 
-          ...corsHeaders,
-          'Content-Type': 'application/json' 
-        } 
-      }
+    return createCorsResponse(
+      { success: true, data: webhookData },
+      200,
+      origin
     );
 
   } catch (error) {
     console.error('Error in send-chat-message:', error);
     
-    return new Response(
-      JSON.stringify({ 
-        error: error.message || 'Failed to send message to webhook' 
-      }),
-      { 
-        status: 500,
-        headers: { 
-          ...corsHeaders,
-          'Content-Type': 'application/json' 
-        }
-      }
+    return createCorsResponse(
+      { error: error.message || 'Failed to send message to webhook' },
+      500,
+      origin
     );
   }
 });

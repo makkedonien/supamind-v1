@@ -1,8 +1,13 @@
 import { createClient, type Session } from '@supabase/supabase-js';
 
-// Inject your project URL and anon key at build time or fill in here for local dev
-const SUPABASE_URL = (import.meta as any).env?.VITE_SUPABASE_URL || 'or hardcode here';
-const SUPABASE_ANON_KEY = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY || 'or hardcode here';
+// SECURITY: These values must be injected at build time via environment variables
+// Never hardcode credentials in source code
+const SUPABASE_URL = (import.meta as any).env?.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  throw new Error('Missing required Supabase configuration. Please check build configuration.');
+}
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 

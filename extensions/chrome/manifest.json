@@ -19,7 +19,9 @@
   },
   "permissions": ["tabs", "storage", "activeTab"],
   "host_permissions": [
-    "https://*.supabase.co/*",
+    "https://*.supabase.co/*"
+  ],
+  "optional_host_permissions": [
     "https://*/*"
   ],
   "background": {

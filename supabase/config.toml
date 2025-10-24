@@ -5,12 +5,17 @@ project_id = "ehqdibhqhevjnknojogm"
 enabled = true
 site_url = "http://localhost:5173"
 additional_redirect_urls = ["https://localhost:5173"]
-jwt_expiry = 3600
+# JWT expiry in seconds (4 hours for better UX, refresh tokens handle security)
+jwt_expiry = 14400
+# Note: refresh_token_rotation_enabled not supported in this Supabase CLI version
+# Configure these settings in the Supabase Dashboard under Authentication > Settings
 
 [auth.email]
 enable_signup = true
 double_confirm_changes = true
 enable_confirmations = false
+# Note: min_password_length not supported in config.toml for this version
+# Configure password requirements in Supabase Dashboard under Authentication > Policies
 
 [db]
 port = 54322

@@ -1,28 +1,36 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { getCorsHeaders, handleCorsPreflightRequest, createCorsResponse, validateOrigin } from '../_shared/cors.ts'
+import { validateDocumentProcessing } from '../_shared/validation.ts'
 
 serve(async (req) => {
+  const origin = req.headers.get('origin');
+
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return handleCorsPreflightRequest(req);
   }
 
-  try {
-    const { sourceId, filePath, sourceType, userId, notebookId } = await req.json()
+  // Validate origin
+  const originError = validateOrigin(req);
+  if (originError) return originError;
 
-    if (!sourceId || !filePath || !sourceType || !userId) {
-      return new Response(
-        JSON.stringify({ error: 'sourceId, filePath, sourceType, and userId are required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+  try {
+    const body = await req.json();
+
+    // Validate input
+    const validation = validateDocumentProcessing(body);
+    if (!validation.valid) {
+      return createCorsResponse(
+        { error: 'Validation failed', details: validation.errors },
+        400,
+        origin
+      );
     }
 
-    console.log('Processing document:', { source_id: sourceId, file_path: filePath, source_type: sourceType, user_id: userId, notebook_id: notebookId });
+    const { sourceId, filePath, sourceType, userId, notebookId } = body;
+
+    console.log('Processing document:', { source_id: sourceId, source_type: sourceType, user_id: userId, notebook_id: notebookId });
 
     // Get environment variables
     const webhookUrl = Deno.env.get('DOCUMENT_PROCESSING_WEBHOOK_URL')
@@ -43,9 +51,10 @@ serve(async (req) => {
         .update({ processing_status: 'failed' })
         .eq('id', sourceId)
 
-      return new Response(
-        JSON.stringify({ error: 'Document processing webhook URL not configured' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      return createCorsResponse(
+        { error: 'Document processing webhook URL not configured' },
+        500,
+        origin
       )
     }
 
@@ -98,25 +107,28 @@ serve(async (req) => {
         .update({ processing_status: 'failed' })
         .eq('id', sourceId)
 
-      return new Response(
-        JSON.stringify({ error: 'Document processing failed', details: errorText }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      return createCorsResponse(
+        { error: 'Document processing failed', details: errorText },
+        500,
+        origin
       )
     }
 
     const result = await response.json()
-    console.log('Webhook response:', result);
+    console.log('Webhook response received');
 
-    return new Response(
-      JSON.stringify({ success: true, message: 'Document processing initiated', result }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    return createCorsResponse(
+      { success: true, message: 'Document processing initiated', result },
+      200,
+      origin
     )
 
   } catch (error) {
     console.error('Error in process-document function:', error)
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    return createCorsResponse(
+      { error: 'Internal server error' },
+      500,
+      origin
     )
   }
 })

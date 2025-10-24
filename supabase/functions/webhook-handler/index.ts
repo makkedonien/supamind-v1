@@ -1,21 +1,34 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { getCorsHeaders, handleCorsPreflightRequest, createCorsResponse, validateOrigin } from '../_shared/cors.ts'
+import { isValidUUID, isValidTimestamp, validateUrlList, sanitizeString } from '../_shared/validation.ts'
 
 serve(async (req) => {
+  const origin = req.headers.get('origin');
+
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return handleCorsPreflightRequest(req);
   }
 
+  // Validate origin
+  const originError = validateOrigin(req);
+  if (originError) return originError;
+
   try {
-    const { type, notebookId, urls, title, content, timestamp } = await req.json();
+    const body = await req.json();
+    const { type, notebookId, urls, title, content, timestamp } = body;
     
-    console.log(`Webhook handler received ${type} request for notebook ${notebookId}`);
+    // Validate required fields
+    if (!type || !notebookId || !isValidUUID(notebookId)) {
+      return createCorsResponse(
+        { error: 'Valid type and notebookId (UUID) are required' },
+        400,
+        origin
+      );
+    }
+    
+    console.log(`Webhook handler received ${type} request`);
 
     // Get the webhook URL from Supabase secrets
     const webhookUrl = Deno.env.get('WEBHOOK_URL');
@@ -29,10 +42,20 @@ serve(async (req) => {
       throw new Error('NOTEBOOK_GENERATION_AUTH not configured');
     }
 
-    // Prepare the webhook payload
+    // Prepare and validate the webhook payload
     let webhookPayload;
     
     if (type === 'multiple-websites') {
+      // Validate URLs
+      const urlValidation = validateUrlList(urls);
+      if (!urlValidation.valid) {
+        return createCorsResponse(
+          { error: 'Invalid URLs', details: urlValidation.errors },
+          400,
+          origin
+        );
+      }
+      
       webhookPayload = {
         type: 'multiple-websites',
         notebookId,
@@ -40,18 +63,31 @@ serve(async (req) => {
         timestamp
       };
     } else if (type === 'copied-text') {
+      // Validate and sanitize content
+      if (!title || !content) {
+        return createCorsResponse(
+          { error: 'title and content are required for copied-text type' },
+          400,
+          origin
+        );
+      }
+      
       webhookPayload = {
         type: 'copied-text',
         notebookId,
-        title,
-        content,
+        title: sanitizeString(title, 500),
+        content: sanitizeString(content, 100000),
         timestamp
       };
     } else {
-      throw new Error(`Unsupported type: ${type}`);
+      return createCorsResponse(
+        { error: `Unsupported type: ${type}` },
+        400,
+        origin
+      );
     }
 
-    console.log('Sending webhook payload:', JSON.stringify(webhookPayload, null, 2));
+    console.log('Sending webhook payload');
 
     // Send to webhook with authentication
     const response = await fetch(webhookUrl, {
@@ -59,43 +95,39 @@ serve(async (req) => {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${authToken}`,
-        ...corsHeaders
       },
       body: JSON.stringify(webhookPayload)
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Webhook request failed:', response.status, errorText);
-      throw new Error(`Webhook request failed: ${response.status} - ${errorText}`);
+      console.error('Webhook request failed:', response.status);
+      throw new Error(`Webhook request failed: ${response.status}`);
     }
 
     const webhookResponse = await response.text();
-    console.log('Webhook response:', webhookResponse);
+    console.log('Webhook response received');
 
-    return new Response(JSON.stringify({ 
-      success: true, 
-      message: `${type} data sent to webhook successfully`,
-      webhookResponse 
-    }), {
-      headers: { 
-        'Content-Type': 'application/json',
-        ...corsHeaders 
+    return createCorsResponse(
+      { 
+        success: true, 
+        message: `${type} data sent to webhook successfully`,
+        webhookResponse 
       },
-    });
+      200,
+      origin
+    );
 
   } catch (error) {
     console.error('Webhook handler error:', error);
     
-    return new Response(JSON.stringify({ 
-      error: error.message,
-      success: false 
-    }), {
-      status: 500,
-      headers: { 
-        'Content-Type': 'application/json',
-        ...corsHeaders 
+    return createCorsResponse(
+      { 
+        error: error.message,
+        success: false 
       },
-    });
+      500,
+      origin
+    );
   }
 });

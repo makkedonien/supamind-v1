@@ -1,28 +1,59 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { verifyHmacSignature } from '../_shared/webhook-security.ts'
+import { isValidUUID } from '../_shared/validation.ts'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
-
+// No CORS headers needed for server-to-server callback
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { status: 204 })
   }
 
   try {
-    const payload = await req.json()
-    console.log('Document processing callback received:', payload);
+    // Get webhook secret from environment
+    const webhookSecret = Deno.env.get('WEBHOOK_SECRET');
+    let payload;
+    
+    if (webhookSecret) {
+      // Verify HMAC signature if secret is configured
+      const signature = req.headers.get('x-webhook-signature');
+      
+      if (!signature) {
+        console.error('Missing webhook signature');
+        return new Response(
+          JSON.stringify({ error: 'Missing webhook signature' }),
+          { status: 401, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
 
-    const { source_id, content, summary, display_name, title, status, error, image_url } = payload
+      const body = await req.text();
+      const isValid = await verifyHmacSignature(body, signature, webhookSecret);
+      
+      if (!isValid) {
+        console.error('Invalid webhook signature');
+        return new Response(
+          JSON.stringify({ error: 'Invalid webhook signature' }),
+          { status: 401, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
 
-    if (!source_id) {
+      payload = JSON.parse(body);
+      console.log('Document processing callback received and verified');
+    } else {
+      // Fallback for existing deployments without webhook secret configured
+      console.warn('WEBHOOK_SECRET not configured - callback authentication disabled');
+      payload = await req.json();
+      console.log('Document processing callback received (unverified)');
+    }
+
+    const { source_id, content, summary, display_name, title, status, error, image_url } = payload;
+
+    if (!source_id || !isValidUUID(source_id)) {
       return new Response(
-        JSON.stringify({ error: 'source_id is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+        JSON.stringify({ error: 'Valid source_id is required' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
     }
 
     // Initialize Supabase client
@@ -77,22 +108,22 @@ serve(async (req) => {
       console.error('Error updating source:', updateError)
       return new Response(
         JSON.stringify({ error: 'Failed to update source', details: updateError }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
       )
     }
 
-    console.log('Source updated successfully:', data);
+    console.log('Source updated successfully');
 
     return new Response(
       JSON.stringify({ success: true, message: 'Source updated successfully', data }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { 'Content-Type': 'application/json' } }
     )
 
   } catch (error) {
     console.error('Error in process-document-callback function:', error)
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
     )
   }
 })
