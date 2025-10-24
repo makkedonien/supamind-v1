@@ -261,6 +261,12 @@ const Settings = () => {
 
   const handlePodcastProcessingToggle = async (enabled: boolean) => {
     try {
+      // Prevent enabling if API keys are missing
+      if (enabled && (!profile?.transcript_key_vault_secret || !profile?.openai_key_vault_secret)) {
+        console.error('Cannot enable podcast processing: API keys missing');
+        return;
+      }
+      
       await updateProfile.mutateAsync({
         podcast_processing: enabled ? 'enabled' : 'disabled',
       });
@@ -405,15 +411,27 @@ const Settings = () => {
           </CardContent>
         </Card>
 
-        {/* Podcasts Section */}
+        {/* API Keys Section */}
         <Card>
           <CardHeader>
             <CardTitle className="text-xl font-semibold flex items-center gap-2">
-              <Radio className="h-5 w-5" />
-              Podcasts
+              <Key className="h-5 w-5" />
+              API Keys
             </CardTitle>
             <CardDescription>
-              Add up to 10 podcast RSS feeds to automatically process and sync podcast episodes to your feed. An AssemblyAI API Key is required for podcast transcription. Need help finding a podcast's RSS feed URL? Use this <a href="https://castos.com/tools/find-podcast-rss-feed/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">free RSS feed finder tool</a>.
+              Important: For key features to work, you need to provide API keys for{' '}
+              <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-primary underline hover:text-primary/80">
+                OpenAI
+              </a>
+              ,{' '}
+              <a href="https://aistudio.google.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-primary underline hover:text-primary/80">
+                Gemini
+              </a>
+              , and{' '}
+              <a href="https://www.assemblyai.com/" target="_blank" rel="noopener noreferrer" className="text-primary underline hover:text-primary/80">
+                AssemblyAI
+              </a>
+              .
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -533,7 +551,21 @@ const Settings = () => {
                 Required: Generate an API key with AssemblyAI and submit it here. This is required to enable podcast transcription and summary feature.
               </p>
             </div>
+          </CardContent>
+        </Card>
 
+        {/* Podcasts Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold flex items-center gap-2">
+              <Radio className="h-5 w-5" />
+              Podcasts
+            </CardTitle>
+            <CardDescription>
+              Add up to 10 podcast RSS feeds to automatically process and sync podcast episodes to your feed. An AssemblyAI and OpenAI API Key is required for podcast transcription, which you can add in the API Keys section above. Need help finding a podcast's RSS feed URL? Use this <a href="https://castos.com/tools/find-podcast-rss-feed/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">free RSS feed finder tool</a>.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div>
@@ -546,9 +578,14 @@ const Settings = () => {
                   id="podcast-processing"
                   checked={podcastProcessingEnabled}
                   onCheckedChange={handlePodcastProcessingToggle}
-                  disabled={isUpdating}
+                  disabled={isUpdating || !profile?.transcript_key_vault_secret || !profile?.openai_key_vault_secret}
                 />
               </div>
+              {(!profile?.transcript_key_vault_secret || !profile?.openai_key_vault_secret) && (
+                <p className="text-sm text-destructive">
+                  To enable podcast processing, please add both an AssemblyAI API Key and an OpenAI API Key in the API Keys section above.
+                </p>
+              )}
             </div>
 
             <Separator />

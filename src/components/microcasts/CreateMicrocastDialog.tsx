@@ -9,6 +9,7 @@ import { Mic, FileText, Globe, Copy, Loader2, X } from 'lucide-react';
 import { useMicrocasts } from '@/hooks/useMicrocasts';
 import { useFeedSources } from '@/hooks/useFeedSources';
 import { useToast } from '@/hooks/use-toast';
+import { useProfile } from '@/hooks/useProfile';
 
 interface CreateMicrocastDialogProps {
   open: boolean;
@@ -26,12 +27,23 @@ const CreateMicrocastDialog: React.FC<CreateMicrocastDialogProps> = ({
   const { createMicrocast, isCreating } = useMicrocasts();
   const { sources } = useFeedSources();
   const { toast } = useToast();
+  const { profile } = useProfile();
 
   // Get selected sources
   const selectedSources = sources.filter(source => selectedSourceIds.includes(source.id));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Check for required API keys
+    if (!profile?.openai_key_vault_secret || !profile?.gemini_key_vault_secret) {
+      toast({
+        title: "API Keys Required",
+        description: "To create a microcast, please add both an OpenAI API Key and a Gemini API Key in your user settings.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     if (selectedSourceIds.length === 0) {
       toast({
@@ -197,6 +209,21 @@ const CreateMicrocastDialog: React.FC<CreateMicrocastDialogProps> = ({
             )}
           </div>
 
+          {/* Warning for missing API keys */}
+          {(!profile?.openai_key_vault_secret || !profile?.gemini_key_vault_secret) && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <h4 className="text-sm font-medium text-red-900 mb-1">
+                ⚠️ API Keys Required
+              </h4>
+              <p className="text-xs text-red-800">
+                To create a microcast, you need to add both an OpenAI API Key and a Gemini API Key in your user settings.
+                {!profile?.openai_key_vault_secret && !profile?.gemini_key_vault_secret && " Both keys are missing."}
+                {!profile?.openai_key_vault_secret && profile?.gemini_key_vault_secret && " OpenAI API Key is missing."}
+                {profile?.openai_key_vault_secret && !profile?.gemini_key_vault_secret && " Gemini API Key is missing."}
+              </p>
+            </div>
+          )}
+
           {/* Warning for too many sources */}
           {selectedSources.length > 5 && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-3">
@@ -230,7 +257,7 @@ const CreateMicrocastDialog: React.FC<CreateMicrocastDialogProps> = ({
             </Button>
             <Button
               type="submit"
-              disabled={isCreating || selectedSources.length === 0 || selectedSources.length > 5}
+              disabled={isCreating || selectedSources.length === 0 || selectedSources.length > 5 || !profile?.openai_key_vault_secret || !profile?.gemini_key_vault_secret}
             >
               {isCreating ? (
                 <>
