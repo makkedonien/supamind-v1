@@ -8,7 +8,7 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        416,
+        1040,
         0
       ],
       "id": "acf118a8-df31-4a18-b6cf-27c1e95fe772",
@@ -22,7 +22,7 @@
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1.2,
       "position": [
-        832,
+        1456,
         16
       ],
       "id": "a00fcb84-0108-4702-83d1-cb3671ffc0db",
@@ -38,8 +38,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        -208,
-        0
+        368,
+        96
       ],
       "id": "58b88156-e403-4cec-ac5e-1f50229b989c",
       "name": "Webhook",
@@ -80,7 +80,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        640,
+        1264,
         16
       ],
       "id": "514eb925-05d2-4631-a037-ecf5d639fa2c",
@@ -95,7 +95,7 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1456,
+        2080,
         16
       ],
       "id": "28ef6df0-fc1c-47ce-8284-833312318295",
@@ -112,11 +112,11 @@
       "parameters": {
         "content": "## Podcast RSS Feed Processing\nThis part gets the RSS feed content, then filters it down to include items only after a certain date, and then checks which items are already in the database and then outputs only new items which are not in the db yet.",
         "height": 272,
-        "width": 1264
+        "width": 1648
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        608,
+        960,
         -80
       ],
       "typeVersion": 1,
@@ -151,7 +151,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1648,
+        2272,
         16
       ],
       "id": "ea2789ca-90e7-4a00-aaa7-757fad7fd304",
@@ -166,7 +166,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "=Bearer {{ $json.transcript_api_key }}"
+              "value": "=Bearer {{ $json.decrypted_secret }}"
             },
             {
               "name": "Content-Type",
@@ -182,7 +182,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2576,
+        3408,
         16
       ],
       "id": "e0e8a625-ebed-4167-bf28-5aae683a612e",
@@ -196,7 +196,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "={{ $('Get Transcript API Key').item.json.transcript_api_key }}"
+              "value": "={{ $('Get Transcript API Key').item.json.decrypted_secret }}"
             }
           ]
         },
@@ -205,7 +205,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2944,
+        3776,
         16
       ],
       "id": "cba9724c-97fc-4cf5-a9ba-30fc0eff73a7",
@@ -218,7 +218,7 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        2784,
+        3616,
         16
       ],
       "id": "6e90f3a4-7022-4e9c-9195-7b1046039829",
@@ -252,7 +252,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        3120,
+        3952,
         16
       ],
       "id": "609f60e4-e207-4c29-9a05-ec1c4a2050fb",
@@ -274,8 +274,8 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.7,
       "position": [
-        3488,
-        16
+        4960,
+        368
       ],
       "id": "93864a40-0d0d-437f-9030-85f556243414",
       "name": "Basic LLM Chain"
@@ -293,8 +293,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.2,
       "position": [
-        3488,
-        192
+        4992,
+        560
       ],
       "id": "aac67e47-99b5-4271-80c9-289ca7b43ce4",
       "name": "OpenAI Chat Model",
@@ -324,7 +324,7 @@
             },
             {
               "fieldId": "summary",
-              "fieldValue": "={{ $('Basic LLM Chain').item.json.text }}"
+              "fieldValue": "={{ $json.choices[0].message.content }}"
             },
             {
               "fieldId": "processing_status",
@@ -365,6 +365,10 @@
             {
               "fieldId": "pod_episode_id",
               "fieldValue": "={{ $('Get GUID & Audio URLs').item.json.guid }}"
+            },
+            {
+              "fieldId": "content",
+              "fieldValue": "={{ $('Check if transcription is still processing').item.json.text }}"
             }
           ]
         }
@@ -372,7 +376,7 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        3808,
+        5456,
         16
       ],
       "id": "b2ce4ede-c976-4009-aeb1-3dc974879017",
@@ -403,8 +407,8 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
       "position": [
-        -208,
-        -176
+        368,
+        -80
       ],
       "id": "9cf2426b-38dc-40eb-83b1-31660ccd34cf",
       "name": "When Executed by Another Workflow"
@@ -416,8 +420,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        208,
-        -176
+        752,
+        -80
       ],
       "id": "0f179793-feb6-40e3-ae45-01dcddbf2ff7",
       "name": "Code1"
@@ -429,7 +433,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1248,
+        1872,
         16
       ],
       "id": "dbadb14d-afcb-4d14-93dd-56d42d80a9da",
@@ -458,7 +462,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1920,
+        2464,
         16
       ],
       "id": "65ef1994-d21a-4fa6-92d1-11444d197439",
@@ -480,7 +484,7 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        3328,
+        4704,
         16
       ],
       "id": "ccbe10a5-2b25-46b9-ac4b-b4f6ef3ae64e",
@@ -499,7 +503,7 @@
       "type": "n8n-nodes-base.stopAndError",
       "typeVersion": 1,
       "position": [
-        2576,
+        3408,
         224
       ],
       "id": "21d2c703-76d4-44d1-8e51-5c48b911cacb",
@@ -512,8 +516,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        208,
-        0
+        752,
+        96
       ],
       "id": "4a27c218-a92b-436a-a348-f0cf2c92fc1a",
       "name": "Code"
@@ -523,7 +527,7 @@
       "type": "n8n-nodes-base.limit",
       "typeVersion": 1,
       "position": [
-        1040,
+        1664,
         16
       ],
       "id": "6ecc8a75-48db-41de-a9d1-eb624c9262cb",
@@ -532,17 +536,18 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "SELECT transcript_api_key FROM profiles\nWHERE id = '{{ $('Get GUIDs, User_ID, Podcast_ID').item.json.user_id }}'",
+        "query": "SELECT decrypted_secret \nFROM vault.decrypted_secrets \nWHERE id = '{{ $json.transcript_key_vault_secret }}';",
         "options": {}
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        2144,
+        2928,
         16
       ],
       "id": "95fcf169-7f01-4105-aa2a-cc42072f0a4d",
       "name": "Get Transcript API Key",
+      "alwaysOutputData": false,
       "credentials": {
         "postgres": {
           "id": "loHyKG67vLMDy8GM",
@@ -561,7 +566,7 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        3984,
+        5632,
         16
       ],
       "id": "9b82aa3d-b1cb-49f4-b28b-78498dbc5f97",
@@ -585,8 +590,8 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        0,
-        -176
+        576,
+        -80
       ],
       "id": "87e5edc9-c9c4-4db9-bcc3-d772122a38f5",
       "name": "Send a text message1",
@@ -609,8 +614,8 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        0,
-        0
+        576,
+        96
       ],
       "id": "f61a452d-f45a-408f-bed0-e9d4730edb2a",
       "name": "Send a text message2",
@@ -626,11 +631,11 @@
       "parameters": {
         "content": "## Podcast Audio Transcription\n",
         "height": 272,
-        "width": 1376
+        "width": 1504
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        1888,
+        2640,
         -80
       ],
       "typeVersion": 1,
@@ -649,7 +654,7 @@
           "conditions": [
             {
               "id": "1c86e65b-5122-4149-90d8-dcd9e2878e3b",
-              "leftValue": "={{ $json.transcript_api_key }}",
+              "leftValue": "={{ $json.decrypted_secret }}",
               "rightValue": "",
               "operator": {
                 "type": "string",
@@ -665,7 +670,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        2336,
+        3168,
         16
       ],
       "id": "ba38d601-c43e-4ae7-997d-a39718bc5abe",
@@ -675,16 +680,153 @@
       "parameters": {
         "content": "## Transcript Summary and DB table data entry\n",
         "height": 272,
-        "width": 880
+        "width": 1408
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        3280,
+        4160,
         -80
       ],
       "typeVersion": 1,
       "id": "6578211d-1d3a-438e-a015-a23bec8fb4d9",
       "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dd38a874-6e23-4729-8102-661f79417b9b",
+              "name": "User Prompt",
+              "value": "=Podcast Name: {{ $json.podcast_name }}\nHere is the podcast episode transcript: {{ $('Check if transcription is still processing').item.json.text }}",
+              "type": "string"
+            },
+            {
+              "id": "28699b6a-6cc8-4fca-9932-d627b558a0cf",
+              "name": "System Prompt",
+              "value": "=# Daily Podcast Summarizer Prompt\n\nYou are an expert podcast analyst specializing in extracting actionable insights for business leaders. Analyze the provided podcast transcript and create a comprehensive summary that identifies the most valuable business insights, whether they relate to marketing, product development, leadership, or any other relevant business areas.\n\n**IMPORTANT: Your entire response must be formatted in clean, well-structured markdown.**\n\n## Instructions:\n1. **Determine Focus**: Based on the content, identify the primary business areas discussed (marketing, product development, leadership, operations, strategy, finance, technology, culture, sales, etc.). Choose the most relevant areas for the discussion.\n\n2. **Structure your response exactly as follows:**\n\n---\n\n\n### **Podcast Details**\n• **Show:** [Podcast Name]\n• **Host:** [Host Name]\n• **Guest:** [Guest Name and Title/Company]\n• **Focus Areas:** [List the primary business areas covered - e.g., Marketing, Product Development, Leadership, Operations, Strategy, Finance, Technology, Culture, Sales, etc.]\n\n### **Comprehensive Summary**\n[Provide a 2-3 paragraph overview of the entire conversation, highlighting the main discussion points and overall narrative]\n\n### **Key Topics Discussed**\n1. **Topic 1 Headline**: [Topic 1: Brief description]\n2. **Topic 2 Headline**: [Topic 2: Brief description]\n3. **Topic 3 Headline**: [Topic 3: Brief description]\n4. [Continue as needed]\n\n### **Key Themes, Insights & Core Discussion Points**\n[Identify 3-4 overarching key themes, insights and/or discussion points that emerged from the conversation]\n1. [**Theme/Insight 1 Headline**]\n[Brief description]\n[the most valuable, actionable, or insightful quote in regards to the theme/insight with speaker attribution]\n2. [**Theme/Insight 2 Headline**]\n[Brief description]\n[the most valuable, actionable, or insightful quote in regards to the theme/insight with speaker attribution]\n3. [**Theme/Insight 3 Headline**]\n[Brief description]\n[the most valuable, actionable, or insightful quote in regards to the theme/insight with speaker attribution]\n4. [Continue as needed]\n\n### **Actionable Insights**\nBased on the focus area(s) identified, provide specific, implementable takeaways organized by relevant business areas:\n[Organize insights under the most relevant, maximum 3 headings such as:]\n**Marketing:** [If applicable - strategies, tactics, trends, customer insights]\n**Product Development:** [If applicable - methodologies, user research, feature insights, development processes]\n**Leadership:** [If applicable - management approaches, team building, decision-making frameworks]\n**Operations:** [If applicable - process improvements, efficiency tactics, workflow optimization]\n**Strategy:** [If applicable - competitive positioning, market analysis, strategic frameworks]\n**Finance:** [If applicable - funding approaches, financial management, cost optimization]\n**Technology:** [If applicable - tech trends, implementation strategies, tool recommendations]\n**Culture:** [If applicable - team dynamics, company culture, hiring practices]\n**Sales:** [If applicable - sales processes, customer acquisition, relationship building]\n**[Other Areas]:** [Any additional relevant business areas with specific insights]\n\n### **Noteworthy Observations**\n[Highlight 3-4 interesting insights, trends, or perspectives that stood out and could spark further discussion or research]\n1. [**Brief Observation 1 Headline**]: [Brief description of observation]\n2. [**Brief Observation 2 Headline**]: [Brief description of observation]\n3. [**Brief Observation 3 Headline**]: [Brief description of observation]\n4. [Continue as needed]\n\n### **Companies & Tools Mentioned**\n[List companies, products, or tools referenced that could be relevant for business applications]\n1. **Company 1** - [Company URL]\n**Context:** [Brief, one-sentence description in what context the company discussed or mentioned]\n2. **Company 2** - [Company URL]\n**Context:** [Brief, one-sentence description in what context the company discussed or mentioned]\n3. [Continue as needed]\n\n---\n\n## Additional Guidelines:\n- Keep summaries concise but comprehensive\n- Focus on actionable and practical insights across all relevant business areas\n- Preserve the speaker's voice in quotes\n- Highlight contrarian or unique perspectives\n- Identify patterns that could inform business strategy across multiple functions\n- Extract specific methodologies, frameworks, or processes mentioned\n- Don't force insights into predefined categories - let the content guide the focus areas\n- Don't add any other content after the 'Companies & Tools Mentioned' section. Your output has to stop after that.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4912,
+        16
+      ],
+      "id": "ea186644-9623-4925-954e-893a390e352d",
+      "name": "Set LLM Prompts"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Get OpenAI API Key').item.json.decrypted_secret }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.data }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5264,
+        16
+      ],
+      "id": "4cc4c17f-a1d0-458a-9819-aa56d83b2544",
+      "name": "OpenAI API Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const systemPrompt = $input.first().json['System Prompt'];\nconst userPrompt = $input.first().json['User Prompt'];\n\nreturn {\n  json: {\n    data: {\n      model: 'gpt-5',\n      messages: [\n        { role: 'system', content: systemPrompt },\n        { role: 'user', content: userPrompt }\n      ],\n      max_completion_tokens: 16000,\n      reasoning_effort: 'medium',\n      verbosity: 'high',\n      temperature: 1\n    }\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5072,
+        16
+      ],
+      "id": "2f3e3eb4-cfec-4d41-a52e-f2c813ab0797",
+      "name": "json body"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT transcript_key_vault_secret FROM profiles WHERE id = '{{ $('Get GUIDs, User_ID, Podcast_ID').item.json.user_id }}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2704,
+        16
+      ],
+      "id": "59ec0edc-68dd-4091-8966-3110a9c19e5e",
+      "name": "Get transcript api key vault secret",
+      "credentials": {
+        "postgres": {
+          "id": "loHyKG67vLMDy8GM",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT openai_key_vault_secret FROM profiles WHERE id = '{{ $('Get GUIDs, User_ID, Podcast_ID').item.json.user_id }}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        4208,
+        16
+      ],
+      "id": "de36bc2c-ad81-4f42-b232-bb9060ebd0e8",
+      "name": "Get openai api key vault secret",
+      "credentials": {
+        "postgres": {
+          "id": "loHyKG67vLMDy8GM",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT decrypted_secret \nFROM vault.decrypted_secrets \nWHERE id = '{{ $json.openai_key_vault_secret }}';",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        4464,
+        16
+      ],
+      "id": "99b1b6bc-8852-4d0a-8ba0-6d816255c4ab",
+      "name": "Get OpenAI API Key",
+      "alwaysOutputData": false,
+      "credentials": {
+        "postgres": {
+          "id": "loHyKG67vLMDy8GM",
+          "name": "Postgres account"
+        }
+      }
     }
   ],
   "pinData": {
@@ -703,19 +845,19 @@
           "headers": {
             "host": "n8n-railway-production-519d.up.railway.app",
             "user-agent": "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.69.4)",
-            "content-length": "1079",
+            "content-length": "1231",
             "accept": "*/*",
             "accept-encoding": "gzip,br",
             "accept-language": "*",
             "authorization": "xXoFdKtnFp2f4VpcHPGN3e3XFNBi6u",
             "content-type": "application/json",
-            "x-forwarded-for": "18.194.244.149",
+            "x-forwarded-for": "18.153.100.3",
             "x-forwarded-host": "n8n-railway-production-519d.up.railway.app",
             "x-forwarded-proto": "https",
             "x-railway-edge": "railway/europe-west4-drams3a",
-            "x-railway-request-id": "KkNzEx2JTD2gpH9T5nX1uw",
-            "x-real-ip": "18.194.244.149",
-            "x-request-start": "1756930273593"
+            "x-railway-request-id": "GqOzkRNXSLmnBjgEYqdHTg",
+            "x-real-ip": "18.153.100.3",
+            "x-request-start": "1761199205689"
           },
           "params": {},
           "query": {},
@@ -744,6 +886,11 @@
               "user_id": "ae11b2ca-64c9-4e82-a820-ab3b6a25f9e4",
               "url": "https://anchor.fm/s/fcc8f274/podcast/rss",
               "podcast_id": "37c9240b-a617-4051-83fd-661b6fe6b640"
+            },
+            {
+              "user_id": "ae11b2ca-64c9-4e82-a820-ab3b6a25f9e4",
+              "url": "https://anchor.fm/s/f23bffe0/podcast/rss",
+              "podcast_id": "83ecbc57-4613-4778-8d74-0aae5b774acc"
             },
             {
               "user_id": "ae11b2ca-64c9-4e82-a820-ab3b6a25f9e4",
@@ -881,7 +1028,7 @@
         ],
         [
           {
-            "node": "Get Podcast Info",
+            "node": "Get openai api key vault secret",
             "type": "main",
             "index": 0
           }
@@ -901,13 +1048,7 @@
     },
     "Basic LLM Chain": {
       "main": [
-        [
-          {
-            "node": "Create a row",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "When Executed by Another Workflow": {
@@ -947,7 +1088,7 @@
       "main": [
         [
           {
-            "node": "Get Transcript API Key",
+            "node": "Get transcript api key vault secret",
             "type": "main",
             "index": 0
           }
@@ -958,7 +1099,7 @@
       "main": [
         [
           {
-            "node": "Basic LLM Chain",
+            "node": "Set LLM Prompts",
             "type": "main",
             "index": 0
           }
@@ -1059,13 +1200,79 @@
           }
         ]
       ]
+    },
+    "Set LLM Prompts": {
+      "main": [
+        [
+          {
+            "node": "json body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI API Request": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "json body": {
+      "main": [
+        [
+          {
+            "node": "OpenAI API Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get transcript api key vault secret": {
+      "main": [
+        [
+          {
+            "node": "Get Transcript API Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get openai api key vault secret": {
+      "main": [
+        [
+          {
+            "node": "Get OpenAI API Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get OpenAI API Key": {
+      "main": [
+        [
+          {
+            "node": "Get Podcast Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "48da561c-a42c-441a-95aa-b12783ec972b",
+  "versionId": "ef794d1d-4942-4b11-96e8-2658428a7a61",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "f5707d3666ba184efe554775a181f51837c332c4fa57af1133598e1ba699e314"

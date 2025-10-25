@@ -1799,7 +1799,13 @@
             "index": 0
           }
         ],
-        [],
+        [
+          {
+            "node": "Execute URL Content Scraper",
+            "type": "main",
+            "index": 0
+          }
+        ],
         [
           {
             "node": "Fetch Webpage with Jina.ai",
@@ -2036,7 +2042,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "0aa3ee71-e506-4632-9a5f-2615726f807e",
+  "versionId": "294a92dd-f9c4-4824-aafd-09f98689fa69",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "f5707d3666ba184efe554775a181f51837c332c4fa57af1133598e1ba699e314"

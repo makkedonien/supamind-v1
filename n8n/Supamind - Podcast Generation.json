@@ -117,7 +117,7 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        -800,
+        -832,
         1088
       ],
       "id": "36040655-7e2a-4af2-8524-f0e84fa2c874",
@@ -379,7 +379,7 @@
         "nodeCredentialType": "supabaseApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"expiresIn\": 432000\n}",
+        "jsonBody": "={\n  \"expiresIn\": 2592000\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -399,7 +399,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  const now = new Date();\n  const tomorrow = new Date(now.getTime() + 5* 24 * 60 * 60 * 1000); // Add 1 day in ms\n  item.json.timestamp = tomorrow.toISOString(); // Compatible with Supabase timestampz\n}\n\nreturn $input.all();\n"
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  const now = new Date();\n  const tomorrow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // Add 1 day in ms\n  item.json.timestamp = tomorrow.toISOString(); // Compatible with Supabase timestampz\n}\n\nreturn $input.all();\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -528,7 +528,7 @@
             {
               "id": "c3743cbc-c838-401a-8f65-95a386707ded",
               "name": "prompt",
-              "value": "=You'll create a podcast script where two expert hosts take turns presenting comprehensive summaries of different content sources. Each host covers one source at a time, alternating throughout the episode. The tone should be that of a knowledgeable friend sharing fascinating summaries with clear \"so what?\" implications.\n\nCRITICAL: This is a comprehensive yet engaging podcast. While we dive deep into content, every second should deliver value. Start with impact, maintain momentum throughout detailed explanations.\n\nHOST PERSONAS\nBoth Hosts: Expert curators who are genuinely excited about sharing knowledge. They speak with authority but remain approachable, like that friend who always has the most interesting articles to share and knows exactly why they matter. They guide listeners through complex content with clarity and enthusiasm.\n\nSTRUCTURAL FRAMEWORK (COMPREHENSIVE & ENGAGING)\n\nOpening (Max 15 seconds)\nHost 1: [Number] fascinating deep dives coming your way. I'm [name], here with [name].\nHost 2: We're exploring [brief topic area]. Let's jump in.\nOR\nHost 1: Welcome back. I'm [name] with [name]. Today: [ultra-brief topic teaser].\nHost 2: [Number] pieces that'll expand your understanding. Here we go.\n\nContent Presentation Format\n\nFor each content source, the presenting host should:\n\n1. Introduction & Hook (15 seconds)\n- Start with publisher name and source title\n- Provide high-level outline that hooks the listener\n- Give first idea of what the source covers\nExample: \"This comes from [Publisher Name] with the title '[Source Title]'. They're exploring how [high-level topic], uncovering [intriguing angle]. What they found challenges everything we thought about [subject].\"\nAlternative: \"[Publisher Name] just released '[Source Title]', and it's a deep dive into [topic]. They're essentially arguing that [main thesis], and the evidence they present is compelling.\"\n\n2. The Core Summary (120-180 seconds)\n- Comprehensive walkthrough of the content\n- Cover ALL relevant key points and ideas\n- Include specifics: numbers, percentages, concrete outcomes\n- Structure as a narrative journey through the article\n- Use transitions like: \"They start by explaining...\" \"Then they dive into...\" \"What's fascinating is how they connect...\"\n- Include important context and background\n- Mention methodology if it strengthens understanding\n- Quote key phrases if particularly impactful\n- Address counterarguments or limitations mentioned\nExample flow: \"Let me walk you through this. They begin with [opening point]. The research shows [specific finding with numbers]. But here's where it gets interesting - they discovered [key insight]. This connects to [broader context]. They also found [additional finding], which means [implication]...\"\n\n3. The \"So What?\" (30-120 seconds)\n- Key takeaways clearly articulated\n- Immediate impacts on listeners' lives\n- Bigger picture implications\n- Multiple actionable insights\n- What to remember and why it matters\nStructure: \"So what does this mean for you? First, [immediate application]. Second, [broader implication]. If you're someone who [relevant situation], this fundamentally changes [specific aspect]. The key things to remember: [bullet-point style takeaways]. This shifts our understanding of [field/topic] because [reason].\"\n\n4. The Handoff (5-10 seconds)\n- Quick synthesis: \"So [one-sentence summary]. [Other host], what've you got?\"\n- Direct pass: \"That's [topic 1]. Your turn, [name].\"\n- Fast connection: \"Which brings us to your piece on...\"\n\nTONE AND DELIVERY GUIDELINES\n\nExpert Guide Approach\n- Comprehensive but accessible: \"Let me break this down for you...\"\n- Knowledgeable walkthrough: \"What they're really saying here is...\"\n- Patient explanation: \"To understand this, you need to know...\"\n- Genuine enthusiasm: \"This part completely changed my perspective...\"\n- Clear signposting: \"There are three main arguments here...\"\n\nLanguage Patterns\n- Guide through complexity: \"Follow me on this journey...\"\n- Build understanding: \"Once you grasp this, the next part makes sense...\"\n- Connect dots: \"This relates back to what we discussed about...\"\n- Highlight significance: \"Don't miss this crucial point...\"\n\nMaking Complex Ideas Accessible\n- Layer information: Start simple, build complexity\n- Use analogies throughout: \"Think of it like...\"\n- Provide context: \"To put this in perspective...\"\n- Summarize periodically: \"So far, we've learned...\"\n\nPACING AND LENGTH\n\nTarget Length: 10-22 minutes total\n- 2 sources: 6-11 minutes\n- 3 sources: 9-17 minutes\n- 4+ sources: 12-22 minutes\n\nPer source: 3-5.5 minutes each\n- Introduction & Hook: 15 seconds\n- Core Summary: 2-3 minutes (120-180 seconds)\n- \"So What?\": 30 seconds-2 minutes (30-120 seconds)\n- Handoff: 5-10 seconds\n\nOpening: Max 15 seconds\nEnding: 20-30 seconds\nSpeaking pace: Measured but engaging\nPauses: Strategic moments for absorption\n\nTRANSITION TECHNIQUES\nBetween sources, create smooth bridges:\n- Thematic connection: \"From [topic 1]'s implications, [Host 2] has something that builds on this...\"\n- Contrast bridge: \"While I covered [angle 1], you found a completely different perspective...\"\n- Natural flow: \"That transformation story sets up your piece perfectly...\"\n\nSPECIFIC PHRASES AND PATTERNS\n\nOpening a segment:\n- Publisher intro: \"[Publisher] published '[Title]', and it's a masterclass in [topic]...\"\n- Context setting: \"To understand '[Title]' from [Publisher], you need to know...\"\n- Thesis statement: \"[Publisher]'s '[Title]' makes a bold claim: [main argument]...\"\n\nWalking through content:\n- \"The authors argue that...\"\n- \"They present three main pieces of evidence...\"\n- \"What struck me most was their point about...\"\n- \"They systematically demonstrate...\"\n- \"The data reveals something unexpected...\"\n\nExplaining significance:\n- \"Here's why this matters to you...\"\n- \"The implications are far-reaching...\"\n- \"This fundamentally changes how we should...\"\n- \"What you need to take away from this...\"\n\nENDING (20-30 seconds)\nHost 1: That's [number] deep dives into [topic area].\nHost 2: We've covered [brief summary of journey]. Links to everything in the show notes.\nHost 1: Until next time, keep exploring!\n\nQUALITY CHECKLIST\nFor each source segment, ensure:\n☑ Publisher and title clearly stated upfront\n☑ Comprehensive coverage of all main points\n☑ Specific data and examples included\n☑ Complex ideas made accessible\n☑ Multiple clear takeaways provided\n☑ Natural narrative flow throughout\n☑ Genuine enthusiasm and expertise conveyed\n☑ Sufficient depth without losing clarity\n\nWHAT TO AVOID\n❌ Rushing through complex ideas\n❌ Skipping important context\n❌ Vague summaries without specifics\n❌ Missing key arguments or evidence\n❌ Superficial treatment of deep content\n✅ Instead: Guide thoroughly through the material while maintaining engagement\n\nOUTPUT FORMAT\nPlease read aloud the following in a podcast style:\n\nHost 1: [Brief opening - max 15 seconds]\nHost 2: [Quick acknowledgment]\n\nHost 1: [Publisher/Title introduction and hook - 15 seconds]\n[Core summary - 2-3 minutes]\n[So what? - 30 seconds-2 minutes]\n[Handoff]\n\nHost 2: [Publisher/Title introduction and hook - 15 seconds]\n[Core summary - 2-3 minutes]\n[So what? - 30 seconds-2 minutes]\n[Handoff]\n\n[Continue alternating as needed]\n\nEXAMPLE SOURCE SEGMENT:\nHost 1: This comes from Nature Neuroscience with the title 'Digital Detox and Neural Plasticity'. They're investigating whether our smartphones are physically changing our brain structure, and spoiler alert: they absolutely are.\n\nLet me walk you through what they found. The Stanford team scanned 200 participants' brains before and after a 30-day complete digital detox - no smartphones, minimal computer use. They used fMRI imaging to track changes in gray matter density across different brain regions. \n\nInitially, they documented the baseline: heavy smartphone users showed 20% less gray matter in the prefrontal cortex compared to historical data from pre-smartphone era. That's your executive function center - decision-making, impulse control, attention management. But here's where it gets fascinating - after just 30 days offline, participants showed a 15% increase in gray matter in these exact regions. That's comparable to the neural growth from intensive language learning.\n\nThey also tracked the amygdala - your brain's alarm system. Heavy users started with enlarged amygdalas, indicating chronic stress response. Post-detox? An average 12% reduction in size, correlating with self-reported anxiety dropping by 40%. The researchers noted this is the first documented case of reversible structural brain changes from behavioral tech modification.\n\nBut they went deeper. They found that notification sounds triggered fight-or-flight responses identical to predator sounds in evolutionary terms. Your brain literally can't distinguish between a text alert and a tiger roar at the neurochemical level. They measured cortisol spikes of 23% within two seconds of notification sounds.\n\nSo what does this mean for you? First, every interaction with your phone is a neurological event that reshapes your brain. This isn't metaphorical - it's measurable, physical change. Second, the damage is reversible, but it requires actual abstinence, not just reduction. Their data showed that even checking your phone once daily prevented most recovery. \n\nThird, and this is crucial - the study suggests we're in the middle of an uncontrolled experiment in human neural modification. No previous technology has shown this level of structural brain impact this quickly. If you're struggling with focus, anxiety, or decision-making, your phone might be literally eroding the brain regions responsible for these functions.\n\nThe takeaway? A true 30-day detox could be the most powerful cognitive enhancement tool available. The researchers are calling for device-free periods to become as common as sleep hygiene. Your brain's plasticity is both the problem and the solution.\n\nSo that's the neuroscience of why your phone feels addictive - because it's physically addicting your brain. Sarah, what've you got?\n\n# SOURCE(S) TO CREATE TRANSCRIPT FROM\n\n{{ JSON.stringify($json.data) }}\n\n# OTHER\n\nIMPORTANT: Only output the transcript and use \\n in between speakers dialog\nIMPORTANT: Your response must start with ...\n\"Please read aloud the following in a podcast interview style:\nHost 1: \"",
+              "value": "=You'll create a podcast script where two expert hosts take turns presenting comprehensive summaries of different content sources. Each host covers one source at a time, alternating throughout the episode. The tone should be that of a knowledgeable friend sharing fascinating summaries with clear \"so what?\" implications.\n\nCRITICAL: This is a comprehensive yet engaging podcast. While we dive deep into content, every second should deliver value. Start with impact, maintain momentum throughout detailed explanations.\n\nHOST PERSONAS\nBoth Hosts: Expert curators who are genuinely excited about sharing knowledge. They speak with authority but remain approachable, like that friend who always has the most interesting articles to share and knows exactly why they matter. They guide listeners through complex content with clarity and enthusiasm.\n\nSTRUCTURAL FRAMEWORK (COMPREHENSIVE & ENGAGING)\n\nOpening (Max 15 seconds)\nHost 1: Hey there, here are [Number] deep dives coming your way. I'm [name], here with [name].\nHost 2: We're exploring [brief topic area]. Let's jump in.\nOR\nHost 1: Welcome back. I'm [name] with [name]. Today: [ultra-brief topic teaser].\nHost 2: [Number] pieces that'll expand your understanding. Here we go.\n\nContent Presentation Format\n\nFor each content source, the presenting host should:\n\n1. Introduction & Hook (15 seconds)\n- Start with publisher name and source title\n- Provide high-level outline that hooks the listener\n- Give first idea of what the source covers\nExample: \"This comes from [Publisher Name] with the title '[Source Title]'. They're exploring how [high-level topic], uncovering [intriguing angle]. What they found challenges what we thought about [subject].\"\nAlternative: \"[Publisher Name] just released '[Source Title]', and it's a deep dive into [topic]. They're essentially arguing that [main thesis].\"\n\n2. The Core Summary (120-180 seconds)\n- Comprehensive walkthrough of the content\n- Cover ALL relevant key points and ideas\n- Include specifics: numbers, percentages, concrete outcomes\n- Structure as a narrative journey through the article\n- Use transitions like: \"They start by explaining...\" \"Then they dive into...\" \"What's interesting is how they connect...\"\n- Include important context and background\n- Mention methodology if it strengthens understanding\n- Quote key phrases if particularly impactful\n- Address counterarguments or limitations mentioned\nExample flow: \"Let me walk you through this. They begin with [opening point]. The research shows [specific finding with numbers]. But here's where it gets interesting - they discovered [key insight]. This connects to [broader context]. They also found [additional finding], which means [implication]...\"\n\n3. The \"So What?\" (30-120 seconds)\n- Key takeaways clearly articulated\n- Immediate impacts on listeners' lives\n- Bigger picture implications\n- Multiple actionable insights\n- What to remember and why it matters\nStructure: \"So what does this mean for you? First, [immediate application]. Second, [broader implication]. If you're someone who [relevant situation], this fundamentally changes [specific aspect]. The key things to remember: [bullet-point style takeaways]. This shifts our understanding of [field/topic] because [reason].\"\n\n4. The Handoff (5-10 seconds)\n- Quick synthesis: \"So [one-sentence summary]. [Other host], what've you got?\"\n- Direct pass: \"That's [topic 1]. Your turn, [name].\"\n- Fast connection: \"Which brings us to your piece on...\"\n\nTONE AND DELIVERY GUIDELINES\n\nExpert Guide Approach\n- Comprehensive but accessible: \"Let me break this down for you...\"\n- Knowledgeable walkthrough: \"What they're really saying here is...\"\n- Patient explanation: \"To understand this, you need to know...\"\n- Clear signposting: \"There are three main arguments here...\"\n\nLanguage Patterns\n- Guide through complexity: \"Follow me on this journey...\"\n- Build understanding: \"Once you grasp this, the next part makes sense...\"\n- Connect dots: \"This relates back to what we discussed about...\"\n- Highlight significance: \"Don't miss this crucial point...\"\n\nMaking Complex Ideas Accessible\n- Layer information: Start simple, build complexity\n- Use analogies throughout: \"Think of it like...\"\n- Provide context: \"To put this in perspective...\"\n- Summarize periodically: \"So far, we've learned...\"\n\nPACING AND LENGTH\n\nTarget Length: 10-22 minutes total\n- 2 sources: 6-11 minutes\n- 3 sources: 9-17 minutes\n- 4+ sources: 12-22 minutes\n\nPer source: 3-5.5 minutes each\n- Introduction & Hook: 15 seconds\n- Core Summary: 2-3 minutes (120-180 seconds)\n- \"So What?\": 30 seconds-2 minutes (30-120 seconds)\n- Handoff: 5-10 seconds\n\nOpening: Max 15 seconds\nEnding: 20-30 seconds\nSpeaking pace: Measured but engaging\nPauses: Strategic moments for absorption\n\nTRANSITION TECHNIQUES\nBetween sources, create smooth bridges:\n- Thematic connection: \"From [topic 1]'s implications, [Host 2] has something that builds on this...\"\n- Contrast bridge: \"While I covered [angle 1], you found a completely different perspective...\"\n- Natural flow: \"That transformation story sets up your piece perfectly...\"\n\nSPECIFIC PHRASES AND PATTERNS\n\nOpening a segment:\n- Publisher intro: \"[Publisher] published '[Title]', and it's a masterclass in [topic]...\"\n- Context setting: \"To understand '[Title]' from [Publisher], you need to know...\"\n- Thesis statement: \"[Publisher]'s '[Title]' makes a bold claim: [main argument]...\"\n\nWalking through content:\n- \"The authors argue that...\"\n- \"They present three main pieces of evidence...\"\n- \"What struck me most was their point about...\"\n- \"They systematically demonstrate...\"\n- \"The data reveals something unexpected...\"\n\nExplaining significance:\n- \"Here's why this matters to you...\"\n- \"The implications are far-reaching...\"\n- \"This fundamentally changes how we should...\"\n- \"What you need to take away from this...\"\n\nENDING (20-30 seconds)\nHost 1: That's [number] deep dives into [topic area].\nHost 2: We've covered [brief summary of journey]. Links to everything in the show notes.\nHost 1: Until next time, keep exploring!\n\nQUALITY CHECKLIST\nFor each source segment, ensure:\n☑ Publisher and title clearly stated upfront\n☑ Comprehensive coverage of all main points\n☑ Specific data and examples included\n☑ Complex ideas made accessible\n☑ Multiple clear takeaways provided\n☑ Natural narrative flow throughout\n☑ Genuine enthusiasm and expertise conveyed\n☑ Sufficient depth without losing clarity\n\nWHAT TO AVOID\n❌ Rushing through complex ideas\n❌ Skipping important context\n❌ Vague summaries without specifics\n❌ Missing key arguments or evidence\n❌ Superficial treatment of deep content\n❌ Overly and exaggerated bold introduction statements such as \"This article is a masterclass in [Subject]\"\n\n✅ Instead: Guide thoroughly through the material while maintaining engagement\n\nOUTPUT FORMAT\nPlease read aloud the following in a podcast style:\n\nHost 1: [Brief opening - max 15 seconds]\nHost 2: [Quick acknowledgment]\n\nHost 1: [Publisher/Title introduction and hook - 15 seconds]\n[Core summary - 2-3 minutes]\n[So what? - 30 seconds-2 minutes]\n[Handoff]\n\nHost 2: [Publisher/Title introduction and hook - 15 seconds]\n[Core summary - 2-3 minutes]\n[So what? - 30 seconds-2 minutes]\n[Handoff]\n\n[Continue alternating as needed]\n\nEXAMPLE SOURCE SEGMENT:\nHost 1: This comes from Nature Neuroscience with the title 'Digital Detox and Neural Plasticity'. They're investigating whether our smartphones are physically changing our brain structure, and spoiler alert: they absolutely are.\n\nLet me walk you through what they found. The Stanford team scanned 200 participants' brains before and after a 30-day complete digital detox - no smartphones, minimal computer use. They used fMRI imaging to track changes in gray matter density across different brain regions. \n\nInitially, they documented the baseline: heavy smartphone users showed 20% less gray matter in the prefrontal cortex compared to historical data from pre-smartphone era. That's your executive function center - decision-making, impulse control, attention management. But here's where it gets fascinating - after just 30 days offline, participants showed a 15% increase in gray matter in these exact regions. That's comparable to the neural growth from intensive language learning.\n\nThey also tracked the amygdala - your brain's alarm system. Heavy users started with enlarged amygdalas, indicating chronic stress response. Post-detox? An average 12% reduction in size, correlating with self-reported anxiety dropping by 40%. The researchers noted this is the first documented case of reversible structural brain changes from behavioral tech modification.\n\nBut they went deeper. They found that notification sounds triggered fight-or-flight responses identical to predator sounds in evolutionary terms. Your brain literally can't distinguish between a text alert and a tiger roar at the neurochemical level. They measured cortisol spikes of 23% within two seconds of notification sounds.\n\nSo what does this mean for you? First, every interaction with your phone is a neurological event that reshapes your brain. This isn't metaphorical - it's measurable, physical change. Second, the damage is reversible, but it requires actual abstinence, not just reduction. Their data showed that even checking your phone once daily prevented most recovery. \n\nThird, and this is crucial - the study suggests we're in the middle of an uncontrolled experiment in human neural modification. No previous technology has shown this level of structural brain impact this quickly. If you're struggling with focus, anxiety, or decision-making, your phone might be literally eroding the brain regions responsible for these functions.\n\nThe takeaway? A true 30-day detox could be the most powerful cognitive enhancement tool available. The researchers are calling for device-free periods to become as common as sleep hygiene. Your brain's plasticity is both the problem and the solution.\n\nSo that's the neuroscience of why your phone feels addictive - because it's physically addicting your brain. Sarah, what've you got?\n\n# SOURCE(S) TO CREATE TRANSCRIPT FROM\n\n{{ JSON.stringify($json.data) }}\n\n# OTHER\n\nIMPORTANT: Only output the transcript and use \\n in between speakers dialog\nIMPORTANT: Your response must start with ...\n\"Please read aloud the following in a podcast interview style:\nHost 1: \"",
               "type": "string"
             }
           ]
@@ -553,8 +553,8 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.7,
       "position": [
-        1312,
-        912
+        1536,
+        528
       ],
       "id": "30e39dca-568d-44f5-bd8d-baab35449f8d",
       "name": "Basic LLM Chain1",
@@ -566,11 +566,22 @@
       "parameters": {
         "method": "POST",
         "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "googlePalmApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-goog-api-key",
+              "value": "={{ $('Get Gemini API Key').item.json.decrypted_secret }}"
+            }
+          ]
+        },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"contents\": [{\n    \"parts\":[{\n      \"text\": {{ JSON.stringify($json.text) }}\n    }]\n  }],\n  \"generationConfig\": {\n    \"responseModalities\": [\"AUDIO\"],\n    \"speechConfig\": {\n      \"multiSpeakerVoiceConfig\": {\n        \"speakerVoiceConfigs\": [{\n            \"speaker\": \"Joe\",\n            \"voiceConfig\": {\n              \"prebuiltVoiceConfig\": {\n                \"voiceName\": \"Algenib\"\n              }\n            }\n          }, {\n            \"speaker\": \"Jane\",\n            \"voiceConfig\": {\n              \"prebuiltVoiceConfig\": {\n                \"voiceName\": \"Kore\"\n              }\n            }\n          }]\n      }\n    }\n  },\n  \"model\": \"gemini-2.5-flash-preview-tts\"\n}",
+        "jsonBody": "={\n  \"contents\": [{\n    \"parts\":[{\n      \"text\": {{ JSON.stringify($json.choices[0].message.content) }}\n    }]\n  }],\n  \"generationConfig\": {\n    \"responseModalities\": [\"AUDIO\"],\n    \"speechConfig\": {\n      \"multiSpeakerVoiceConfig\": {\n        \"speakerVoiceConfigs\": [{\n            \"speaker\": \"Joe\",\n            \"voiceConfig\": {\n              \"prebuiltVoiceConfig\": {\n                \"voiceName\": \"Algenib\"\n              }\n            }\n          }, {\n            \"speaker\": \"Jane\",\n            \"voiceConfig\": {\n              \"prebuiltVoiceConfig\": {\n                \"voiceName\": \"Kore\"\n              }\n            }\n          }]\n      }\n    }\n  },\n  \"model\": \"gemini-2.5-flash-preview-tts\"\n}",
         "options": {
           "timeout": 1800000
         }
@@ -578,20 +589,14 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1728,
-        912
+        2304,
+        928
       ],
       "id": "d23bd32b-3cd6-4b50-9a63-bdb7a326cd6b",
       "name": "Generate Audio1",
       "retryOnFail": true,
       "waitBetweenTries": 5000,
-      "maxTries": 2,
-      "credentials": {
-        "googlePalmApi": {
-          "id": "0Cl9BqX4cx9pQwrD",
-          "name": "Google Gemini(PaLM) Api account"
-        }
-      }
+      "maxTries": 2
     },
     {
       "parameters": {
@@ -605,8 +610,8 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        1952,
-        912
+        2496,
+        928
       ],
       "id": "7fefd841-1dfb-4168-aa08-04d8b0f2b575",
       "name": "Convert to File1"
@@ -620,8 +625,8 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1,
       "position": [
-        2176,
-        912
+        2688,
+        928
       ],
       "id": "ee2742d9-8029-4863-b2bd-145fb734f3b7",
       "name": "Read/Write Files from Disk2"
@@ -633,8 +638,8 @@
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
       "position": [
-        2416,
-        912
+        2880,
+        928
       ],
       "id": "c11e7e04-27ab-44f5-b5c8-1aa81d6fb4dc",
       "name": "Execute Command1"
@@ -647,8 +652,8 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1,
       "position": [
-        2640,
-        912
+        3104,
+        928
       ],
       "id": "6b040b99-4580-4fcd-8c96-6234a7e7caea",
       "name": "Read/Write Files from Disk3"
@@ -683,8 +688,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [
-        2848,
-        912
+        3312,
+        928
       ],
       "credentials": {
         "supabaseApi": {
@@ -701,14 +706,14 @@
         "nodeCredentialType": "supabaseApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"expiresIn\": 432000\n}",
+        "jsonBody": "={\n  \"expiresIn\": 2592000\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        3056,
-        912
+        3520,
+        928
       ],
       "id": "3757b22a-6a15-4696-85e4-04cab1649134",
       "name": "Generate Signed URL1",
@@ -721,13 +726,13 @@
     },
     {
       "parameters": {
-        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  const now = new Date();\n  const tomorrow = new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000); // Add 1 day in ms\n  item.json.timestamp = tomorrow.toISOString(); // Compatible with Supabase timestampz\n}\n\nreturn $input.all();\n"
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  const now = new Date();\n  const tomorrow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // Add 1 day in ms\n  item.json.timestamp = tomorrow.toISOString(); // Compatible with Supabase timestampz\n}\n\nreturn $input.all();\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3296,
-        912
+        3744,
+        928
       ],
       "id": "9ddae48f-4857-4782-96b5-1ee615c8524b",
       "name": "Generate Timestamp for Expires1"
@@ -812,8 +817,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.2,
       "position": [
-        1312,
-        1072
+        1536,
+        688
       ],
       "id": "2b32dcd7-8b6f-454a-9a3d-a5110b22956b",
       "name": "OpenAI Chat Model1",
@@ -874,8 +879,8 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        3552,
-        912
+        3920,
+        928
       ],
       "id": "3cc01404-5892-43ae-942e-286d3ed1a2d6",
       "name": "Update a row",
@@ -910,7 +915,7 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        4032,
+        4592,
         1040
       ],
       "id": "bb8dd773-dd59-433c-bdc8-345b353ddc31",
@@ -932,11 +937,172 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        3840,
+        4400,
         1040
       ],
       "id": "78473071-a52c-47ad-b5ef-fc9ba2cf20da",
       "name": "Execute a SQL query1",
+      "credentials": {
+        "postgres": {
+          "id": "loHyKG67vLMDy8GM",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT openai_key_vault_secret FROM profiles WHERE id = '{{ $('Webhook').item.json.body.user_id }}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1376,
+        928
+      ],
+      "id": "b43d4ebe-0813-4774-ae58-7f5feaac11e8",
+      "name": "Get openai api key vault secret",
+      "credentials": {
+        "postgres": {
+          "id": "loHyKG67vLMDy8GM",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Get OpenAI API Key').item.json.decrypted_secret }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $('json body').item.json.data }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2128,
+        928
+      ],
+      "id": "6ff368fb-bb92-44a1-99fc-a18e97350de6",
+      "name": "OpenAI API Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const prompt = $input.first().json['prompt'];\n\nreturn {\n  json: {\n    data: {\n      model: 'gpt-5',\n      messages: [\n        { role: 'user', content: prompt }\n      ],\n      max_completion_tokens: 1800,\n      reasoning_effort: 'medium',\n      verbosity: 'medium',\n      temperature: 1\n    }\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        928
+      ],
+      "id": "d73229b0-832a-4f6f-9de1-ca819c1858de",
+      "name": "json body"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [{\n    \"parts\":[{\n      \"text\": {{ JSON.stringify($json.text) }}\n    }]\n  }],\n  \"generationConfig\": {\n    \"responseModalities\": [\"AUDIO\"],\n    \"speechConfig\": {\n      \"multiSpeakerVoiceConfig\": {\n        \"speakerVoiceConfigs\": [{\n            \"speaker\": \"Joe\",\n            \"voiceConfig\": {\n              \"prebuiltVoiceConfig\": {\n                \"voiceName\": \"Algenib\"\n              }\n            }\n          }, {\n            \"speaker\": \"Jane\",\n            \"voiceConfig\": {\n              \"prebuiltVoiceConfig\": {\n                \"voiceName\": \"Kore\"\n              }\n            }\n          }]\n      }\n    }\n  },\n  \"model\": \"gemini-2.5-flash-preview-tts\"\n}",
+        "options": {
+          "timeout": 1800000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1920,
+        528
+      ],
+      "id": "4be848c1-a8b3-432d-84ca-843f43d8035b",
+      "name": "Generate Audio3",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "maxTries": 2,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "0Cl9BqX4cx9pQwrD",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT gemini_key_vault_secret FROM profiles WHERE id = '{{ $('Webhook').item.json.body.user_id }}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1760,
+        928
+      ],
+      "id": "c37f16a9-8233-4009-b96e-8c9e3230b67d",
+      "name": "Get Gemini api key vault secret",
+      "credentials": {
+        "postgres": {
+          "id": "loHyKG67vLMDy8GM",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT decrypted_secret \nFROM vault.decrypted_secrets \nWHERE id = '{{ $json.gemini_key_vault_secret }}';",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1936,
+        928
+      ],
+      "id": "26c778aa-9e66-4b61-b50a-66f7745da134",
+      "name": "Get Gemini API Key",
+      "alwaysOutputData": false,
+      "credentials": {
+        "postgres": {
+          "id": "loHyKG67vLMDy8GM",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT decrypted_secret \nFROM vault.decrypted_secrets \nWHERE id = '{{ $json.openai_key_vault_secret }}';",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1552,
+        928
+      ],
+      "id": "617a0f5b-b2a2-424d-a028-d8bbdf6106d1",
+      "name": "Get OpenAI API Key",
+      "alwaysOutputData": false,
       "credentials": {
         "postgres": {
           "id": "loHyKG67vLMDy8GM",
@@ -951,28 +1117,28 @@
         "json": {
           "headers": {
             "host": "n8n-railway-production-519d.up.railway.app",
-            "user-agent": "Deno/1.45.2 (variant; SupabaseEdgeRuntime/1.68.3)",
+            "user-agent": "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.69.4)",
             "content-length": "298",
             "accept": "*/*",
-            "accept-encoding": "gzip, br",
+            "accept-encoding": "gzip,br",
             "accept-language": "*",
             "authorization": "xXoFdKtnFp2f4VpcHPGN3e3XFNBi6u",
             "content-type": "application/json",
-            "x-forwarded-for": "18.192.178.229",
+            "x-forwarded-for": "3.71.255.136",
             "x-forwarded-host": "n8n-railway-production-519d.up.railway.app",
             "x-forwarded-proto": "https",
             "x-railway-edge": "railway/europe-west4-drams3a",
-            "x-railway-request-id": "xtFDFfFDT6S20goess7a6g",
-            "x-real-ip": "18.192.178.229",
-            "x-request-start": "1754599197478"
+            "x-railway-request-id": "GS7zbhl_S6GiIwUVYqdHTg",
+            "x-real-ip": "3.71.255.136",
+            "x-request-start": "1761345830329"
           },
           "params": {},
           "query": {},
           "body": {
-            "microcast_id": "50507083-af5f-4166-84ae-f326ae88016a",
+            "microcast_id": "bef17699-2397-422f-ad72-e732e3d8bb10",
             "source_ids": [
-              "fa7ea9bc-4975-4bed-a94b-0852c4695cc9",
-              "fa326b2a-f303-4ec5-a218-4d24c9036e68"
+              "653fbc6c-f06e-46c3-8907-8435dc58626f",
+              "340513a3-cd1a-41ce-ae3e-3c72c1afd802"
             ],
             "user_id": "ae11b2ca-64c9-4e82-a820-ab3b6a25f9e4",
             "callback_url": "https://ehqdibhqhevjnknojogm.supabase.co/functions/v1/microcast-generation-callback"
@@ -1204,7 +1370,7 @@
       "main": [
         [
           {
-            "node": "Basic LLM Chain1",
+            "node": "json body",
             "type": "main",
             "index": 0
           }
@@ -1213,13 +1379,7 @@
     },
     "Basic LLM Chain1": {
       "main": [
-        [
-          {
-            "node": "Generate Audio1",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Generate Audio1": {
@@ -1393,13 +1553,79 @@
           }
         ]
       ]
+    },
+    "Get openai api key vault secret": {
+      "main": [
+        [
+          {
+            "node": "Get OpenAI API Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI API Request": {
+      "main": [
+        [
+          {
+            "node": "Generate Audio1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "json body": {
+      "main": [
+        [
+          {
+            "node": "Get openai api key vault secret",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Gemini api key vault secret": {
+      "main": [
+        [
+          {
+            "node": "Get Gemini API Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Gemini API Key": {
+      "main": [
+        [
+          {
+            "node": "OpenAI API Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get OpenAI API Key": {
+      "main": [
+        [
+          {
+            "node": "Get Gemini api key vault secret",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "80765c21-42f0-4efb-821d-cbe58bb586bc",
+  "versionId": "a1ef8232-26a8-4be5-bc6f-7c97a17b6edb",
   "meta": {
     "instanceId": "f5707d3666ba184efe554775a181f51837c332c4fa57af1133598e1ba699e314"
   },

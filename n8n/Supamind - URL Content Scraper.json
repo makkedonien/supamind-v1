@@ -5,15 +5,8 @@
       "parameters": {
         "method": "POST",
         "url": "https://api.firecrawl.dev/v1/scrape",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Authorization",
-              "value": "Bearer fc-c77abf3248f848c3a9bf24541139a56c"
-            }
-          ]
-        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\n  \"url\": \"{{ $json.url }}\",\n  \"formats\": [\n    \"markdown\"\n  ],\n  \"onlyMainContent\": true,\n  \"waitFor\": 5000\n}",
@@ -26,7 +19,17 @@
         352
       ],
       "id": "0ecf828b-f785-4425-821a-19baf98f78e2",
-      "name": "HTTP Request"
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "gvJYxh53ckvIJCGJ",
+          "name": "Webhook Header Auth account"
+        },
+        "httpBearerAuth": {
+          "id": "rTr5dGV3t69NsU43",
+          "name": "Firecrawl API Bearer Auth"
+        }
+      }
     },
     {
       "parameters": {
@@ -60,6 +63,8 @@
     {
       "parameters": {
         "url": "=https://youtube-transcript3.p.rapidapi.com/api/transcript?videoId={{ $json.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
@@ -72,10 +77,6 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            {
-              "name": "x-rapidapi-key",
-              "value": "1745c5f2d9msh87ff331d0bfffa8p10bb57jsn9293271fb3ab"
-            },
             {
               "name": "x-rapidapi-host",
               "value": "youtube-transcript3.p.rapidapi.com"
@@ -91,7 +92,13 @@
         528
       ],
       "id": "c3cc0c5a-af67-48e6-be56-b19e39d6e7df",
-      "name": "HTTP Request3"
+      "name": "HTTP Request3",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "1RS4kv8N7yVsj9fN",
+          "name": "RapidAPI YouTube Transcript Header Auth"
+        }
+      }
     },
     {
       "parameters": {
@@ -211,15 +218,8 @@
       "parameters": {
         "method": "POST",
         "url": "https://api.firecrawl.dev/v1/scrape",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Authorization",
-              "value": "Bearer fc-c77abf3248f848c3a9bf24541139a56c"
-            }
-          ]
-        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\n  \"url\": \"{{ $json.url }}\",\n  \"formats\": [\n    \"markdown\"\n  ],\n  \"onlyMainContent\": true,\n  \"waitFor\": 5000,\n  \"headers\": {\n    \"cookie\": \"wordpress_test_cookie=WP%20Cookie%20check;__stripe_mid=1713fb77-d9c5-4914-97e4-a68f5284dd22420b17;wordpress_logged_in_240259a5d3f6770f12e9bf70696c0c0d=marcknoll%40gmail.com%7C1754858972%7C2pYgDpHT06xhNeSL359ii6UBepO66sYM7FfAUr7VlJn%7C17f4fbcbb58324a8872a5a8252d25f7d2c8cb10ce38684f14189508c6be67581\"\n  }\n}",
@@ -232,11 +232,17 @@
         160
       ],
       "id": "be035018-78e7-485e-bc8b-d89730a741fd",
-      "name": "HTTP Mobile Dev Memo"
+      "name": "HTTP Mobile Dev Memo",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "rTr5dGV3t69NsU43",
+          "name": "Firecrawl API Bearer Auth"
+        }
+      }
     },
     {
       "parameters": {
-        "jsCode": "// get the raw URL string\nconst urlString = $json.url;\nlet videoId = '';\n\n// try native parser first\ntry {\n  const url = new URL(urlString);\n  videoId = url.searchParams.get('v');\n} catch (e) {\n  // fallback to regex\n  const m = urlString.match(/(?:v=|youtu\\.be\\/)([A-Za-z0-9_-]{11})/);\n  if (m) videoId = m[1];\n}\n\n// output new item with videoId\nreturn [{ json: { videoId } }];"
+        "jsCode": "// get the raw URL string\nconst urlString = $json.url;\nlet videoId = '';\n\n// try native parser first\ntry {\n  const url = new URL(urlString);\n  \n  // Check for v= query parameter\n  videoId = url.searchParams.get('v');\n  \n  // If no query parameter, check for path-based formats like /live/, /embed/, /shorts/\n  if (!videoId) {\n    const pathMatch = url.pathname.match(/^\\/(live|embed|v|shorts)\\/([A-Za-z0-9_-]{11})/);\n    if (pathMatch) {\n      videoId = pathMatch[2];\n    }\n  }\n} catch (e) {\n  // fallback to regex for the entire URL string\n  const m = urlString.match(/(?:v=|youtu\\.be\\/|\\/live\\/|\\/embed\\/|\\/v\\/|\\/shorts\\/)([A-Za-z0-9_-]{11})/);\n  if (m) videoId = m[1];\n}\n\n// output new item with videoId\nreturn [{ json: { videoId } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -516,8 +522,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1,
       "position": [
-        688,
-        64
+        704,
+        -144
       ],
       "id": "12285a87-7fcc-43ea-8c6a-90a268f0901e",
       "name": "Google Gemini Chat Model1",
@@ -590,7 +596,7 @@
             {
               "id": "2575f231-cae4-49f3-8e76-7ea09cae2223",
               "name": "url",
-              "value": "={{ $('Edit Fields3').item.json.url }}",
+              "value": "={{ $('When Executed by Another Workflow').item.json.url }}",
               "type": "string"
             },
             {
@@ -623,13 +629,38 @@
       ],
       "id": "bb6769ba-0c0d-493c-baa5-d2187f6314c5",
       "name": "Edit Fields7"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        704,
+        80
+      ],
+      "id": "d30b5e52-7068-4cba-8e7f-c4269e14d977",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "vyxVe2RGE1yLgSDx",
+          "name": "OpenAi account"
+        }
+      }
     }
   ],
   "pinData": {
     "When Executed by Another Workflow": [
       {
         "json": {
-          "url": "https://www.youtube.com/watch?v=Ty7TqjHKBZo",
+          "url": "https://www.youtube.com/live/nm2RngDr2AY",
           "userId": "ae11b2ca-64c9-4e82-a820-ab3b6a25f9e4"
         }
       }
@@ -791,13 +822,7 @@
     },
     "Google Gemini Chat Model1": {
       "ai_languageModel": [
-        [
-          {
-            "node": "Basic LLM Chain1",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "When chat message received": {
@@ -821,13 +846,24 @@
           }
         ]
       ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "1bae62ba-3d7b-4891-a73e-468c38c18e68",
+  "versionId": "833f02e2-5e2e-44f1-a4aa-d4a10373bc87",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "f5707d3666ba184efe554775a181f51837c332c4fa57af1133598e1ba699e314"
