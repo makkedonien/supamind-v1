@@ -1,5 +1,6 @@
 import React from 'react';
 import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 
 interface EnhancedMarkdownRendererProps {
   content: string;
@@ -30,14 +31,16 @@ const EnhancedMarkdownRenderer: React.FC<EnhancedMarkdownRendererProps> = ({
       // Parse the markdown
       const result = marked.parse(markdown, { async: false }) as string;
       
-      // Return the HTML string
-      // Note: In a production environment, consider using DOMPurify here:
-      // return DOMPurify.sanitize(result);
-      return result;
+      // Sanitize the HTML to prevent XSS attacks
+      return DOMPurify.sanitize(result, {
+        ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'a', 'code', 'pre', 'blockquote', 'hr', 'table', 'thead', 'tbody', 'tr', 'th', 'td'],
+        ALLOWED_ATTR: ['href', 'class', 'target', 'rel'],
+        ALLOW_DATA_ATTR: false,
+      });
     } catch (error) {
       console.error('Error parsing markdown:', error);
-      // Fallback to plain text if parsing fails
-      return `<p>${markdown}</p>`;
+      // Fallback to sanitized plain text if parsing fails
+      return `<p>${DOMPurify.sanitize(markdown)}</p>`;
     }
   };
 

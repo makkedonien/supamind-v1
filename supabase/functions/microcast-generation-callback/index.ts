@@ -1,27 +1,58 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { verifyHmacSignature } from '../_shared/webhook-security.ts'
+import { isValidUUID } from '../_shared/validation.ts'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
-
+// No CORS headers needed for server-to-server callback
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { status: 204 })
   }
 
   try {
-    const body = await req.json()
-    console.log('Microcast generation callback received:', body)
+    // Get webhook secret from environment
+    const webhookSecret = Deno.env.get('WEBHOOK_SECRET');
+    let payload;
+    
+    if (webhookSecret) {
+      // Verify HMAC signature if secret is configured
+      const signature = req.headers.get('x-webhook-signature');
+      
+      if (!signature) {
+        console.error('Missing webhook signature');
+        return new Response(
+          JSON.stringify({ error: 'Missing webhook signature' }),
+          { status: 401, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
 
-    const { microcast_id, status, audio_url, title, error_message } = body
+      const body = await req.text();
+      const isValid = await verifyHmacSignature(body, signature, webhookSecret);
+      
+      if (!isValid) {
+        console.error('Invalid webhook signature');
+        return new Response(
+          JSON.stringify({ error: 'Invalid webhook signature' }),
+          { status: 401, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
 
-    if (!microcast_id) {
+      payload = JSON.parse(body);
+      console.log('Microcast generation callback received and verified');
+    } else {
+      // Fallback for existing deployments without webhook secret configured
+      console.warn('WEBHOOK_SECRET not configured - callback authentication disabled');
+      payload = await req.json();
+      console.log('Microcast generation callback received (unverified)');
+    }
+
+    const { microcast_id, status, audio_url, title, error_message } = payload;
+
+    if (!microcast_id || !isValidUUID(microcast_id)) {
       return new Response(
-        JSON.stringify({ error: 'Microcast ID is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+        JSON.stringify({ error: 'Valid microcast_id (UUID) is required' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
     }
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
@@ -39,7 +70,7 @@ serve(async (req) => {
       console.error('Error fetching microcast:', fetchError)
       return new Response(
         JSON.stringify({ error: 'Microcast not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 404, headers: { 'Content-Type': 'application/json' } }
       )
     }
 
@@ -100,7 +131,7 @@ serve(async (req) => {
       console.log('Unknown status received:', status)
       return new Response(
         JSON.stringify({ error: 'Invalid status' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
       )
     }
 
@@ -113,7 +144,7 @@ serve(async (req) => {
       }),
       { 
         status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        headers: { 'Content-Type': 'application/json' } 
       }
     )
 
@@ -125,7 +156,7 @@ serve(async (req) => {
       }),
       { 
         status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        headers: { 'Content-Type': 'application/json' } 
       }
     )
   }

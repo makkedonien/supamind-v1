@@ -1,30 +1,30 @@
 
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { handleCorsPreflightRequest, createCorsResponse, validateOrigin } from '../_shared/cors.ts'
+import { sanitizeString } from '../_shared/validation.ts'
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
 serve(async (req) => {
+  const origin = req.headers.get('origin');
+
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return handleCorsPreflightRequest(req);
   }
+
+  const originError = validateOrigin(req);
+  if (originError) return originError;
 
   try {
     const { content } = await req.json();
 
     if (!content) {
-      return new Response(
-        JSON.stringify({ error: 'Content is required' }), 
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
+      return createCorsResponse(
+        { error: 'Content is required' },
+        400,
+        origin
       );
     }
 
@@ -43,8 +43,16 @@ serve(async (req) => {
       // Content is already plain text
     }
 
-    // Truncate content to avoid token limits
-    const truncatedContent = textContent.substring(0, 1000);
+    // Sanitize and truncate content to avoid token limits
+    const sanitizedContent = sanitizeString(textContent, 1000);
+
+    if (!openAIApiKey) {
+      return createCorsResponse(
+        { error: 'OpenAI API key not configured' },
+        500,
+        origin
+      );
+    }
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -61,7 +69,7 @@ serve(async (req) => {
           },
           { 
             role: 'user', 
-            content: `Generate a 5-word title for this content: ${truncatedContent}` 
+            content: `Generate a 5-word title for this content: ${sanitizedContent}` 
           }
         ],
         max_tokens: 20,
@@ -70,28 +78,27 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.status}`);
+      console.error('OpenAI API error:', response.status)
+      return createCorsResponse(
+        { error: `OpenAI API error: ${response.status}` },
+        500,
+        origin
+      );
     }
 
     const data = await response.json();
     const generatedTitle = data.choices[0].message.content.trim();
 
-    console.log('Generated title:', generatedTitle);
+    console.log('Generated title successfully');
 
-    return new Response(
-      JSON.stringify({ title: generatedTitle }), 
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+    return createCorsResponse({ title: generatedTitle }, 200, origin);
+
   } catch (error) {
     console.error('Error in generate-note-title function:', error);
-    return new Response(
-      JSON.stringify({ error: error.message }), 
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
+    return createCorsResponse(
+      { error: error.message },
+      500,
+      origin
     );
   }
 });

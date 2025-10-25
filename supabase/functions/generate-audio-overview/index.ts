@@ -1,25 +1,28 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { handleCorsPreflightRequest, createCorsResponse, validateOrigin } from '../_shared/cors.ts'
+import { isValidUUID } from '../_shared/validation.ts'
 
 serve(async (req) => {
+  const origin = req.headers.get('origin');
+
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return handleCorsPreflightRequest(req);
   }
+
+  const originError = validateOrigin(req);
+  if (originError) return originError;
 
   try {
     const { notebookId } = await req.json()
     
-    if (!notebookId) {
-      return new Response(
-        JSON.stringify({ error: 'Notebook ID is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+    if (!notebookId || !isValidUUID(notebookId)) {
+      return createCorsResponse(
+        { error: 'Valid notebookId (UUID) is required' },
+        400,
+        origin
+      );
     }
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
@@ -45,10 +48,11 @@ serve(async (req) => {
 
     if (!audioGenerationWebhookUrl || !authHeader) {
       console.error('Missing audio generation webhook URL or auth')
-      return new Response(
-        JSON.stringify({ error: 'Audio generation service not configured' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      return createCorsResponse(
+        { error: 'Audio generation service not configured' },
+        500,
+        origin
+      );
     }
 
     console.log('Starting audio overview generation for notebook:', notebookId)
@@ -95,28 +99,16 @@ serve(async (req) => {
     )
 
     // Return immediately with success status
-    return new Response(
-      JSON.stringify({
-        success: true,
-        message: 'Audio generation started',
-        status: 'generating'
-      }),
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    )
+    return createCorsResponse({
+      success: true,
+      message: 'Audio generation started',
+      status: 'generating'
+    }, 200, origin);
 
   } catch (error) {
     console.error('Error in generate-audio-overview:', error)
-    return new Response(
-      JSON.stringify({ 
-        error: error.message || 'Failed to start audio generation' 
-      }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    )
+    return createCorsResponse({ 
+      error: error.message || 'Failed to start audio generation' 
+    }, 500, origin);
   }
 })

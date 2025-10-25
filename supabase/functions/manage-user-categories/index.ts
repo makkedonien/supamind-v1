@@ -1,11 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-}
+import { handleCorsPreflightRequest, createCorsResponse, validateOrigin } from '../_shared/cors.ts'
+import { isValidUUID, sanitizeString } from '../_shared/validation.ts'
 
 interface UserCategory {
   id?: string;
@@ -14,22 +10,25 @@ interface UserCategory {
 }
 
 serve(async (req) => {
+  const origin = req.headers.get('origin');
+
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return handleCorsPreflightRequest(req);
   }
+
+  const originError = validateOrigin(req);
+  if (originError) return originError;
 
   try {
     // Get the authorization header
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: 'Missing authorization header' }),
-        {
-          status: 401,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      )
+      return createCorsResponse(
+        { error: 'Missing authorization header' },
+        401,
+        origin
+      );
     }
 
     // Create Supabase client with user's auth token
@@ -51,13 +50,11 @@ serve(async (req) => {
 
     if (userError || !user) {
       console.error('Auth error:', userError)
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        {
-          status: 401,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      )
+      return createCorsResponse(
+        { error: 'Unauthorized' },
+        401,
+        origin
+      );
     }
 
     const method = req.method;
@@ -75,42 +72,34 @@ serve(async (req) => {
 
         if (getError) {
           console.error('Error fetching categories:', getError);
-          return new Response(
-            JSON.stringify({ error: 'Failed to fetch categories' }),
-            {
-              status: 500,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            }
-          )
+          return createCorsResponse(
+            { error: 'Failed to fetch categories' },
+            500,
+            origin
+          );
         }
 
-        return new Response(
-          JSON.stringify({ categories }),
-          {
-            status: 200,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        )
+        return createCorsResponse({ categories }, 200, origin);
 
       case 'POST':
         // Create a new category
         const createData: UserCategory = await req.json();
         
         if (!createData.name || createData.name.trim().length === 0) {
-          return new Response(
-            JSON.stringify({ error: 'Category name is required' }),
-            {
-              status: 400,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            }
-          )
+          return createCorsResponse(
+            { error: 'Category name is required' },
+            400,
+            origin
+          );
         }
+
+        const sanitizedName = sanitizeString(createData.name, 100);
 
         const { data: newCategory, error: createError } = await supabaseClient
           .from('user_categories')
           .insert({
             user_id: user.id,
-            name: createData.name.trim(),
+            name: sanitizedName,
             color: createData.color || '#6B7280'
           })
           .select()
@@ -118,55 +107,41 @@ serve(async (req) => {
 
         if (createError) {
           console.error('Error creating category:', createError);
-          return new Response(
-            JSON.stringify({ 
-              error: createError.code === '23505' 
-                ? 'Category name already exists' 
-                : 'Failed to create category' 
-            }),
-            {
-              status: createError.code === '23505' ? 409 : 500,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            }
-          )
+          return createCorsResponse({ 
+            error: createError.code === '23505' 
+              ? 'Category name already exists' 
+              : 'Failed to create category' 
+          }, createError.code === '23505' ? 409 : 500, origin);
         }
 
-        return new Response(
-          JSON.stringify({ category: newCategory }),
-          {
-            status: 201,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        )
+        return createCorsResponse({ category: newCategory }, 201, origin);
 
       case 'PUT':
         // Update an existing category
-        if (!categoryId) {
-          return new Response(
-            JSON.stringify({ error: 'Category ID is required' }),
-            {
-              status: 400,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            }
-          )
+        if (!categoryId || !isValidUUID(categoryId)) {
+          return createCorsResponse(
+            { error: 'Valid category ID is required' },
+            400,
+            origin
+          );
         }
 
         const updateData: UserCategory = await req.json();
         
         if (!updateData.name || updateData.name.trim().length === 0) {
-          return new Response(
-            JSON.stringify({ error: 'Category name is required' }),
-            {
-              status: 400,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            }
-          )
+          return createCorsResponse(
+            { error: 'Category name is required' },
+            400,
+            origin
+          );
         }
+
+        const sanitizedUpdateName = sanitizeString(updateData.name, 100);
 
         const { data: updatedCategory, error: updateError } = await supabaseClient
           .from('user_categories')
           .update({
-            name: updateData.name.trim(),
+            name: sanitizedUpdateName,
             color: updateData.color,
             updated_at: new Date().toISOString()
           })
@@ -177,37 +152,23 @@ serve(async (req) => {
 
         if (updateError) {
           console.error('Error updating category:', updateError);
-          return new Response(
-            JSON.stringify({ 
-              error: updateError.code === '23505' 
-                ? 'Category name already exists' 
-                : 'Failed to update category' 
-            }),
-            {
-              status: updateError.code === '23505' ? 409 : 500,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            }
-          )
+          return createCorsResponse({ 
+            error: updateError.code === '23505' 
+              ? 'Category name already exists' 
+              : 'Failed to update category' 
+          }, updateError.code === '23505' ? 409 : 500, origin);
         }
 
-        return new Response(
-          JSON.stringify({ category: updatedCategory }),
-          {
-            status: 200,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        )
+        return createCorsResponse({ category: updatedCategory }, 200, origin);
 
       case 'DELETE':
         // Delete a category
-        if (!categoryId) {
-          return new Response(
-            JSON.stringify({ error: 'Category ID is required' }),
-            {
-              status: 400,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            }
-          )
+        if (!categoryId || !isValidUUID(categoryId)) {
+          return createCorsResponse(
+            { error: 'Valid category ID is required' },
+            400,
+            origin
+          );
         }
 
         // First, check if category is being used by any sources
@@ -219,26 +180,18 @@ serve(async (req) => {
 
         if (checkError) {
           console.error('Error checking category usage:', checkError);
-          return new Response(
-            JSON.stringify({ error: 'Failed to check category usage' }),
-            {
-              status: 500,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            }
-          )
+          return createCorsResponse(
+            { error: 'Failed to check category usage' },
+            500,
+            origin
+          );
         }
 
         if (sourcesUsingCategory && sourcesUsingCategory.length > 0) {
-          return new Response(
-            JSON.stringify({ 
-              error: 'Cannot delete category that is being used by sources',
-              sources_count: sourcesUsingCategory.length
-            }),
-            {
-              status: 409,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            }
-          )
+          return createCorsResponse({ 
+            error: 'Cannot delete category that is being used by sources',
+            sources_count: sourcesUsingCategory.length
+          }, 409, origin);
         }
 
         const { error: deleteError } = await supabaseClient
@@ -249,40 +202,28 @@ serve(async (req) => {
 
         if (deleteError) {
           console.error('Error deleting category:', deleteError);
-          return new Response(
-            JSON.stringify({ error: 'Failed to delete category' }),
-            {
-              status: 500,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            }
-          )
+          return createCorsResponse(
+            { error: 'Failed to delete category' },
+            500,
+            origin
+          );
         }
 
-        return new Response(
-          JSON.stringify({ message: 'Category deleted successfully' }),
-          {
-            status: 200,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        )
+        return createCorsResponse({ message: 'Category deleted successfully' }, 200, origin);
 
       default:
-        return new Response(
-          JSON.stringify({ error: 'Method not allowed' }),
-          {
-            status: 405,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        )
+        return createCorsResponse(
+          { error: 'Method not allowed' },
+          405,
+          origin
+        );
     }
   } catch (error) {
     console.error('Unexpected error:', error);
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    )
+    return createCorsResponse(
+      { error: 'Internal server error' },
+      500,
+      origin
+    );
   }
 }) 

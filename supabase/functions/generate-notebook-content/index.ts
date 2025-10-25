@@ -1,28 +1,39 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { handleCorsPreflightRequest, createCorsResponse, validateOrigin } from '../_shared/cors.ts'
+import { isValidUUID, isValidSourceType } from '../_shared/validation.ts'
 
 serve(async (req) => {
+  const origin = req.headers.get('origin');
+
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return handleCorsPreflightRequest(req);
   }
+
+  const originError = validateOrigin(req);
+  if (originError) return originError;
 
   try {
     const { notebookId, filePath, sourceType } = await req.json()
 
-    if (!notebookId || !sourceType) {
-      return new Response(
-        JSON.stringify({ error: 'notebookId and sourceType are required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+    if (!notebookId || !isValidUUID(notebookId)) {
+      return createCorsResponse(
+        { error: 'Valid notebookId (UUID) is required' },
+        400,
+        origin
+      );
     }
 
-    console.log('Processing request:', { notebookId, filePath, sourceType });
+    if (!sourceType || !isValidSourceType(sourceType)) {
+      return createCorsResponse(
+        { error: 'Valid sourceType is required' },
+        400,
+        origin
+      );
+    }
+
+    console.log('Processing request:', { notebookId, sourceType });
 
     // Get environment variables
     const webServiceUrl = Deno.env.get('NOTEBOOK_GENERATION_URL')
@@ -34,10 +45,11 @@ serve(async (req) => {
         hasAuth: !!authHeader
       })
       
-      return new Response(
-        JSON.stringify({ error: 'Web service configuration missing' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      return createCorsResponse(
+        { error: 'Web service configuration missing' },
+        500,
+        origin
+      );
     }
 
     // Initialize Supabase client
@@ -60,10 +72,9 @@ serve(async (req) => {
     };
 
     if (filePath) {
-      // For file sources (PDF, audio) or URLs (website, YouTube)
       payload.filePath = filePath;
     } else {
-      // For text sources, we need to get the content from the database
+      // For text sources, get content from database
       const { data: source } = await supabaseClient
         .from('sources')
         .select('content')
@@ -75,7 +86,7 @@ serve(async (req) => {
       }
     }
 
-    console.log('Sending payload to web service:', payload);
+    console.log('Sending payload to web service');
 
     // Call external web service
     const response = await fetch(webServiceUrl, {
@@ -89,25 +100,23 @@ serve(async (req) => {
 
     if (!response.ok) {
       console.error('Web service error:', response.status, response.statusText)
-      const errorText = await response.text();
-      console.error('Error response:', errorText);
       
-      // Update status to failed
       await supabaseClient
         .from('notebooks')
         .update({ generation_status: 'failed' })
         .eq('id', notebookId)
 
-      return new Response(
-        JSON.stringify({ error: 'Failed to generate content from web service' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      return createCorsResponse(
+        { error: 'Failed to generate content from web service' },
+        500,
+        origin
+      );
     }
 
     const generatedData = await response.json()
-    console.log('Generated data:', generatedData)
+    console.log('Generated data received')
 
-    // Parse the response format: object with output property
+    // Parse the response format
     let title, description, notebookIcon, backgroundColor, exampleQuestions;
     
     if (generatedData && generatedData.output) {
@@ -118,17 +127,18 @@ serve(async (req) => {
       backgroundColor = output.background_color;
       exampleQuestions = output.example_questions || [];
     } else {
-      console.error('Unexpected response format:', generatedData)
+      console.error('Unexpected response format')
       
       await supabaseClient
         .from('notebooks')
         .update({ generation_status: 'failed' })
         .eq('id', notebookId)
 
-      return new Response(
-        JSON.stringify({ error: 'Invalid response format from web service' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      return createCorsResponse(
+        { error: 'Invalid response format from web service' },
+        500,
+        origin
+      );
     }
 
     if (!title) {
@@ -139,13 +149,14 @@ serve(async (req) => {
         .update({ generation_status: 'failed' })
         .eq('id', notebookId)
 
-      return new Response(
-        JSON.stringify({ error: 'No title in response from web service' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      return createCorsResponse(
+        { error: 'No title in response from web service' },
+        500,
+        origin
+      );
     }
 
-    // Update notebook with generated content including icon, color, and example questions
+    // Update notebook with generated content
     const { error: notebookError } = await supabaseClient
       .from('notebooks')
       .update({
@@ -160,32 +171,31 @@ serve(async (req) => {
 
     if (notebookError) {
       console.error('Notebook update error:', notebookError)
-      return new Response(
-        JSON.stringify({ error: 'Failed to update notebook' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      return createCorsResponse(
+        { error: 'Failed to update notebook' },
+        500,
+        origin
+      );
     }
 
-    console.log('Successfully updated notebook with example questions:', exampleQuestions)
+    console.log('Successfully updated notebook')
 
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        title, 
-        description,
-        icon: notebookIcon,
-        color: backgroundColor,
-        exampleQuestions,
-        message: 'Notebook content generated successfully' 
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    return createCorsResponse({ 
+      success: true, 
+      title, 
+      description,
+      icon: notebookIcon,
+      color: backgroundColor,
+      exampleQuestions,
+      message: 'Notebook content generated successfully' 
+    }, 200, origin);
 
   } catch (error) {
     console.error('Edge function error:', error)
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    return createCorsResponse(
+      { error: 'Internal server error' },
+      500,
+      origin
+    );
   }
 })

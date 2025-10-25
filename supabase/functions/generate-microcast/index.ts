@@ -1,24 +1,46 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { handleCorsPreflightRequest, createCorsResponse, validateOrigin } from '../_shared/cors.ts'
+import { isValidUUID } from '../_shared/validation.ts'
 
 serve(async (req) => {
+  const origin = req.headers.get('origin');
+
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return handleCorsPreflightRequest(req);
   }
+
+  const originError = validateOrigin(req);
+  if (originError) return originError;
 
   try {
     const { microcastId, sourceIds } = await req.json()
     
-    if (!microcastId || !sourceIds || !Array.isArray(sourceIds) || sourceIds.length === 0) {
-      return new Response(
-        JSON.stringify({ error: 'Microcast ID and source IDs are required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+    if (!microcastId || !isValidUUID(microcastId)) {
+      return createCorsResponse(
+        { error: 'Valid microcastId (UUID) is required' },
+        400,
+        origin
+      );
+    }
+
+    if (!sourceIds || !Array.isArray(sourceIds) || sourceIds.length === 0) {
+      return createCorsResponse(
+        { error: 'sourceIds array is required and must not be empty' },
+        400,
+        origin
+      );
+    }
+
+    // Validate all source IDs are UUIDs
+    for (const sourceId of sourceIds) {
+      if (!isValidUUID(sourceId)) {
+        return createCorsResponse(
+          { error: `Invalid source ID: ${sourceId}` },
+          400,
+          origin
+        );
+      }
     }
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
@@ -34,10 +56,11 @@ serve(async (req) => {
 
     if (microcastError || !microcast) {
       console.error('Error fetching microcast:', microcastError)
-      return new Response(
-        JSON.stringify({ error: 'Microcast not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      return createCorsResponse(
+        { error: 'Microcast not found' },
+        404,
+        origin
+      );
     }
 
     // Update microcast status to indicate generation has started
@@ -59,13 +82,14 @@ serve(async (req) => {
 
     if (!microcastGenerationWebhookUrl || !authHeader) {
       console.error('Missing microcast generation webhook URL or auth')
-      return new Response(
-        JSON.stringify({ error: 'Microcast generation service not configured' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      return createCorsResponse(
+        { error: 'Microcast generation service not configured' },
+        500,
+        origin
+      );
     }
 
-    console.log('Starting microcast generation for:', microcastId, 'with sources:', sourceIds)
+    console.log('Starting microcast generation for:', microcastId, 'with', sourceIds.length, 'sources');
 
     // Start the background task without awaiting
     EdgeRuntime.waitUntil(
@@ -111,29 +135,17 @@ serve(async (req) => {
     )
 
     // Return immediately with success status
-    return new Response(
-      JSON.stringify({
-        success: true,
-        message: 'Microcast generation started',
-        microcastId: microcastId,
-        status: 'generating'
-      }),
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    )
+    return createCorsResponse({
+      success: true,
+      message: 'Microcast generation started',
+      microcastId: microcastId,
+      status: 'generating'
+    }, 200, origin);
 
   } catch (error) {
     console.error('Error in generate-microcast:', error)
-    return new Response(
-      JSON.stringify({ 
-        error: error.message || 'Failed to start microcast generation' 
-      }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    )
+    return createCorsResponse({ 
+      error: error.message || 'Failed to start microcast generation' 
+    }, 500, origin);
   }
 })

@@ -1,23 +1,29 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { handleCorsPreflightRequest, createCorsResponse, validateOrigin } from '../_shared/cors.ts'
+import { isValidUUID } from '../_shared/validation.ts'
 
 serve(async (req) => {
+  const origin = req.headers.get('origin');
+
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return handleCorsPreflightRequest(req);
   }
+
+  const originError = validateOrigin(req);
+  if (originError) return originError;
 
   try {
     const { notebookId } = await req.json()
 
-    if (!notebookId) {
-      throw new Error('Notebook ID is required')
+    if (!notebookId || !isValidUUID(notebookId)) {
+      return createCorsResponse(
+        { error: 'Valid notebookId (UUID) is required' },
+        400,
+        origin
+      );
     }
 
     // Initialize Supabase client
@@ -35,11 +41,19 @@ serve(async (req) => {
 
     if (fetchError) {
       console.error('Error fetching notebook:', fetchError)
-      throw new Error('Failed to fetch notebook')
+      return createCorsResponse(
+        { error: 'Failed to fetch notebook' },
+        404,
+        origin
+      );
     }
 
     if (!notebook.audio_overview_url) {
-      throw new Error('No audio overview URL found')
+      return createCorsResponse(
+        { error: 'No audio overview URL found' },
+        404,
+        origin
+      );
     }
 
     // Extract the file path from the existing URL
@@ -48,13 +62,17 @@ serve(async (req) => {
     const bucketIndex = urlParts.findIndex(part => part === 'audio')
     
     if (bucketIndex === -1) {
-      throw new Error('Invalid audio URL format')
+      return createCorsResponse(
+        { error: 'Invalid audio URL format' },
+        400,
+        origin
+      );
     }
 
     // Reconstruct the file path from the URL
     const filePath = urlParts.slice(bucketIndex + 1).join('/')
 
-    console.log('Refreshing signed URL for path:', filePath)
+    console.log('Refreshing signed URL for notebook:', notebookId);
 
     // Generate a new signed URL with 24 hours expiration
     const { data: signedUrlData, error: signError } = await supabase.storage
@@ -63,7 +81,11 @@ serve(async (req) => {
 
     if (signError) {
       console.error('Error creating signed URL:', signError)
-      throw new Error('Failed to create signed URL')
+      return createCorsResponse(
+        { error: 'Failed to create signed URL' },
+        500,
+        origin
+      );
     }
 
     // Calculate new expiry time (24 hours from now)
@@ -81,32 +103,25 @@ serve(async (req) => {
 
     if (updateError) {
       console.error('Error updating notebook:', updateError)
-      throw new Error('Failed to update notebook with new URL')
+      return createCorsResponse(
+        { error: 'Failed to update notebook with new URL' },
+        500,
+        origin
+      );
     }
 
     console.log('Successfully refreshed audio URL for notebook:', notebookId)
 
-    return new Response(
-      JSON.stringify({ 
-        success: true,
-        audioUrl: signedUrlData.signedUrl,
-        expiresAt: newExpiryTime.toISOString()
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    )
+    return createCorsResponse({ 
+      success: true,
+      audioUrl: signedUrlData.signedUrl,
+      expiresAt: newExpiryTime.toISOString()
+    }, 200, origin);
 
   } catch (error) {
     console.error('Error in refresh-audio-url function:', error)
-    return new Response(
-      JSON.stringify({ 
-        error: error.message || 'Failed to refresh audio URL'
-      }),
-      {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    )
+    return createCorsResponse({ 
+      error: error.message || 'Failed to refresh audio URL'
+    }, 500, origin);
   }
 })

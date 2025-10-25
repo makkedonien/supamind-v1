@@ -1,24 +1,52 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { handleCorsPreflightRequest, createCorsResponse, validateOrigin } from '../_shared/cors.ts'
+import { isValidUUID, isValidFilePath, isValidSourceType } from '../_shared/validation.ts'
 
 serve(async (req) => {
+  const origin = req.headers.get('origin');
+
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return handleCorsPreflightRequest(req);
   }
+
+  const originError = validateOrigin(req);
+  if (originError) return originError;
 
   try {
     const { sourceId, filePath, sourceType, userId } = await req.json()
 
-    if (!sourceId || !filePath || !sourceType || !userId) {
-      return new Response(
-        JSON.stringify({ error: 'sourceId, filePath, sourceType, and userId are required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+    // Validate inputs
+    if (!sourceId || !isValidUUID(sourceId)) {
+      return createCorsResponse(
+        { error: 'Valid sourceId (UUID) is required' },
+        400,
+        origin
+      );
+    }
+    
+    if (!userId || !isValidUUID(userId)) {
+      return createCorsResponse(
+        { error: 'Valid userId (UUID) is required' },
+        400,
+        origin
+      );
+    }
+    
+    if (!filePath || !isValidFilePath(filePath)) {
+      return createCorsResponse(
+        { error: 'Valid filePath is required' },
+        400,
+        origin
+      );
+    }
+    
+    if (!sourceType || !isValidSourceType(sourceType)) {
+      return createCorsResponse(
+        { error: 'Valid sourceType is required' },
+        400,
+        origin
+      );
     }
 
     console.log('Processing feed document:', { source_id: sourceId, file_path: filePath, source_type: sourceType, user_id: userId });
@@ -42,10 +70,11 @@ serve(async (req) => {
         .update({ processing_status: 'failed' })
         .eq('id', sourceId)
 
-      return new Response(
-        JSON.stringify({ error: 'Feed document processing webhook URL not configured' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      return createCorsResponse(
+        { error: 'Feed document processing webhook URL not configured' },
+        500,
+        origin
+      );
     }
 
     console.log('Calling external feed document processing webhook:', webhookUrl);
@@ -98,25 +127,28 @@ serve(async (req) => {
         .update({ processing_status: 'failed' })
         .eq('id', sourceId)
 
-      return new Response(
-        JSON.stringify({ error: 'Feed document processing failed', details: errorText }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      return createCorsResponse(
+        { error: 'Feed document processing failed', details: errorText },
+        500,
+        origin
+      );
     }
 
     const result = await response.json()
-    console.log('Feed document webhook response:', result);
+    console.log('Feed document webhook response received');
 
-    return new Response(
-      JSON.stringify({ success: true, message: 'Feed document processing initiated', result }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    return createCorsResponse(
+      { success: true, message: 'Feed document processing initiated', result },
+      200,
+      origin
+    );
 
   } catch (error) {
     console.error('Error in process-feed-document function:', error)
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    return createCorsResponse(
+      { error: 'Internal server error' },
+      500,
+      origin
+    );
   }
 }) 

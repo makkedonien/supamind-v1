@@ -1,26 +1,50 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { handleCorsPreflightRequest, createCorsResponse, validateOrigin } from '../_shared/cors.ts'
+import { isValidUUID, isValidRssUrl } from '../_shared/validation.ts'
 
 serve(async (req) => {
-  console.log('Function called with method:', req.method);
+  const origin = req.headers.get('origin');
   
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return handleCorsPreflightRequest(req);
   }
 
+  const originError = validateOrigin(req);
+  if (originError) return originError;
+
   try {
-    console.log('Starting to process request...');
+    console.log('Processing podcast feed request...');
     
     const requestBody = await req.json();
-    console.log('Request body parsed:', requestBody);
-    
     const { podcastId, userId, rssFeed } = requestBody;
+
+    // Validate inputs
+    if (!podcastId || !isValidUUID(podcastId)) {
+      return createCorsResponse(
+        { error: 'Valid podcastId (UUID) is required', success: false },
+        400,
+        origin
+      );
+    }
+
+    if (!userId || !isValidUUID(userId)) {
+      return createCorsResponse(
+        { error: 'Valid userId (UUID) is required', success: false },
+        400,
+        origin
+      );
+    }
+
+    if (!rssFeed || !isValidRssUrl(rssFeed)) {
+      return createCorsResponse(
+        { error: 'Valid RSS feed URL is required', success: false },
+        400,
+        origin
+      );
+    }
+
     console.log(`Processing podcast feed for podcast ${podcastId}, user ${userId}`);
 
     // Check if user has podcast processing enabled
@@ -37,119 +61,83 @@ serve(async (req) => {
 
     if (profileError) {
       console.error('Error fetching user profile:', profileError);
-      return new Response(
-        JSON.stringify({ 
-          error: 'Failed to verify user settings. Please try again.',
-          success: false 
-        }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return createCorsResponse({ 
+        error: 'Failed to verify user settings. Please try again.',
+        success: false 
+      }, 500, origin);
     }
 
     if (!profile || profile.podcast_processing === 'disabled') {
       console.log('Podcast processing is disabled for user:', userId);
-      return new Response(
-        JSON.stringify({ 
-          error: 'Podcast processing is disabled in your settings. Please enable it in Settings > Podcasts to add podcast feeds.',
-          success: false 
-        }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return createCorsResponse({ 
+        error: 'Podcast processing is disabled in your settings. Please enable it in Settings > Podcasts to add podcast feeds.',
+        success: false 
+      }, 403, origin);
     }
 
-    console.log('Podcast processing is enabled for user, proceeding with processing');
+    console.log('Podcast processing is enabled for user, proceeding');
 
     // Get the webhook URL from Supabase secrets
     const webhookUrl = Deno.env.get('PODCAST_ADDING_WEBHOOK_URL');
-    console.log('Webhook URL configured:', !!webhookUrl);
     
     if (!webhookUrl) {
-      console.error('PODCAST_ADDING_WEBHOOK_URL environment variable not configured');
-      return new Response(
-        JSON.stringify({ 
-          error: 'PODCAST_ADDING_WEBHOOK_URL not configured in Supabase secrets. Please add this secret in your Supabase dashboard.',
-          success: false 
-        }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      console.error('PODCAST_ADDING_WEBHOOK_URL not configured');
+      return createCorsResponse({ 
+        error: 'PODCAST_ADDING_WEBHOOK_URL not configured',
+        success: false 
+      }, 500, origin);
     }
 
     // Try podcast-specific auth token first, fallback to general auth token
     let authToken = Deno.env.get('PODCAST_WEBHOOK_AUTH') || Deno.env.get('NOTEBOOK_GENERATION_AUTH');
-    console.log('Auth token configured:', !!authToken);
-    console.log('Using podcast-specific auth:', !!Deno.env.get('PODCAST_WEBHOOK_AUTH'));
     
     if (!authToken) {
-      console.error('Neither PODCAST_WEBHOOK_AUTH nor NOTEBOOK_GENERATION_AUTH environment variable configured');
-      return new Response(
-        JSON.stringify({ 
-          error: 'Authentication not configured. Please add PODCAST_WEBHOOK_AUTH or NOTEBOOK_GENERATION_AUTH secret in Supabase dashboard.',
-          success: false 
-        }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      console.error('No auth token configured');
+      return createCorsResponse({ 
+        error: 'Auth token not configured',
+        success: false 
+      }, 500, origin);
     }
 
-    // Prepare the webhook payload
-    const webhookPayload = {
-      podcast_id: podcastId,
-      user_id: userId,
-      rss_feed: rssFeed,
-      timestamp: new Date().toISOString()
-    };
+    console.log('Sending to webhook...');
 
-    console.log('Sending podcast webhook payload:', JSON.stringify(webhookPayload, null, 2));
-
-    // Send to webhook with authentication (try the same format as process-feed-sources)
+    // Send to webhook
     const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': authToken,
-        ...corsHeaders
+        'Authorization': authToken
       },
-      body: JSON.stringify(webhookPayload)
+      body: JSON.stringify({
+        podcastId,
+        userId,
+        rssFeed
+      })
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Podcast webhook request failed:', response.status, errorText);
-      
-      return new Response(
-        JSON.stringify({ 
-          error: `Webhook failed: ${response.status} - ${errorText}`, 
-          success: false 
-        }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      console.error('Webhook request failed:', response.status, errorText);
+      return createCorsResponse({ 
+        error: `Webhook request failed: ${response.status}`,
+        success: false 
+      }, 500, origin);
     }
 
     const webhookResponse = await response.text();
-    console.log('Podcast webhook response:', webhookResponse);
+    console.log('Webhook request succeeded');
 
-    return new Response(JSON.stringify({ 
+    return createCorsResponse({ 
       success: true, 
-      message: 'Podcast feed processing initiated successfully!',
+      message: 'Podcast feed submitted for processing',
       webhookResponse 
-    }), {
-      headers: { 
-        'Content-Type': 'application/json',
-        ...corsHeaders 
-      },
-    });
+    }, 200, origin);
 
   } catch (error) {
-    console.error('Process podcast feed error:', error);
-    
-    return new Response(JSON.stringify({ 
+    console.error('Error in process-podcast-feed:', error);
+    return createCorsResponse({ 
       error: error.message,
       success: false 
-    }), {
-      status: 200,
-      headers: { 
-        'Content-Type': 'application/json',
-        ...corsHeaders 
-      },
-    });
+    }, 500, origin);
   }
-});
+})

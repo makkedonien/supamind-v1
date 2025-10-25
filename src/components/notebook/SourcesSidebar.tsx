@@ -102,7 +102,7 @@ const SourcesSidebar = ({
           // Fallback to a simple text indicator if image fails to load
           const target = e.target as HTMLImageElement;
           target.style.display = 'none';
-          target.parentElement!.innerHTML = '📄';
+          target.parentElement!.textContent = '📄';
         }} 
       />
     );

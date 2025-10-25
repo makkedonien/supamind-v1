@@ -1,10 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { handleCorsPreflightRequest, createCorsResponse, validateOrigin } from '../_shared/cors.ts'
 
 interface PodcastData {
   user_id: string;
@@ -13,10 +9,17 @@ interface PodcastData {
 }
 
 serve(async (req) => {
+  const origin = req.headers.get('origin');
+
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return handleCorsPreflightRequest(req);
   }
+
+  // Note: Origin validation is optional for scheduled/cron functions
+  // but included for consistency
+  const originError = validateOrigin(req);
+  if (originError) return originError;
 
   console.log('Starting scheduled podcast processing...');
 
@@ -24,21 +27,23 @@ serve(async (req) => {
     // Check for required environment variables
     const webhookUrl = Deno.env.get('PODCAST_FEED_PROCESSING_WEBHOOK_URL')
     if (!webhookUrl) {
-      console.error('Missing PODCAST_FEED_PROCESSING_WEBHOOK_URL environment variable')
-      return new Response(
-        JSON.stringify({ error: 'Podcast feed processing webhook URL not configured' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      console.error('Missing PODCAST_FEED_PROCESSING_WEBHOOK_URL');
+      return createCorsResponse(
+        { error: 'Podcast feed processing webhook URL not configured' },
+        500,
+        origin
+      );
     }
 
     // Try podcast-specific auth token first, fallback to general auth token
     let authToken = Deno.env.get('PODCAST_WEBHOOK_AUTH') || Deno.env.get('NOTEBOOK_GENERATION_AUTH')
     if (!authToken) {
-      console.error('Missing PODCAST_WEBHOOK_AUTH or NOTEBOOK_GENERATION_AUTH environment variable')
-      return new Response(
-        JSON.stringify({ error: 'Auth token not configured' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      console.error('Missing auth token');
+      return createCorsResponse(
+        { error: 'Auth token not configured' },
+        500,
+        origin
+      );
     }
     
     console.log('Using podcast-specific auth:', !!Deno.env.get('PODCAST_WEBHOOK_AUTH'));
@@ -49,7 +54,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    console.log('Querying users with podcast processing enabled and their podcasts...');
+    console.log('Querying users with podcast processing enabled...');
 
     // Query to get all users with podcast processing enabled and their podcasts
     const { data: userPodcasts, error: queryError } = await supabaseClient
@@ -65,22 +70,20 @@ serve(async (req) => {
 
     if (queryError) {
       console.error('Error querying user podcasts:', queryError)
-      return new Response(
-        JSON.stringify({ error: 'Failed to query user podcasts', details: queryError.message }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      return createCorsResponse(
+        { error: 'Failed to query user podcasts', details: queryError.message },
+        500,
+        origin
+      );
     }
 
     if (!userPodcasts || userPodcasts.length === 0) {
       console.log('No users with podcast processing enabled found')
-      return new Response(
-        JSON.stringify({ 
-          message: 'No users with podcast processing enabled found',
-          processed_users: 0,
-          total_webhooks_sent: 0
-        }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      return createCorsResponse({ 
+        message: 'No users with podcast processing enabled found',
+        processed_users: 0,
+        total_webhooks_sent: 0
+      }, 200, origin);
     }
 
     // Filter users who actually have podcasts
@@ -90,14 +93,11 @@ serve(async (req) => {
 
     if (usersWithPodcasts.length === 0) {
       console.log('No users with podcasts found')
-      return new Response(
-        JSON.stringify({ 
-          message: 'No users with podcasts found',
-          processed_users: 0,
-          total_webhooks_sent: 0
-        }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      return createCorsResponse({ 
+        message: 'No users with podcasts found',
+        processed_users: 0,
+        total_webhooks_sent: 0
+      }, 200, origin);
     }
 
     console.log(`Found ${usersWithPodcasts.length} users with podcasts to process`);
@@ -123,20 +123,20 @@ serve(async (req) => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': authToken  // Try without Bearer prefix first
+            'Authorization': authToken
           },
           body: JSON.stringify(userPodcastData)
         });
 
         if (!webhookResponse.ok) {
           const errorText = await webhookResponse.text();
-          console.error(`Webhook failed for user ${user.id}:`, webhookResponse.status, errorText);
+          console.error(`Webhook failed for user ${user.id}:`, webhookResponse.status);
           failedWebhooks++;
           processingResults.push({
             user_id: user.id,
             success: false,
             podcast_count: userPodcastData.length,
-            error: `HTTP ${webhookResponse.status}: ${errorText}`
+            error: `HTTP ${webhookResponse.status}`
           });
         } else {
           console.log(`Successfully sent webhook for user ${user.id} with ${userPodcastData.length} podcasts`);
@@ -162,26 +162,20 @@ serve(async (req) => {
 
     console.log(`Podcast processing completed. Successful: ${successfulWebhooks}, Failed: ${failedWebhooks}`);
 
-    return new Response(
-      JSON.stringify({
-        message: 'Scheduled podcast processing completed',
-        processed_users: usersWithPodcasts.length,
-        successful_webhooks: successfulWebhooks,
-        failed_webhooks: failedWebhooks,
-        total_webhooks_sent: successfulWebhooks + failedWebhooks,
-        processing_results: processingResults
-      }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    return createCorsResponse({
+      message: 'Scheduled podcast processing completed',
+      processed_users: usersWithPodcasts.length,
+      successful_webhooks: successfulWebhooks,
+      failed_webhooks: failedWebhooks,
+      total_webhooks_sent: successfulWebhooks + failedWebhooks,
+      processing_results: processingResults
+    }, 200, origin);
 
   } catch (error) {
     console.error('Unexpected error in scheduled podcast processing:', error);
-    return new Response(
-      JSON.stringify({ 
-        error: 'Unexpected error during podcast processing', 
-        details: error.message 
-      }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    return createCorsResponse({ 
+      error: 'Unexpected error during podcast processing', 
+      details: error.message 
+    }, 500, origin);
   }
 })
