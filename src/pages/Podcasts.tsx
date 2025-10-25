@@ -1200,6 +1200,7 @@ const Podcasts = () => {
         open={showCreateMicrocastDialog}
         onOpenChange={setShowCreateMicrocastDialog}
         selectedSourceIds={Array.from(selectedSources)}
+        sources={allSources || []}
         onClearSelection={() => setSelectedSources(new Set())}
       />
 

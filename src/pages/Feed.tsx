@@ -1123,7 +1123,7 @@ const Feed = () => {
             </p>
             <Button 
               variant="outline" 
-              onClick={() => setFilters({ favorites: false, websites: false, pdfs: false, copiedTexts: false, categories: [] })}
+              onClick={() => setFilters({ favorites: false, websites: false, pdfs: false, copiedTexts: false, categories: [], podcasts: [] })}
             >
               Clear Filters
             </Button>
@@ -1194,6 +1194,7 @@ const Feed = () => {
         open={showCreateMicrocastDialog}
         onOpenChange={setShowCreateMicrocastDialog}
         selectedSourceIds={Array.from(selectedSources)}
+        sources={allSources || []}
         onClearSelection={() => setSelectedSources(new Set())}
       />
 

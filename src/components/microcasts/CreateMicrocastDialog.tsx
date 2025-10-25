@@ -7,7 +7,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Mic, FileText, Globe, Copy, Loader2, X } from 'lucide-react';
 import { useMicrocasts } from '@/hooks/useMicrocasts';
-import { useFeedSources } from '@/hooks/useFeedSources';
 import { useToast } from '@/hooks/use-toast';
 import { useProfile } from '@/hooks/useProfile';
 
@@ -15,6 +14,7 @@ interface CreateMicrocastDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   selectedSourceIds: string[];
+  sources: any[]; // Add sources prop to receive them from parent
   onClearSelection?: () => void;
 }
 
@@ -22,10 +22,10 @@ const CreateMicrocastDialog: React.FC<CreateMicrocastDialogProps> = ({
   open,
   onOpenChange,
   selectedSourceIds,
+  sources,
   onClearSelection
 }) => {
   const { createMicrocast, isCreating } = useMicrocasts();
-  const { sources } = useFeedSources();
   const { toast } = useToast();
   const { profile } = useProfile();
 
