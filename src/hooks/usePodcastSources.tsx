@@ -21,7 +21,7 @@ export const usePodcastSources = () => {
       
       const { data, error } = await supabase
         .from('sources')
-        .select('*')
+        .select('*, podcasts(podcast_name, image_url)')
         .eq('user_id', user.id)
         .eq('type', 'podcast') // Filter specifically for podcast type
         .is('notebook_id', null)

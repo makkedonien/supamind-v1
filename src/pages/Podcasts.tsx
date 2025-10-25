@@ -831,8 +831,8 @@ const Podcasts = () => {
       title: source.title,
       description: source.short_description || source.summary || source.content || 'No description available',
       image: source.image_url || '/placeholder.svg',
-      domain: source.url ? getDomain(source.url) : source.type,
-      favicon: source.url ? `https://www.google.com/s2/favicons?domain=${getDomain(source.url)}&sz=32` : undefined,
+      domain: source.podcasts?.podcast_name || (source.url ? getDomain(source.url) : source.type),
+      favicon: source.podcasts?.image_url || (source.url ? `https://www.google.com/s2/favicons?domain=${getDomain(source.url)}&sz=32` : undefined),
       categories: source.category || [],
       url: source.url || '#',
       publishedAt: source.publishing_date ? new Date(source.publishing_date).toLocaleDateString() : 

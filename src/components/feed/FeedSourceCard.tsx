@@ -29,6 +29,10 @@ interface FeedSource {
   transcript?: string;
   publishing_date?: string;
   podcast_id?: string;
+  podcasts?: {
+    podcast_name: string;
+    image_url?: string;
+  };
   created_at: string;
   updated_at: string;
 }
@@ -401,7 +405,21 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
               
               {/* Publisher, Time, and Categories */}
               <div className="flex items-center space-x-2 text-sm text-gray-500 mb-2 flex-wrap">
-                {source.url ? (
+                {source.podcasts?.podcast_name ? (
+                  <>
+                    <Avatar className="h-4 w-4">
+                      <AvatarImage src={source.podcasts.image_url || (source.url ? `https://www.google.com/s2/favicons?domain=${getDomain(source.url)}&sz=32` : '')} />
+                      <AvatarFallback>{source.podcasts.podcast_name[0].toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <button
+                      onClick={handlePublisherClick}
+                      className="truncate hover:text-blue-600 hover:underline"
+                    >
+                      {source.podcasts.podcast_name}
+                    </button>
+                    <span>•</span>
+                  </>
+                ) : source.url ? (
                   <>
                     <Avatar className="h-4 w-4">
                       <AvatarImage src={`https://www.google.com/s2/favicons?domain=${getDomain(source.url)}&sz=32`} />
@@ -521,7 +539,21 @@ const FeedSourceCard = ({ source, onEdit, onCategorize, onOpenDetail, viewMode =
           
           {/* Publisher, Time, and Categories */}
           <div className="flex items-center space-x-2 text-sm text-gray-500 mb-3 flex-wrap">
-            {source.url ? (
+            {source.podcasts?.podcast_name ? (
+              <>
+                <Avatar className="h-4 w-4">
+                  <AvatarImage src={source.podcasts.image_url || (source.url ? `https://www.google.com/s2/favicons?domain=${getDomain(source.url)}&sz=32` : '')} />
+                  <AvatarFallback>{source.podcasts.podcast_name[0].toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <button
+                  onClick={handlePublisherClick}
+                  className="truncate hover:text-blue-600 hover:underline"
+                >
+                  {source.podcasts.podcast_name}
+                </button>
+                <span>•</span>
+              </>
+            ) : source.url ? (
               <>
                 <Avatar className="h-4 w-4">
                   <AvatarImage src={`https://www.google.com/s2/favicons?domain=${getDomain(source.url)}&sz=32`} />
