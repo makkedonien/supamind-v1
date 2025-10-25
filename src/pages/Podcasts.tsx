@@ -6,13 +6,14 @@ import { Card, CardContent, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-import { ExternalLink, LayoutGrid, List, Check, X, Share, Bookmark, Star, Clock, Calendar, Plus, Bot, Tag, Mic } from 'lucide-react';
+import { ExternalLink, LayoutGrid, List, Check, X, Share, Bookmark, Star, Clock, Calendar, Plus, Bot, Tag, Mic, Search } from 'lucide-react';
 import { usePodcastSources } from '@/hooks/usePodcastSources';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -629,24 +630,54 @@ const Podcasts = () => {
     podcasts: [],
   });
 
+  // Search state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
   // Check if any filters are active
   const hasActiveFilters = useMemo(() => {
     return filters.favorites || filters.websites || filters.pdfs || filters.copiedTexts || filters.categories.length > 0 || filters.podcasts.length > 0;
   }, [filters]);
 
-  // Filtered sources based on active filters
-  const filteredSources = useMemo(() => {
-    // When filters are active, search through ALL sources
-    // When no filters are active, use paginated sources
-    const sourcesToFilter = hasActiveFilters ? allSources : sources;
-    
-    if (!sourcesToFilter) return [];
+  // Helper function to get podcast name
+  const getPodcastName = (source: any) => {
+    return source.podcasts?.podcast_name || '';
+  };
 
-    return sourcesToFilter.filter(source => {
+  // Search filtered sources - filter ALL sources by search query first
+  const searchFilteredSources = useMemo(() => {
+    // If not searching, use the appropriate sources based on filters
+    if (!searchQuery.trim()) {
+      return hasActiveFilters ? allSources : sources;
+    }
+
+    // If searching, search through ALL sources (not paginated)
+    if (!allSources) return [];
+    
+    const query = searchQuery.toLowerCase().trim();
+    
+    return allSources.filter(source => {
+      // Search in title
+      const titleMatch = source.title.toLowerCase().includes(query);
+      
+      // Search in podcast name
+      const podcastName = getPodcastName(source).toLowerCase();
+      const podcastMatch = podcastName.includes(query);
+      
+      return titleMatch || podcastMatch;
+    });
+  }, [allSources, sources, searchQuery, hasActiveFilters]);
+
+  // Filtered sources based on active filters (applied AFTER search filter)
+  const filteredSources = useMemo(() => {
+    if (!searchFilteredSources) return [];
+
+    return searchFilteredSources.filter(source => {
       // Exclude optimistically deleted items
       if (optimisticallyDeletedIds.has(source.id)) return false;
 
-      // If no filters are active, show all sources (already handled by sourcesToFilter selection)
+      // If no filters are active, show all sources
       if (!hasActiveFilters) return true;
 
       // Check favorites filter
@@ -675,7 +706,7 @@ const Podcasts = () => {
 
       return true;
     });
-  }, [sources, allSources, filters, optimisticallyDeletedIds, hasActiveFilters]);
+  }, [searchFilteredSources, filters, optimisticallyDeletedIds, hasActiveFilters]);
 
   // Calculate source counts for sidebar
   const sourceCounts = useMemo(() => {
@@ -864,6 +895,40 @@ const Podcasts = () => {
     });
   };
 
+  // Search handlers
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleSearchClear = () => {
+    setSearchQuery('');
+    setIsSearchExpanded(false);
+  };
+
+  const handleSearchToggle = () => {
+    setIsSearchExpanded(!isSearchExpanded);
+    if (!isSearchExpanded) {
+      // Focus input when expanding
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 100);
+    }
+  };
+
+  const handleSearchBlur = () => {
+    // Only collapse if search is empty
+    if (!searchQuery.trim()) {
+      setIsSearchExpanded(false);
+    }
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape') {
+      handleSearchClear();
+      searchInputRef.current?.blur();
+    }
+  };
+
   return (
     <AppLayout 
       feedFilters={filters}
@@ -875,7 +940,7 @@ const Podcasts = () => {
           {/* Content Feed Section */}
           <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-start justify-between mb-6">
           <div>
             <h2 className="text-xl font-semibold">Your Podcast Summaries</h2>
             <p className="text-sm text-gray-600 mt-1">
@@ -884,6 +949,12 @@ const Podcasts = () => {
                   {selectedSources.size} source{selectedSources.size !== 1 ? 's' : ''} selected
                   <span className="mx-2">•</span>
                   {filteredSources?.length || 0} filtered
+                  <span className="mx-2">•</span>
+                  {searchFilteredSources?.length || 0} total
+                </>
+              ) : searchQuery.trim() ? (
+                <>
+                  {filteredSources?.length || 0} source{filteredSources?.length !== 1 ? 's' : ''} match search
                   <span className="mx-2">•</span>
                   {allSources?.length || 0} total
                 </>
@@ -902,6 +973,17 @@ const Podcasts = () => {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            {/* Mobile Search Icon - Aligned with Title */}
+            {isMobile && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleSearchToggle}
+                className="flex-shrink-0"
+              >
+                <Search className="h-5 w-5" />
+              </Button>
+            )}
             {selectedSources.size > 0 && (
               <>
                 <Button 
@@ -921,7 +1003,39 @@ const Podcasts = () => {
             )}
             {!isMobile && (
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">View:</span>
+                {/* Desktop Search */}
+                {isSearchExpanded ? (
+                  <div className="relative animate-in fade-in slide-in-from-right-2 duration-200">
+                    <Input
+                      ref={searchInputRef}
+                      type="text"
+                      placeholder="Search by title or podcast..."
+                      value={searchQuery}
+                      onChange={handleSearchChange}
+                      onBlur={handleSearchBlur}
+                      onKeyDown={handleSearchKeyDown}
+                      className="w-64 pr-8"
+                    />
+                    {searchQuery && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleSearchClear}
+                        className="absolute right-0 top-0 h-10 w-10"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleSearchToggle}
+                  >
+                    <Search className="h-5 w-5" />
+                  </Button>
+                )}
                 <div className="flex border rounded-md p-1 bg-muted/50">
                   <Button
                     variant={viewMode === 'list' ? 'default' : 'ghost'}
@@ -946,6 +1060,34 @@ const Podcasts = () => {
             )}
           </div>
         </div>
+
+        {/* Mobile Search Input - Below Header */}
+        {isMobile && isSearchExpanded && (
+          <div className="mb-6 animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="relative">
+              <Input
+                ref={searchInputRef}
+                type="text"
+                placeholder="Search by title or podcast..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                onBlur={handleSearchBlur}
+                onKeyDown={handleSearchKeyDown}
+                className="w-full pr-10"
+              />
+              {searchQuery && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleSearchClear}
+                  className="absolute right-0 top-0 h-10 w-10"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Loading State */}
         {isLoading && (
@@ -1017,8 +1159,8 @@ const Podcasts = () => {
               ))}
             </div>
 
-            {/* Load More Button - Only show if no filters active, total count > 20, and there are more to load */}
-            {!hasActiveFilters && totalCount > 20 && hasMore && (
+            {/* Load More Button - Only show if not searching, no filters active, total count > 20, and there are more to load */}
+            {!searchQuery.trim() && !hasActiveFilters && totalCount > 20 && hasMore && (
               <div className="flex justify-center pt-6">
                 <Button 
                   variant="outline" 
