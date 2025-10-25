@@ -5,13 +5,14 @@ import { Card, CardContent, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-import { ExternalLink, LayoutGrid, List, Check, X, Share, Bookmark, Star, Clock, Calendar, Plus, Bot, Tag, Mic } from 'lucide-react';
+import { ExternalLink, LayoutGrid, List, Check, X, Share, Bookmark, Star, Clock, Calendar, Plus, Bot, Tag, Mic, Search } from 'lucide-react';
 import { useFeedSources } from '@/hooks/useFeedSources';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -628,11 +629,49 @@ const Feed = () => {
     podcasts: [],
   });
 
-  // Filtered sources based on active filters
-  const filteredSources = useMemo(() => {
-    if (!sources) return [];
+  // Search state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
-    return sources.filter(source => {
+  // Helper function to get domain from URL
+  const getDomain = (url: string) => {
+    try {
+      return new URL(url).hostname.replace('www.', '');
+    } catch {
+      return '';
+    }
+  };
+
+  // Search filtered sources - filter ALL sources by search query first
+  const searchFilteredSources = useMemo(() => {
+    // If not searching, use the paginated sources from the hook
+    if (!searchQuery.trim()) {
+      return sources || [];
+    }
+
+    // If searching, search through ALL sources (not paginated)
+    if (!allSources) return [];
+    
+    const query = searchQuery.toLowerCase().trim();
+    
+    return allSources.filter(source => {
+      // Search in title
+      const titleMatch = source.title.toLowerCase().includes(query);
+      
+      // Search in domain/publisher name
+      const domain = source.url ? getDomain(source.url).toLowerCase() : '';
+      const domainMatch = domain.includes(query);
+      
+      return titleMatch || domainMatch;
+    });
+  }, [allSources, sources, searchQuery]);
+
+  // Filtered sources based on active filters (applied AFTER search filter)
+  const filteredSources = useMemo(() => {
+    if (!searchFilteredSources) return [];
+
+    return searchFilteredSources.filter(source => {
       // Exclude optimistically deleted items
       if (optimisticallyDeletedIds.has(source.id)) return false;
 
@@ -659,7 +698,7 @@ const Feed = () => {
 
       return true;
     });
-  }, [sources, filters, optimisticallyDeletedIds]);
+  }, [searchFilteredSources, filters, optimisticallyDeletedIds]);
 
   // Calculate source counts for sidebar
   const sourceCounts = useMemo(() => {
@@ -847,6 +886,40 @@ const Feed = () => {
     });
   };
 
+  // Search handlers
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleSearchClear = () => {
+    setSearchQuery('');
+    setIsSearchExpanded(false);
+  };
+
+  const handleSearchToggle = () => {
+    setIsSearchExpanded(!isSearchExpanded);
+    if (!isSearchExpanded) {
+      // Focus input when expanding
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 100);
+    }
+  };
+
+  const handleSearchBlur = () => {
+    // Only collapse if search is empty
+    if (!searchQuery.trim()) {
+      setIsSearchExpanded(false);
+    }
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape') {
+      handleSearchClear();
+      searchInputRef.current?.blur();
+    }
+  };
+
   return (
     <AppLayout 
       feedFilters={filters}
@@ -858,7 +931,7 @@ const Feed = () => {
           {/* Content Feed Section */}
           <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-start justify-between mb-6">
           <div>
             <h2 className="text-xl font-semibold">Your Feed</h2>
             <p className="text-sm text-gray-600 mt-1">
@@ -867,6 +940,12 @@ const Feed = () => {
                   {selectedSources.size} source{selectedSources.size !== 1 ? 's' : ''} selected
                   <span className="mx-2">•</span>
                   {filteredSources?.length || 0} filtered
+                  <span className="mx-2">•</span>
+                  {searchFilteredSources?.length || 0} total
+                </>
+              ) : searchQuery.trim() ? (
+                <>
+                  {filteredSources?.length || 0} source{filteredSources?.length !== 1 ? 's' : ''} match search
                   <span className="mx-2">•</span>
                   {allSources?.length || 0} total
                 </>
@@ -885,6 +964,17 @@ const Feed = () => {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            {/* Mobile Search Icon - Aligned with Title */}
+            {isMobile && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleSearchToggle}
+                className="flex-shrink-0"
+              >
+                <Search className="h-5 w-5" />
+              </Button>
+            )}
             {selectedSources.size > 0 && (
               <>
                 <Button 
@@ -904,7 +994,39 @@ const Feed = () => {
             )}
             {!isMobile && (
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">View:</span>
+                {/* Desktop Search */}
+                {isSearchExpanded ? (
+                  <div className="relative animate-in fade-in slide-in-from-right-2 duration-200">
+                    <Input
+                      ref={searchInputRef}
+                      type="text"
+                      placeholder="Search by title or domain..."
+                      value={searchQuery}
+                      onChange={handleSearchChange}
+                      onBlur={handleSearchBlur}
+                      onKeyDown={handleSearchKeyDown}
+                      className="w-64 pr-8"
+                    />
+                    {searchQuery && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleSearchClear}
+                        className="absolute right-0 top-0 h-10 w-10"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleSearchToggle}
+                  >
+                    <Search className="h-5 w-5" />
+                  </Button>
+                )}
                 <div className="flex border rounded-md p-1 bg-muted/50">
                   <Button
                     variant={viewMode === 'list' ? 'default' : 'ghost'}
@@ -929,6 +1051,34 @@ const Feed = () => {
             )}
           </div>
         </div>
+
+        {/* Mobile Search Input - Below Header */}
+        {isMobile && isSearchExpanded && (
+          <div className="mb-6 animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="relative">
+              <Input
+                ref={searchInputRef}
+                type="text"
+                placeholder="Search by title or domain..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                onBlur={handleSearchBlur}
+                onKeyDown={handleSearchKeyDown}
+                className="w-full pr-10"
+              />
+              {searchQuery && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleSearchClear}
+                  className="absolute right-0 top-0 h-10 w-10"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Loading State */}
         {isLoading && (
@@ -1003,8 +1153,8 @@ const Feed = () => {
               ))}
             </div>
 
-            {/* Load More Button - Only show if total count > 20 and there are more to load */}
-            {totalCount > 20 && hasMore && (
+            {/* Load More Button - Only show if not searching, total count > 20 and there are more to load */}
+            {!searchQuery.trim() && totalCount > 20 && hasMore && (
               <div className="flex justify-center pt-6">
                 <Button 
                   variant="outline" 
