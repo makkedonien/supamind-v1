@@ -984,7 +984,8 @@ const Podcasts = () => {
                 <Search className="h-5 w-5" />
               </Button>
             )}
-            {selectedSources.size > 0 && (
+            {/* Desktop only - show buttons in header */}
+            {!isMobile && selectedSources.size > 0 && (
               <>
                 <Button 
                   onClick={() => setShowCreateMicrocastDialog(true)}
@@ -1086,6 +1087,28 @@ const Podcasts = () => {
                 </Button>
               )}
             </div>
+          </div>
+        )}
+
+        {/* Mobile Action Buttons - When Sources Selected */}
+        {isMobile && selectedSources.size > 0 && (
+          <div className="mb-6 flex flex-col gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
+            <Button 
+              onClick={() => setShowCreateMicrocastDialog(true)}
+              className="bg-primary hover:bg-primary/90 w-full"
+              size="lg"
+            >
+              <Mic className="h-4 w-4 mr-2" />
+              Create Microcast
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setSelectedSources(new Set())}
+              className="w-full"
+              size="lg"
+            >
+              Clear Selection
+            </Button>
           </div>
         )}
 
