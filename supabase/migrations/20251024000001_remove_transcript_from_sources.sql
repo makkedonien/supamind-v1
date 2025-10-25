@@ -23,3 +23,4 @@ COMMIT;
 -- 
 -- -- This should return no rows if the column was successfully dropped
 
+
