@@ -2,7 +2,7 @@ import React from 'react';
 import AuthForm from '@/components/auth/AuthForm';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Mic, FolderOpen, ChevronDown, Radio } from 'lucide-react';
+import { Mic, FolderOpen, ChevronDown, Radio } from 'lucide-react';
 
 const Auth = () => {
   return (
@@ -274,58 +274,6 @@ const Auth = () => {
                   <Badge variant="secondary" className="text-xs">🎥 ML Tutorial</Badge>
                   <Badge variant="secondary" className="text-xs">📄 Tech Trends</Badge>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Notebooks Section */}
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="order-2">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-lg">
-                  <BookOpen className="w-6 h-6 text-purple-600" />
-                </div>
-                <h3 className="text-2xl font-semibold text-gray-900">Notebooks</h3>
-              </div>
-              <p className="text-lg text-gray-600 leading-relaxed">
-                Build comprehensive knowledge bases around specific topics. Add multiple sources, chat with your content using AI, and generate podcast discussions from your sources. Whether you're studying, researching, or exploring ideas, Notebooks help you connect the dots across all your sources.
-              </p>
-            </div>
-            <div className="bg-white rounded-lg shadow-lg p-6 border order-1">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                <div className="w-3 h-3 rounded-full bg-green-400"></div>
-                <div className="text-xs text-gray-500 ml-auto">Notebook: Climate Research</div>
-              </div>
-              <div className="space-y-4">
-                <div className="border-b pb-3">
-                  <h4 className="font-semibold text-gray-900 mb-2">Sources (4)</h4>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <span>📄</span>
-                      <span className="text-gray-600">IPCC Climate Report 2023</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <span>🎥</span>
-                      <span className="text-gray-600">Climate Solutions Explained</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <span>📋</span>
-                      <span className="text-gray-600">Carbon Footprint Study</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-gray-50 rounded p-3">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-white text-xs">AI</div>
-                    <span className="text-sm font-medium">Chat Assistant</span>
-                  </div>
-                  <p className="text-sm text-gray-600">"Based on your sources, here are the key climate solutions that experts agree on..."</p>
-                </div>
-                <button className="w-full bg-purple-100 text-purple-700 py-2 px-4 rounded text-sm font-medium">
-                  Generate Podcast Discussion
-                </button>
               </div>
             </div>
           </div>

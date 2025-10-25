@@ -1,0 +1,46 @@
+***************
+*** 887
+-           <div className="flex items-center gap-3">
+--- 962,980 -----
++           {/* Desktop Search - Shows in header right area */}
++           <div className="flex items-center gap-3">
++             {!isMobile && (
++               <div className="flex items-center gap-2">
++                 {!isSearchExpanded ? (
++                   <Button
++                     variant="ghost"
++                     size="icon"
++                     onClick={() => setIsSearchExpanded(true)}
++                     className="h-8 w-8"
++                   >
++                     <Search className="h-4 w-4" />
++                   </Button>
++                 ) : (
++                   <div ref={searchInputRef} className="flex items-center gap-2 border rounded-md px-3 py-1 bg-white min-w-[300px]">
++                     <Search className="h-4 w-4 text-gray-400" />
++                     <input
++                       type="text"
++                       value={searchQuery}
+***************
+*** 0
+--- 1025,1039 -----
++                       onChange={(e) => setSearchQuery(e.target.value)}
++                       onKeyDown={(e) => {
++                         if (e.key === 'Escape') {
++                           handleClearSearch();
++                         }
++                       }}
++                       placeholder="Search by title or domain..."
++                       className="flex-1 outline-none text-sm"
++                     />
++                     {searchQuery && (
++                       <Button variant="ghost" size="icon" onClick={handleClearSearch} className="h-6 w-6">
++                         <X className="h-3 w-3" />
++                       </Button>
++                     )}
++                   </div>
+***************
+*** 0
+--- 1041,1042 -----
++               </div>
++             )}

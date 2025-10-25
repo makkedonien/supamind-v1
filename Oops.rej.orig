@@ -1,0 +1,33 @@
+***************
+*** 865,867
+-               {selectedSources.size > 0 ? (
+-                 <>
+-                   {selectedSources.size} source{selectedSources.size !== 1 ? 's' : ''} selected
+--- 929,931 -----
++               {isSearching ? (
++                 <>
++                   {filteredSources?.length || 0} source{filteredSources?.length !== 1 ? 's' : ''} match search
+***************
+*** 870,874
+-                   {allSources?.length || 0} total
+-                 </>
+-               ) : (
+-                 <>
+-                   {filteredSources?.length || 0} source{filteredSources?.length !== 1 ? 's' : ''} 
+--- 934,949 -----
++                   {searchFilteredSources?.length || 0} found
++                   {(filters.favorites || filters.websites || filters.pdfs || filters.copiedTexts || filters.categories.length > 0) && (
++                     <>
++                       <span className="mx-2">•</span>
++                       {allSources?.length || 0} total
++                     </>
++                   )}
++                 </>
++               ) : selectedSources.size > 0 ? (
++                 <>
++                   {selectedSources.size} source{selectedSources.size !== 1 ? 's' : ''} selected
++                   <span className="mx-2">•</span>
++                   {filteredSources?.length || 0} filtered
++                   <span className="mx-2">•</span>
++                   {allSources?.length || 0} total
++                 </>
