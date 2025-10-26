@@ -941,7 +941,7 @@ const Feed = () => {
                   <span className="mx-2">•</span>
                   {filteredSources?.length || 0} filtered
                   <span className="mx-2">•</span>
-                  {searchFilteredSources?.length || 0} total
+                  {allSources?.length || 0} total
                 </>
               ) : searchQuery.trim() ? (
                 <>
@@ -951,12 +951,15 @@ const Feed = () => {
                 </>
               ) : (
                 <>
-                  {filteredSources?.length || 0} source{filteredSources?.length !== 1 ? 's' : ''} 
-                  {(filters.favorites || filters.websites || filters.pdfs || filters.copiedTexts || filters.categories.length > 0) ? ' match filters' : ' in your feed'}
-                  {(filters.favorites || filters.websites || filters.pdfs || filters.copiedTexts || filters.categories.length > 0) && (
+                  {(filters.favorites || filters.websites || filters.pdfs || filters.copiedTexts || filters.categories.length > 0) ? (
                     <>
+                      {filteredSources?.length || 0} source{filteredSources?.length !== 1 ? 's' : ''} match filters
                       <span className="mx-2">•</span>
-                      {allSources?.length || 0} total
+                      {allSources?.length || 0} total in your feed
+                    </>
+                  ) : (
+                    <>
+                      {allSources?.length || 0} source{allSources?.length !== 1 ? 's' : ''} in your feed
                     </>
                   )}
                 </>

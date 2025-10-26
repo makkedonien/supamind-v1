@@ -950,7 +950,7 @@ const Podcasts = () => {
                   <span className="mx-2">•</span>
                   {filteredSources?.length || 0} filtered
                   <span className="mx-2">•</span>
-                  {searchFilteredSources?.length || 0} total
+                  {allSources?.length || 0} total
                 </>
               ) : searchQuery.trim() ? (
                 <>
@@ -960,12 +960,15 @@ const Podcasts = () => {
                 </>
               ) : (
                 <>
-                  {filteredSources?.length || 0} source{filteredSources?.length !== 1 ? 's' : ''} 
-                  {hasActiveFilters ? ' match filters' : ' in your podcast feed'}
-                  {hasActiveFilters && (
+                  {hasActiveFilters ? (
                     <>
+                      {filteredSources?.length || 0} source{filteredSources?.length !== 1 ? 's' : ''} match filters
                       <span className="mx-2">•</span>
-                      {allSources?.length || 0} total
+                      {allSources?.length || 0} total in your podcast feed
+                    </>
+                  ) : (
+                    <>
+                      {allSources?.length || 0} source{allSources?.length !== 1 ? 's' : ''} in your podcast feed
                     </>
                   )}
                 </>

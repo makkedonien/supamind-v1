@@ -31,20 +31,11 @@ const Microcasts = () => {
     <main className="max-w-7xl mx-auto px-6 py-8">
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-gray-900" style={{ fontSize: '20px', fontWeight: '600' }}>Your Microcasts</h1>
-            <p className="text-gray-600 mt-1" style={{ fontSize: '14px' }}>
-              AI-generated podcast conversations from your sources
-            </p>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <Button onClick={handleGoToFeed}>
-              <Plus className="h-4 w-4 mr-2" />
-              Create Microcast
-            </Button>
-          </div>
+        <div>
+          <h1 className="text-gray-900" style={{ fontSize: '20px', fontWeight: '600' }}>Your Microcasts</h1>
+          <p className="text-gray-600 mt-1" style={{ fontSize: '14px' }}>
+            AI-generated mini-podcasts from your sources
+          </p>
         </div>
 
 
