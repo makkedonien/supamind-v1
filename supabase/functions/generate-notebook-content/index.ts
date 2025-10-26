@@ -3,6 +3,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { handleCorsPreflightRequest, createCorsResponse, validateOrigin } from '../_shared/cors.ts'
 import { isValidUUID, isValidSourceType } from '../_shared/validation.ts'
+import { checkRateLimit, RATE_LIMIT_TIERS } from '../_shared/rate-limit.ts'
 
 serve(async (req) => {
   const origin = req.headers.get('origin');
@@ -57,6 +58,26 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
+
+    // Get notebook to retrieve user_id for rate limiting
+    const { data: notebook, error: fetchError } = await supabaseClient
+      .from('notebooks')
+      .select('user_id')
+      .eq('id', notebookId)
+      .single()
+
+    if (fetchError || !notebook) {
+      console.error('Error fetching notebook:', fetchError)
+      return createCorsResponse(
+        { error: 'Notebook not found' },
+        404,
+        origin
+      );
+    }
+
+    // Apply HIGH_COST rate limit (20 req/hour)
+    const rateLimitError = await checkRateLimit(req, RATE_LIMIT_TIERS.HIGH_COST, notebook.user_id);
+    if (rateLimitError) return rateLimitError;
 
     // Update notebook status to 'generating'
     await supabaseClient

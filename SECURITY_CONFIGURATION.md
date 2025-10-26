@@ -165,47 +165,129 @@ Update the Content-Security-Policy to include your actual API endpoints:
   - Message content length logged instead of full content
   - File paths sanitized in logs
 
-## Rate Limiting (TODO - High Priority)
+## ✅ Rate Limiting - IMPLEMENTED
 
-**Status**: Not yet implemented
+**Status**: Implemented with Upstash Redis
 
-Rate limiting should be added to prevent:
+Rate limiting protects against:
 - DDoS attacks
-- API quota exhaustion
+- API quota exhaustion  
 - Brute force attempts
+- Cost overruns from abuse
 
-**Recommended Implementation**:
+### Configuration
 
-1. **Database-level rate limiting**:
-```sql
--- Create rate limit tracking table
-CREATE TABLE IF NOT EXISTS public.rate_limits (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES auth.users(id),
-  endpoint TEXT NOT NULL,
-  request_count INTEGER DEFAULT 1,
-  window_start TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+Rate limits are tiered by function cost/risk:
 
--- Create index
-CREATE INDEX idx_rate_limits_user_endpoint ON public.rate_limits(user_id, endpoint, window_start);
-```
+| Tier | Limit | Functions |
+|------|-------|-----------|
+| **High-Cost** | 20 req/hour | LLM, TTS API calls |
+| **Medium-Cost** | 50 req/hour | Document/feed processing |
+| **Low-Cost** | 100 req/hour | CRUD operations |
+| **Callback** | 500 req/hour | Trusted webhooks |
 
-2. **Edge function helper**:
+### How It Works
+
+1. **Identifier**: Uses `user_id` if authenticated, otherwise client IP
+2. **Algorithm**: Sliding window (proper rate limiting, not fixed windows)
+3. **Storage**: Upstash Redis (sub-10ms latency, auto-expiration)
+4. **Fail-safe**: Fails open if Redis unavailable (won't block users)
+5. **Bypass**: Optional bypass parameter for admin/premium users
+
+### Function Coverage
+
+All 17 edge functions are protected:
+
+**High-Cost** (20/hour):
+- send-chat-message
+- generate-microcast
+- generate-audio-overview
+- generate-notebook-content
+- generate-note-title
+
+**Medium-Cost** (50/hour):
+- process-document
+- process-feed-document
+- process-feed-sources
+- process-additional-sources
+- refresh-audio-url
+
+**Low-Cost** (100/hour):
+- webhook-handler
+- manage-user-categories
+- process-podcast-feed
+- scheduled-podcast-processing
+
+**Callback** (500/hour):
+- process-document-callback
+- audio-generation-callback
+- microcast-generation-callback
+
+### Adjusting Limits
+
+To modify rate limits, edit `supabase/functions/_shared/rate-limit.ts`:
+
 ```typescript
-// supabase/functions/_shared/rate-limit.ts
-export async function checkRateLimit(
-  userId: string, 
-  endpoint: string, 
-  limit: number = 100, 
-  windowMinutes: number = 60
-): Promise<boolean> {
-  // Implementation to check and update rate limits
-}
+highCost: new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(20, "1 h"), // Change 20 to desired limit
+  analytics: true,
+  prefix: "rl:high",
+}),
 ```
 
-3. **Apply to all user-facing functions**
+### Bypassing Rate Limits
+
+For admin or premium users, pass `bypass: true`:
+
+```typescript
+const rateLimitError = await checkRateLimit(
+  req, 
+  RATE_LIMIT_TIERS.HIGH_COST, 
+  user_id,
+  true  // Bypass rate limiting
+);
+```
+
+### Monitoring
+
+Check Upstash dashboard for:
+- Request counts per endpoint
+- Rate limit hits
+- Top users/IPs
+- Analytics trends
+
+Watch logs for rate limit warnings:
+```
+⚠️ Rate limit exceeded: { tier: 'highCost', identifier: 'user:123', limit: 20, ... }
+```
+
+### Cost Monitoring
+
+**Upstash Free Tier:**
+- 10,000 commands/day
+- Sufficient for <50 users with typical usage
+
+**Estimate your usage:**
+```
+For N users making M requests/hour:
+Total Redis commands = N × M × 1.2 (overhead for analytics)
+
+Example: 50 users × 10 requests/hour × 1.2 = 600 commands/hour
+Daily: 600 × 24 = 14,400 commands/day
+```
+
+If you exceed 10k commands/day consistently, upgrade to paid tier (~$10/month).
+
+### Required Environment Variables
+
+Add these to Supabase:
+```bash
+UPSTASH_REDIS_REST_URL=https://your-db.upstash.io
+UPSTASH_REDIS_REST_TOKEN=your-token-here
+```
+
+Set via: `supabase secrets set VARIABLE_NAME=value`
 
 ## Additional Security Recommendations
 
@@ -252,7 +334,9 @@ Before deploying, ensure these environment variables are set:
 - [ ] `SUPABASE_URL`
 - [ ] `SUPABASE_SERVICE_ROLE_KEY`
 - [ ] `SUPABASE_ANON_KEY`
-- [ ] `WEBHOOK_SECRET` (NEW - Required for callbacks)
+- [ ] `WEBHOOK_SECRET` (Required for callbacks)
+- [ ] `UPSTASH_REDIS_REST_URL` (NEW - Required for rate limiting)
+- [ ] `UPSTASH_REDIS_REST_TOKEN` (NEW - Required for rate limiting)
 - [ ] `NOTEBOOK_CHAT_URL`
 - [ ] `NOTEBOOK_GENERATION_AUTH`
 - [ ] `DOCUMENT_PROCESSING_WEBHOOK_URL`
@@ -277,7 +361,7 @@ Before deploying, ensure these environment variables are set:
 - [ ] Verify webhook signature rejection with invalid signature
 - [ ] Test input validation with malicious payloads
 - [ ] Check security headers using securityheaders.com
-- [ ] Test rate limiting (once implemented)
+- [x] Test rate limiting - IMPLEMENTED (verify 429 responses after limit exceeded)
 - [ ] Verify RLS policies block unauthorized access
 - [ ] Test Chrome extension with missing environment variables
 

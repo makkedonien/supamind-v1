@@ -3,6 +3,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { handleCorsPreflightRequest, createCorsResponse, validateOrigin } from '../_shared/cors.ts'
 import { isValidUUID } from '../_shared/validation.ts'
+import { checkRateLimit, RATE_LIMIT_TIERS } from '../_shared/rate-limit.ts'
 
 serve(async (req) => {
   const origin = req.headers.get('origin');
@@ -32,10 +33,10 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Get the current notebook to find the audio file path
+    // Get the current notebook to find the audio file path and user_id
     const { data: notebook, error: fetchError } = await supabase
       .from('notebooks')
-      .select('audio_overview_url')
+      .select('audio_overview_url, user_id')
       .eq('id', notebookId)
       .single()
 
@@ -47,6 +48,10 @@ serve(async (req) => {
         origin
       );
     }
+
+    // Apply MEDIUM_COST rate limit (50 req/hour)
+    const rateLimitError = await checkRateLimit(req, RATE_LIMIT_TIERS.MEDIUM_COST, notebook.user_id);
+    if (rateLimitError) return rateLimitError;
 
     if (!notebook.audio_overview_url) {
       return createCorsResponse(

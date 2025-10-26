@@ -3,6 +3,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { getCorsHeaders, handleCorsPreflightRequest, createCorsResponse, validateOrigin } from '../_shared/cors.ts'
 import { validateChatMessage, sanitizeString } from '../_shared/validation.ts'
+import { checkRateLimit, RATE_LIMIT_TIERS } from '../_shared/rate-limit.ts'
 
 serve(async (req) => {
   const origin = req.headers.get('origin');
@@ -30,6 +31,10 @@ serve(async (req) => {
     }
 
     const { session_id, message, user_id } = body;
+
+    // Apply HIGH_COST rate limit (20 req/hour)
+    const rateLimitError = await checkRateLimit(req, RATE_LIMIT_TIERS.HIGH_COST, user_id);
+    if (rateLimitError) return rateLimitError;
     
     // Sanitize message
     const sanitizedMessage = sanitizeString(message, 50000);

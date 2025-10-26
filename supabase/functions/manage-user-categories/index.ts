@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { handleCorsPreflightRequest, createCorsResponse, validateOrigin } from '../_shared/cors.ts'
 import { isValidUUID, sanitizeString } from '../_shared/validation.ts'
+import { checkRateLimit, RATE_LIMIT_TIERS } from '../_shared/rate-limit.ts'
 
 interface UserCategory {
   id?: string;
@@ -56,6 +57,10 @@ serve(async (req) => {
         origin
       );
     }
+
+    // Apply LOW_COST rate limit (100 req/hour)
+    const rateLimitError = await checkRateLimit(req, RATE_LIMIT_TIERS.LOW_COST, user.id);
+    if (rateLimitError) return rateLimitError;
 
     const method = req.method;
     const url = new URL(req.url);

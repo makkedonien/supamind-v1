@@ -3,6 +3,7 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { handleCorsPreflightRequest, createCorsResponse, validateOrigin } from '../_shared/cors.ts'
 import { sanitizeString } from '../_shared/validation.ts'
+import { checkRateLimit, RATE_LIMIT_TIERS } from '../_shared/rate-limit.ts'
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
@@ -19,6 +20,10 @@ serve(async (req) => {
 
   try {
     const { content } = await req.json();
+
+    // Apply HIGH_COST rate limit (20 req/hour) - IP-based since no user_id
+    const rateLimitError = await checkRateLimit(req, RATE_LIMIT_TIERS.HIGH_COST);
+    if (rateLimitError) return rateLimitError;
 
     if (!content) {
       return createCorsResponse(

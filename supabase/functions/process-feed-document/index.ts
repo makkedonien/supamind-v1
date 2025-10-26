@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { handleCorsPreflightRequest, createCorsResponse, validateOrigin } from '../_shared/cors.ts'
 import { isValidUUID, isValidFilePath, isValidSourceType } from '../_shared/validation.ts'
+import { checkRateLimit, RATE_LIMIT_TIERS } from '../_shared/rate-limit.ts'
 
 serve(async (req) => {
   const origin = req.headers.get('origin');
@@ -32,6 +33,10 @@ serve(async (req) => {
         origin
       );
     }
+
+    // Apply MEDIUM_COST rate limit (50 req/hour)
+    const rateLimitError = await checkRateLimit(req, RATE_LIMIT_TIERS.MEDIUM_COST, userId);
+    if (rateLimitError) return rateLimitError;
     
     if (!filePath || !isValidFilePath(filePath)) {
       return createCorsResponse(
