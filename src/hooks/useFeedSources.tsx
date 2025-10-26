@@ -1,7 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
+
+// Global subscription management to prevent duplicate subscriptions
+const activeSubscriptions = new Map<string, { channel: any; refCount: number }>();
 
 export const useFeedSources = () => {
   const { user } = useAuth();
@@ -54,11 +57,36 @@ export const useFeedSources = () => {
   // Check if there are more sources to load
   const hasMore = displayLimit < totalCount;
 
-  // Set up Realtime subscription for feed sources
+  // Set up Realtime subscription for feed sources (singleton pattern)
   useEffect(() => {
-    if (!user) return;
+    if (!user?.id) return;
 
-    console.log('Setting up Realtime subscription for feed sources, user:', user.id);
+    const subscriptionKey = `feed-sources-${user.id}`;
+    
+    // Check if subscription already exists
+    const existing = activeSubscriptions.get(subscriptionKey);
+    
+    if (existing) {
+      // Increment ref count for existing subscription
+      existing.refCount++;
+      console.log(`Reusing existing Realtime subscription for feed sources, refCount: ${existing.refCount}`);
+      
+      return () => {
+        // Decrement ref count on cleanup
+        existing.refCount--;
+        console.log(`Decremented feed sources subscription refCount: ${existing.refCount}`);
+        
+        // Only remove channel when last component unmounts
+        if (existing.refCount === 0) {
+          console.log('Last component unmounted, cleaning up Realtime subscription for feed sources');
+          supabase.removeChannel(existing.channel);
+          activeSubscriptions.delete(subscriptionKey);
+        }
+      };
+    }
+
+    // Create new subscription
+    console.log('Creating new Realtime subscription for feed sources');
 
     const channel = supabase
       .channel('feed-sources-changes')
@@ -113,11 +141,24 @@ export const useFeedSources = () => {
         console.log('Realtime subscription status for feed sources:', status);
       });
 
+    // Store the new subscription
+    activeSubscriptions.set(subscriptionKey, { channel, refCount: 1 });
+
     return () => {
-      console.log('Cleaning up Realtime subscription for feed sources');
-      supabase.removeChannel(channel);
+      const sub = activeSubscriptions.get(subscriptionKey);
+      if (sub) {
+        sub.refCount--;
+        console.log(`Decremented feed sources subscription refCount: ${sub.refCount}`);
+        
+        // Only remove channel when last component unmounts
+        if (sub.refCount === 0) {
+          console.log('Last component unmounted, cleaning up Realtime subscription for feed sources');
+          supabase.removeChannel(sub.channel);
+          activeSubscriptions.delete(subscriptionKey);
+        }
+      }
     };
-  }, [user, queryClient]);
+  }, [user?.id]);
 
   const addSource = useMutation({
     mutationFn: async (sourceData: {

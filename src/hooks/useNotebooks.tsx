@@ -4,6 +4,9 @@ import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
+// Global subscription management to prevent duplicate subscriptions
+const activeSubscriptions = new Map<string, { channel: any; refCount: number }>();
+
 export const useNotebooks = () => {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const queryClient = useQueryClient();
@@ -21,7 +24,7 @@ export const useNotebooks = () => {
         return [];
       }
       
-      console.log('Fetching notebooks for user:', user.id);
+      console.log('Fetching notebooks for authenticated user');
       
       // First get the notebooks
       const { data: notebooksData, error: notebooksError } = await supabase
@@ -65,11 +68,29 @@ export const useNotebooks = () => {
     },
   });
 
-  // Set up real-time subscription for notebooks updates
+  // Set up real-time subscription for notebooks updates (singleton pattern)
   useEffect(() => {
     if (!user?.id || !isAuthenticated) return;
 
-    console.log('Setting up real-time subscription for notebooks');
+    const subscriptionKey = `notebooks-${user.id}`;
+    const existing = activeSubscriptions.get(subscriptionKey);
+    
+    if (existing) {
+      existing.refCount++;
+      console.log(`Reusing existing Realtime subscription for notebooks, refCount: ${existing.refCount}`);
+      
+      return () => {
+        existing.refCount--;
+        console.log(`Decremented notebooks subscription refCount: ${existing.refCount}`);
+        if (existing.refCount === 0) {
+          console.log('Last component unmounted, cleaning up Realtime subscription for notebooks');
+          supabase.removeChannel(existing.channel);
+          activeSubscriptions.delete(subscriptionKey);
+        }
+      };
+    }
+
+    console.log('Creating new Realtime subscription for notebooks');
 
     const channel = supabase
       .channel('notebooks-changes')
@@ -90,11 +111,21 @@ export const useNotebooks = () => {
       )
       .subscribe();
 
+    activeSubscriptions.set(subscriptionKey, { channel, refCount: 1 });
+
     return () => {
-      console.log('Cleaning up real-time subscription');
-      supabase.removeChannel(channel);
+      const sub = activeSubscriptions.get(subscriptionKey);
+      if (sub) {
+        sub.refCount--;
+        console.log(`Decremented notebooks subscription refCount: ${sub.refCount}`);
+        if (sub.refCount === 0) {
+          console.log('Last component unmounted, cleaning up Realtime subscription for notebooks');
+          supabase.removeChannel(sub.channel);
+          activeSubscriptions.delete(subscriptionKey);
+        }
+      }
     };
-  }, [user?.id, isAuthenticated, queryClient]);
+  }, [user?.id, isAuthenticated]);
 
   const createNotebook = useMutation({
     mutationFn: async (notebookData: { title: string; description?: string }) => {

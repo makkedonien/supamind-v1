@@ -36,7 +36,7 @@ export const useProfile = () => {
         return null;
       }
       
-      console.log('Fetching profile for user:', user.id);
+      console.log('Fetching profile for authenticated user');
       
       const { data, error } = await supabase
         .from('profiles')

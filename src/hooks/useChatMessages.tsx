@@ -6,6 +6,9 @@ import { EnhancedChatMessage, Citation, MessageSegment } from '@/types/message';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect } from 'react';
 
+// Global subscription management to prevent duplicate subscriptions
+const activeSubscriptions = new Map<string, { channel: any; refCount: number }>();
+
 // Type for the expected message structure from n8n_chat_histories
 interface N8nMessageFormat {
   type: 'human' | 'ai';
@@ -202,11 +205,29 @@ export const useChatMessages = (notebookId?: string) => {
     refetchOnReconnect: true,
   });
 
-  // Set up Realtime subscription for new messages
+  // Set up Realtime subscription for new messages (singleton pattern)
   useEffect(() => {
-    if (!notebookId || !user) return;
+    if (!notebookId || !user?.id) return;
 
-    console.log('Setting up Realtime subscription for notebook:', notebookId);
+    const subscriptionKey = `chat-messages-${notebookId}`;
+    const existing = activeSubscriptions.get(subscriptionKey);
+    
+    if (existing) {
+      existing.refCount++;
+      console.log(`Reusing existing Realtime subscription for chat messages, refCount: ${existing.refCount}`);
+      
+      return () => {
+        existing.refCount--;
+        console.log(`Decremented chat messages subscription refCount: ${existing.refCount}`);
+        if (existing.refCount === 0) {
+          console.log('Last component unmounted, cleaning up Realtime subscription for chat messages');
+          supabase.removeChannel(existing.channel);
+          activeSubscriptions.delete(subscriptionKey);
+        }
+      };
+    }
+
+    console.log('Creating new Realtime subscription for notebook:', notebookId);
 
     const channel = supabase
       .channel('chat-messages')
@@ -250,11 +271,21 @@ export const useChatMessages = (notebookId?: string) => {
         console.log('Realtime subscription status:', status);
       });
 
+    activeSubscriptions.set(subscriptionKey, { channel, refCount: 1 });
+
     return () => {
-      console.log('Cleaning up Realtime subscription');
-      supabase.removeChannel(channel);
+      const sub = activeSubscriptions.get(subscriptionKey);
+      if (sub) {
+        sub.refCount--;
+        console.log(`Decremented chat messages subscription refCount: ${sub.refCount}`);
+        if (sub.refCount === 0) {
+          console.log('Last component unmounted, cleaning up Realtime subscription for chat messages');
+          supabase.removeChannel(sub.channel);
+          activeSubscriptions.delete(subscriptionKey);
+        }
+      }
     };
-  }, [notebookId, user, queryClient]);
+  }, [notebookId, user?.id]);
 
   const sendMessage = useMutation({
     mutationFn: async (messageData: {

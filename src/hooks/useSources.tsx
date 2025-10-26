@@ -5,6 +5,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNotebookGeneration } from './useNotebookGeneration';
 import { useEffect } from 'react';
 
+// Global subscription management to prevent duplicate subscriptions
+const activeSubscriptions = new Map<string, { channel: any; refCount: number }>();
+
 export const useSources = (notebookId?: string) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -31,11 +34,29 @@ export const useSources = (notebookId?: string) => {
     enabled: !!notebookId,
   });
 
-  // Set up Realtime subscription for sources table
+  // Set up Realtime subscription for sources table (singleton pattern)
   useEffect(() => {
-    if (!notebookId || !user) return;
+    if (!notebookId || !user?.id) return;
 
-    console.log('Setting up Realtime subscription for sources table, notebook:', notebookId);
+    const subscriptionKey = `sources-${notebookId}`;
+    const existing = activeSubscriptions.get(subscriptionKey);
+    
+    if (existing) {
+      existing.refCount++;
+      console.log(`Reusing existing Realtime subscription for sources, refCount: ${existing.refCount}`);
+      
+      return () => {
+        existing.refCount--;
+        console.log(`Decremented sources subscription refCount: ${existing.refCount}`);
+        if (existing.refCount === 0) {
+          console.log('Last component unmounted, cleaning up Realtime subscription for sources');
+          supabase.removeChannel(existing.channel);
+          activeSubscriptions.delete(subscriptionKey);
+        }
+      };
+    }
+
+    console.log('Creating new Realtime subscription for sources table, notebook:', notebookId);
 
     const channel = supabase
       .channel('sources-changes')
@@ -89,11 +110,21 @@ export const useSources = (notebookId?: string) => {
         console.log('Realtime subscription status for sources:', status);
       });
 
+    activeSubscriptions.set(subscriptionKey, { channel, refCount: 1 });
+
     return () => {
-      console.log('Cleaning up Realtime subscription for sources');
-      supabase.removeChannel(channel);
+      const sub = activeSubscriptions.get(subscriptionKey);
+      if (sub) {
+        sub.refCount--;
+        console.log(`Decremented sources subscription refCount: ${sub.refCount}`);
+        if (sub.refCount === 0) {
+          console.log('Last component unmounted, cleaning up Realtime subscription for sources');
+          supabase.removeChannel(sub.channel);
+          activeSubscriptions.delete(subscriptionKey);
+        }
+      }
     };
-  }, [notebookId, user, queryClient]);
+  }, [notebookId, user?.id]);
 
   const addSource = useMutation({
     mutationFn: async (sourceData: {

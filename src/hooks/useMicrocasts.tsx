@@ -8,6 +8,9 @@ type Microcast = Tables<'microcasts'>;
 type MicrocastInsert = TablesInsert<'microcasts'>;
 type MicrocastUpdate = TablesUpdate<'microcasts'>;
 
+// Global subscription management to prevent duplicate subscriptions
+const activeSubscriptions = new Map<string, { channel: any; refCount: number }>();
+
 export const useMicrocasts = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -33,11 +36,34 @@ export const useMicrocasts = () => {
     enabled: !!user,
   });
 
-  // Set up Realtime subscription for microcasts
+  // Set up Realtime subscription for microcasts (singleton pattern)
   useEffect(() => {
-    if (!user) return;
+    if (!user?.id) return;
 
-    console.log('Setting up Realtime subscription for microcasts, user:', user.id);
+    const subscriptionKey = `microcasts-${user.id}`;
+    
+    // Check if subscription already exists
+    const existing = activeSubscriptions.get(subscriptionKey);
+    
+    if (existing) {
+      // Increment ref count for existing subscription
+      existing.refCount++;
+      console.log(`Reusing existing Realtime subscription for microcasts, refCount: ${existing.refCount}`);
+      
+      return () => {
+        existing.refCount--;
+        console.log(`Decremented microcasts subscription refCount: ${existing.refCount}`);
+        
+        if (existing.refCount === 0) {
+          console.log('Last component unmounted, cleaning up Realtime subscription for microcasts');
+          supabase.removeChannel(existing.channel);
+          activeSubscriptions.delete(subscriptionKey);
+        }
+      };
+    }
+
+    // Create new subscription
+    console.log('Creating new Realtime subscription for microcasts');
 
     const channel = supabase
       .channel('microcasts-changes')
@@ -88,11 +114,23 @@ export const useMicrocasts = () => {
         console.log('Realtime subscription status for microcasts:', status);
       });
 
+    // Store the new subscription
+    activeSubscriptions.set(subscriptionKey, { channel, refCount: 1 });
+
     return () => {
-      console.log('Cleaning up Realtime subscription for microcasts');
-      supabase.removeChannel(channel);
+      const sub = activeSubscriptions.get(subscriptionKey);
+      if (sub) {
+        sub.refCount--;
+        console.log(`Decremented microcasts subscription refCount: ${sub.refCount}`);
+        
+        if (sub.refCount === 0) {
+          console.log('Last component unmounted, cleaning up Realtime subscription for microcasts');
+          supabase.removeChannel(sub.channel);
+          activeSubscriptions.delete(subscriptionKey);
+        }
+      }
     };
-  }, [user, queryClient]);
+  }, [user?.id]);
 
   const createMicrocast = useMutation({
     mutationFn: async (microcastData: {

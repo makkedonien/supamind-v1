@@ -4,6 +4,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+// Global subscription management to prevent duplicate subscriptions
+const activeSubscriptions = new Map<string, { channel: any; refCount: number }>();
+
 export const useAudioOverview = (notebookId?: string) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationStatus, setGenerationStatus] = useState<string | null>(null);
@@ -11,9 +14,29 @@ export const useAudioOverview = (notebookId?: string) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Set up realtime subscription for notebook updates
+  // Set up realtime subscription for notebook updates (singleton pattern)
   useEffect(() => {
     if (!notebookId) return;
+
+    const subscriptionKey = `notebook-audio-${notebookId}`;
+    const existing = activeSubscriptions.get(subscriptionKey);
+    
+    if (existing) {
+      existing.refCount++;
+      console.log(`Reusing existing Realtime subscription for audio overview, refCount: ${existing.refCount}`);
+      
+      return () => {
+        existing.refCount--;
+        console.log(`Decremented audio overview subscription refCount: ${existing.refCount}`);
+        if (existing.refCount === 0) {
+          console.log('Last component unmounted, cleaning up Realtime subscription for audio overview');
+          supabase.removeChannel(existing.channel);
+          activeSubscriptions.delete(subscriptionKey);
+        }
+      };
+    }
+
+    console.log('Creating new Realtime subscription for audio overview, notebook:', notebookId);
 
     const channel = supabase
       .channel('notebook-audio-updates')
@@ -54,10 +77,21 @@ export const useAudioOverview = (notebookId?: string) => {
       )
       .subscribe();
 
+    activeSubscriptions.set(subscriptionKey, { channel, refCount: 1 });
+
     return () => {
-      supabase.removeChannel(channel);
+      const sub = activeSubscriptions.get(subscriptionKey);
+      if (sub) {
+        sub.refCount--;
+        console.log(`Decremented audio overview subscription refCount: ${sub.refCount}`);
+        if (sub.refCount === 0) {
+          console.log('Last component unmounted, cleaning up Realtime subscription for audio overview');
+          supabase.removeChannel(sub.channel);
+          activeSubscriptions.delete(subscriptionKey);
+        }
+      }
     };
-  }, [notebookId, toast, queryClient]);
+  }, [notebookId]);
 
   const generateAudioOverview = useMutation({
     mutationFn: async (notebookId: string) => {

@@ -3,6 +3,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState, useCallback } from 'react';
 
+// Global subscription management to prevent duplicate subscriptions
+const activeSubscriptions = new Map<string, { channel: any; refCount: number }>();
+
 export const usePodcastSources = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -55,11 +58,29 @@ export const usePodcastSources = () => {
   // Check if there are more sources to load
   const hasMore = displayLimit < totalCount;
 
-  // Set up Realtime subscription for podcast sources
+  // Set up Realtime subscription for podcast sources (singleton pattern)
   useEffect(() => {
-    if (!user) return;
+    if (!user?.id) return;
 
-    console.log('Setting up Realtime subscription for podcast sources, user:', user.id);
+    const subscriptionKey = `podcast-sources-${user.id}`;
+    const existing = activeSubscriptions.get(subscriptionKey);
+    
+    if (existing) {
+      existing.refCount++;
+      console.log(`Reusing existing Realtime subscription for podcast sources, refCount: ${existing.refCount}`);
+      
+      return () => {
+        existing.refCount--;
+        console.log(`Decremented podcast sources subscription refCount: ${existing.refCount}`);
+        if (existing.refCount === 0) {
+          console.log('Last component unmounted, cleaning up Realtime subscription for podcast sources');
+          supabase.removeChannel(existing.channel);
+          activeSubscriptions.delete(subscriptionKey);
+        }
+      };
+    }
+
+    console.log('Creating new Realtime subscription for podcast sources');
 
     const channel = supabase
       .channel('podcast-sources-changes')
@@ -114,11 +135,21 @@ export const usePodcastSources = () => {
         console.log('Realtime subscription status for podcast sources:', status);
       });
 
+    activeSubscriptions.set(subscriptionKey, { channel, refCount: 1 });
+
     return () => {
-      console.log('Cleaning up Realtime subscription for podcast sources');
-      supabase.removeChannel(channel);
+      const sub = activeSubscriptions.get(subscriptionKey);
+      if (sub) {
+        sub.refCount--;
+        console.log(`Decremented podcast sources subscription refCount: ${sub.refCount}`);
+        if (sub.refCount === 0) {
+          console.log('Last component unmounted, cleaning up Realtime subscription for podcast sources');
+          supabase.removeChannel(sub.channel);
+          activeSubscriptions.delete(subscriptionKey);
+        }
+      }
     };
-  }, [user, queryClient]);
+  }, [user?.id]);
 
   const addSource = useMutation({
     mutationFn: async (sourceData: {
