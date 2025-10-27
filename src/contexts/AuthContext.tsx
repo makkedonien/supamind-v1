@@ -3,12 +3,21 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
+interface Profile {
+  id: string;
+  email: string;
+  admin_approval: boolean;
+  user_role: string;
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
+  profile: Profile | null;
   loading: boolean;
   error: string | null;
   isAuthenticated: boolean;
+  isApproved: boolean;
   signOut: () => Promise<void>;
 }
 
@@ -29,13 +38,43 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const updateAuthState = (newSession: Session | null) => {
+  const fetchProfile = async (userId: string) => {
+    try {
+      const { data, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, email, admin_approval, user_role')
+        .eq('id', userId)
+        .single();
+
+      if (profileError) {
+        console.error('AuthContext: Error fetching profile:', profileError);
+        return null;
+      }
+
+      return data as Profile;
+    } catch (err) {
+      console.error('AuthContext: Unexpected error fetching profile:', err);
+      return null;
+    }
+  };
+
+  const updateAuthState = async (newSession: Session | null) => {
     console.log('AuthContext: Updating auth state:', newSession ? 'User authenticated' : 'No session');
     setSession(newSession);
     setUser(newSession?.user ?? null);
+    
+    // Fetch profile if we have a user
+    if (newSession?.user) {
+      const profileData = await fetchProfile(newSession.user.id);
+      setProfile(profileData);
+      console.log('AuthContext: Profile loaded, admin_approval:', profileData?.admin_approval);
+    } else {
+      setProfile(null);
+    }
     
     // Clear any previous errors on successful auth
     if (newSession && error) {
@@ -47,6 +86,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     console.log('AuthContext: Clearing auth state');
     setSession(null);
     setUser(null);
+    setProfile(null);
     setError(null);
   };
 
@@ -108,15 +148,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         
         // Handle sign in events
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          updateAuthState(newSession);
-          setLoading(false);
+          updateAuthState(newSession).then(() => setLoading(false));
           return;
         }
         
         // For other events, update state if there's an actual change
         if (session?.access_token !== newSession?.access_token) {
-          updateAuthState(newSession);
-          if (loading) setLoading(false);
+          updateAuthState(newSession).then(() => {
+            if (loading) setLoading(false);
+          });
         }
       }
     );
@@ -152,7 +192,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         
         if (mounted) {
           console.log('AuthContext: Initial session:', initialSession ? 'User session found' : 'No session');
-          updateAuthState(initialSession);
+          await updateAuthState(initialSession);
           setLoading(false);
         }
       } catch (err) {
@@ -176,9 +216,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const value: AuthContextType = {
     user,
     session,
+    profile,
     loading,
     error,
     isAuthenticated: !!user && !!session,
+    // Only return true if we have a profile AND it's approved
+    // If loading or no profile yet, return false (will be handled by loading check)
+    isApproved: !!profile && profile.admin_approval === true,
     signOut,
   };
 

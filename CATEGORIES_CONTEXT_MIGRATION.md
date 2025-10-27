@@ -43,3 +43,5 @@ With this change, categories are now fetched only once per session instead of 3+
 ## Old Hook Status
 The old `useUserCategories` hook (`src/hooks/useUserCategories.tsx`) can now be safely deleted as it's no longer in use.
 
+
+

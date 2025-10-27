@@ -20,6 +20,7 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import ExtensionAuth from "./pages/ExtensionAuth";
 import Privacy from "./pages/Privacy";
+import PendingApproval from "./pages/PendingApproval";
 
 const queryClient = new QueryClient();
 
@@ -82,6 +83,7 @@ const AppContent = () => {
           } 
         />
         <Route path="/auth" element={<Auth />} />
+        <Route path="/pending-approval" element={<PendingApproval />} />
         <Route path="/extension-auth" element={<ExtensionAuth />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="*" element={<NotFound />} />
