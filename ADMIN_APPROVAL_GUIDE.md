@@ -159,3 +159,4 @@ For questions or issues with the approval system, check:
 2. Browser console for frontend errors
 3. Database migrations to ensure they ran successfully
 
+

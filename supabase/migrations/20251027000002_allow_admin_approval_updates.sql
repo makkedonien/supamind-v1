@@ -37,3 +37,4 @@ CREATE POLICY "Admins can update user approvals"
 
 COMMIT;
 
+
