@@ -8,8 +8,10 @@ import { Play, Pause, Loader2, AlertTriangle, Clock, Mic, FileText, Link as Link
 import { useAudioPlayer } from '@/contexts/AudioPlayerContext';
 import { Tables } from '@/integrations/supabase/types';
 import { useFeedSources } from '@/hooks/useFeedSources';
+import { usePodcastSources } from '@/hooks/usePodcastSources';
 import { useMicrocasts } from '@/hooks/useMicrocasts';
 import { useToast } from '@/hooks/use-toast';
+import { useMemo } from 'react';
 
 type Microcast = Tables<'microcasts'>;
 
@@ -20,9 +22,15 @@ interface MicrocastCardProps {
 
 const MicrocastCard: React.FC<MicrocastCardProps> = ({ microcast, onClick }) => {
   const { playerState, playMicrocast, pausePlayback, resumePlayback } = useAudioPlayer();
-  const { allSources } = useFeedSources();
+  const { allSources: feedSources } = useFeedSources();
+  const { allSources: podcastSources } = usePodcastSources();
   const { deleteMicrocast, isDeleting } = useMicrocasts();
   const { toast } = useToast();
+
+  // Combine feed sources and podcast sources to support microcasts from both pages
+  const allSources = useMemo(() => {
+    return [...feedSources, ...podcastSources];
+  }, [feedSources, podcastSources]);
 
   // Check if this microcast is currently playing
   const isCurrentMicrocast = playerState.currentMicrocast?.id === microcast.id;
@@ -100,6 +108,7 @@ const MicrocastCard: React.FC<MicrocastCardProps> = ({ microcast, onClick }) => 
   const microcastSources = allSources.filter(source => 
     microcast.source_ids.includes(source.id)
   );
+
 
   // Utility functions for source display
   const getSourceIcon = (type: string) => {
@@ -331,7 +340,7 @@ const MicrocastCard: React.FC<MicrocastCardProps> = ({ microcast, onClick }) => 
         )}
 
         {/* Sources Section */}
-        {microcastSources.length > 0 && (
+        {microcast.source_ids && microcast.source_ids.length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-gray-700">Sources</span>
@@ -340,8 +349,13 @@ const MicrocastCard: React.FC<MicrocastCardProps> = ({ microcast, onClick }) => 
               </Badge>
             </div>
             
-            <div className="space-y-2">
-              {microcastSources.slice(0, 3).map((source) => (
+            {microcastSources.length === 0 ? (
+              <div className="text-sm text-gray-500 italic">
+                Sources not found (may have been deleted)
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {microcastSources.slice(0, 3).map((source) => (
                 <div key={source.id} className="flex items-center gap-3 p-2 rounded-lg bg-gray-50/50 border border-gray-100">
                   {/* Source Thumbnail */}
                   <div className="flex-shrink-0">
@@ -384,16 +398,17 @@ const MicrocastCard: React.FC<MicrocastCardProps> = ({ microcast, onClick }) => 
                     </div>
                   </div>
                 </div>
-              ))}
-              
-              {microcastSources.length > 3 && (
-                <div className="text-center py-1">
-                  <span className="text-xs text-gray-500">
-                    +{microcastSources.length - 3} more source{microcastSources.length - 3 !== 1 ? 's' : ''}
-                  </span>
-                </div>
-              )}
-            </div>
+                ))}
+                
+                {microcastSources.length > 3 && (
+                  <div className="text-center py-1">
+                    <span className="text-xs text-gray-500">
+                      +{microcastSources.length - 3} more source{microcastSources.length - 3 !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 

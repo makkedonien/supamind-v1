@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Rss, Mic, Radio, User, LogOut, Settings, Star, Globe, FileText, Copy, Filter, Loader2, Clock } from 'lucide-react';
+import { Rss, Mic, Radio, User, LogOut, Settings, Star, Globe, FileText, Copy, Filter, Loader2, Clock, Video } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -418,6 +418,12 @@ const AppSidebar = ({ feedFilters, onFeedFiltersChange, feedSourceCounts, proces
                     <Settings className="h-4 w-4 mr-2" />
                     Settings
                   </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <a href="https://www.loom.com/share/0584984dfbab4e95be385bd8b2967ee0" target="_blank" rel="noopener noreferrer">
+                    <Video className="h-4 w-4 mr-2" />
+                    Intro Video
+                  </a>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={logout} className="cursor-pointer">
                   <LogOut className="h-4 w-4 mr-2" />
