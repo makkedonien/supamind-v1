@@ -9,13 +9,16 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Key, Trash2, Plus, X, Loader2, Download, Chrome, Mail, Radio } from 'lucide-react';
-import { useUserCategories } from '@/hooks/useUserCategories';
+import { useCategories } from '@/contexts/CategoriesContext';
 import { useProfile } from '@/hooks/useProfile';
 import { usePodcasts } from '@/hooks/usePodcasts';
 import { supabase } from '@/integrations/supabase/client';
+import { useOnboardingDialogue } from '@/hooks/useOnboardingDialogue';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Settings = () => {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const { 
     categories, 
     isLoading: categoriesLoading, 
@@ -24,7 +27,7 @@ const Settings = () => {
     createCategory, 
     deleteCategory,
     categoryNameExists 
-  } = useUserCategories();
+  } = useCategories();
   
   const {
     profile,
@@ -44,6 +47,10 @@ const Settings = () => {
     deletePodcast,
     rssExists
   } = usePodcasts();
+  
+  // Onboarding dialogue
+  const { isOpen: isOnboardingOpen, dismissDialogue, isUpdating: isOnboardingUpdating } = useOnboardingDialogue('settings_dialogue');
+  const [showOnboarding, setShowOnboarding] = useState(true);
   
   // Form state
   const [name, setName] = useState(user?.email?.split('@')[0] || '');
@@ -354,6 +361,11 @@ const Settings = () => {
     link.click();
   };
 
+  const handleDismissOnboarding = async () => {
+    setShowOnboarding(false);
+    await dismissDialogue();
+  };
+
   return (
     <div className="container mx-auto px-4 py-6 max-w-4xl">
       <div className="mb-8">
@@ -361,6 +373,50 @@ const Settings = () => {
       </div>
 
       <div className="space-y-6">
+        {/* Onboarding Section */}
+        {isOnboardingOpen && showOnboarding && (
+          <Card className="border-2 border-pink-500 shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-xl font-semibold">Welcome to your user settings!</CardTitle>
+              <CardDescription>
+                Here you can configure your account, API keys, categories, podcast subscriptions and other settings.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3 text-sm text-muted-foreground break-words">
+                <p>
+                  <strong className="text-pink-600">(Important) API Keys:</strong> For key functions to work, you need to provide API keys OpenAI, Gemini, and AssemblyAI API keys to enable AI features.
+                </p>
+                <p>
+                  <strong>Podcast feeds:</strong> Add up to 10 RSS feeds to automatically process new podcast episodes as they are published and added to your podcast feed.
+                </p>
+                <p>
+                  <strong>Categories:</strong> Create custom categories to for the AI to use when auto-categorizing your content.
+                </p>
+                <p>
+                  <strong>AI customization:</strong> Optionally customize how the AI generates summaries and categorizes content. This is optional, as there are system prompts in place that should generate good output.
+                </p>
+              </div>
+              <div className="pt-2">
+                <Button 
+                  onClick={handleDismissOnboarding} 
+                  disabled={isOnboardingUpdating}
+                  className="w-full"
+                >
+                  {isOnboardingUpdating ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    'Okay, understood'
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Account Section */}
         <Card>
           <CardHeader>
@@ -437,7 +493,7 @@ const Settings = () => {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="openai-api-key">OpenAI API Key</Label>
-              <div className="flex gap-2">
+              <div className="flex flex-col md:flex-row gap-2">
                 <Input
                   id="openai-api-key"
                   type="password"
@@ -447,27 +503,29 @@ const Settings = () => {
                   placeholder={profile?.openai_key_vault_secret ? "API key is set (masked)" : "Enter your OpenAI API key"}
                   className="flex-1"
                 />
-                <Button 
-                  onClick={handleSaveOpenaiApiKey}
-                  disabled={!openaiApiKey.trim() || openaiApiKey === '••••••••' || isUpdating}
-                  size="default"
-                  className="whitespace-nowrap"
-                >
-                  {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                  Save API Key
-                </Button>
-                {profile?.openai_key_vault_secret && (
+                <div className="flex gap-2">
                   <Button 
-                    onClick={handleRemoveOpenaiApiKey}
-                    disabled={isUpdating}
+                    onClick={handleSaveOpenaiApiKey}
+                    disabled={!openaiApiKey.trim() || openaiApiKey === '••••••••' || isUpdating}
                     size="default"
-                    variant="destructive"
-                    className="whitespace-nowrap"
+                    className="whitespace-nowrap flex-1 md:flex-none"
                   >
-                    {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
-                    Remove
+                    {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                    Save API Key
                   </Button>
-                )}
+                  {profile?.openai_key_vault_secret && (
+                    <Button 
+                      onClick={handleRemoveOpenaiApiKey}
+                      disabled={isUpdating}
+                      size="default"
+                      variant="destructive"
+                      className="whitespace-nowrap flex-1 md:flex-none"
+                    >
+                      {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
+                      Remove
+                    </Button>
+                  )}
+                </div>
               </div>
               <p className="text-xs text-muted-foreground">
                 Optional: Enter your OpenAI API key to use your own OpenAI account for AI features.
@@ -476,7 +534,7 @@ const Settings = () => {
 
             <div className="space-y-2">
               <Label htmlFor="gemini-api-key">Gemini API Key</Label>
-              <div className="flex gap-2">
+              <div className="flex flex-col md:flex-row gap-2">
                 <Input
                   id="gemini-api-key"
                   type="password"
@@ -486,27 +544,29 @@ const Settings = () => {
                   placeholder={profile?.gemini_key_vault_secret ? "API key is set (masked)" : "Enter your Gemini API key"}
                   className="flex-1"
                 />
-                <Button 
-                  onClick={handleSaveGeminiApiKey}
-                  disabled={!geminiApiKey.trim() || geminiApiKey === '••••••••' || isUpdating}
-                  size="default"
-                  className="whitespace-nowrap"
-                >
-                  {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                  Save API Key
-                </Button>
-                {profile?.gemini_key_vault_secret && (
+                <div className="flex gap-2">
                   <Button 
-                    onClick={handleRemoveGeminiApiKey}
-                    disabled={isUpdating}
+                    onClick={handleSaveGeminiApiKey}
+                    disabled={!geminiApiKey.trim() || geminiApiKey === '••••••••' || isUpdating}
                     size="default"
-                    variant="destructive"
-                    className="whitespace-nowrap"
+                    className="whitespace-nowrap flex-1 md:flex-none"
                   >
-                    {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
-                    Remove
+                    {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                    Save API Key
                   </Button>
-                )}
+                  {profile?.gemini_key_vault_secret && (
+                    <Button 
+                      onClick={handleRemoveGeminiApiKey}
+                      disabled={isUpdating}
+                      size="default"
+                      variant="destructive"
+                      className="whitespace-nowrap flex-1 md:flex-none"
+                    >
+                      {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
+                      Remove
+                    </Button>
+                  )}
+                </div>
               </div>
               <p className="text-xs text-muted-foreground">
                 Optional: Enter your Gemini API key to use your own Google Gemini account for AI features.
@@ -515,7 +575,7 @@ const Settings = () => {
 
             <div className="space-y-2">
               <Label htmlFor="transcript-api-key">AssemblyAI API Key</Label>
-              <div className="flex gap-2">
+              <div className="flex flex-col md:flex-row gap-2">
                 <Input
                   id="transcript-api-key"
                   type="password"
@@ -525,27 +585,29 @@ const Settings = () => {
                   placeholder={profile?.transcript_key_vault_secret ? "API key is set (masked)" : "Enter your transcription service API key from AssemblyAI"}
                   className="flex-1"
                 />
-                <Button 
-                  onClick={handleSaveApiKey}
-                  disabled={!transcriptApiKey.trim() || transcriptApiKey === '••••••••' || isUpdating}
-                  size="default"
-                  className="whitespace-nowrap"
-                >
-                  {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                  Save API Key
-                </Button>
-                {profile?.transcript_key_vault_secret && (
+                <div className="flex gap-2">
                   <Button 
-                    onClick={handleRemoveTranscriptApiKey}
-                    disabled={isUpdating}
+                    onClick={handleSaveApiKey}
+                    disabled={!transcriptApiKey.trim() || transcriptApiKey === '••••••••' || isUpdating}
                     size="default"
-                    variant="destructive"
-                    className="whitespace-nowrap"
+                    className="whitespace-nowrap flex-1 md:flex-none"
                   >
-                    {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
-                    Remove
+                    {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                    Save API Key
                   </Button>
-                )}
+                  {profile?.transcript_key_vault_secret && (
+                    <Button 
+                      onClick={handleRemoveTranscriptApiKey}
+                      disabled={isUpdating}
+                      size="default"
+                      variant="destructive"
+                      className="whitespace-nowrap flex-1 md:flex-none"
+                    >
+                      {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
+                      Remove
+                    </Button>
+                  )}
+                </div>
               </div>
               <p className="text-xs text-muted-foreground">
                 Required: Generate an API key with AssemblyAI and submit it here. This is required to enable podcast transcription and summary feature.
@@ -598,7 +660,7 @@ const Settings = () => {
                 </p>
               </div>
               
-              <div className="flex gap-2">
+              <div className="flex flex-col md:flex-row gap-2">
                 <Input
                   value={newPodcastRss}
                   onChange={(e) => setNewPodcastRss(e.target.value)}
@@ -611,7 +673,7 @@ const Settings = () => {
                   onClick={handleAddPodcast}
                   disabled={!newPodcastRss.trim() || rssExists(newPodcastRss.trim()) || isAddingPodcast || podcasts.length >= 10 || !profile?.transcript_key_vault_secret}
                   size="default"
-                  className="whitespace-nowrap"
+                  className="whitespace-nowrap w-full md:w-auto"
                 >
                   {isAddingPodcast ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
                   Add Podcast Feed
@@ -668,38 +730,42 @@ const Settings = () => {
                   {podcasts.map((podcast) => (
                     <div 
                       key={podcast.id} 
-                      className="flex items-center justify-between p-3 border rounded-lg"
+                      className="flex items-center justify-between p-3 border rounded-lg gap-2"
                     >
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 sm:gap-3">
                           {podcast.image_url ? (
                             <img 
                               src={podcast.image_url} 
                               alt={podcast.podcast_name}
-                              className="w-10 h-10 rounded-md object-cover flex-shrink-0"
+                              className="w-8 h-8 sm:w-10 sm:h-10 rounded-md object-cover flex-shrink-0"
                             />
                           ) : (
-                            <div className="w-10 h-10 bg-gray-100 rounded-md flex items-center justify-center flex-shrink-0">
-                              <Radio className="h-5 w-5 text-gray-400" />
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 rounded-md flex items-center justify-center flex-shrink-0">
+                              <Radio className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                             </div>
                           )}
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2">
-                              <h4 className="font-medium text-sm truncate">{podcast.podcast_name}</h4>
+                              <h4 className="font-medium text-sm truncate">
+                                {isMobile && podcast.podcast_name.length > 20 
+                                  ? `${podcast.podcast_name.slice(0, 17)}...` 
+                                  : podcast.podcast_name}
+                              </h4>
                               {podcast.status && (
                                 <Badge 
                                   variant={podcast.status === 'processing' ? 'default' : 'secondary'} 
-                                  className="text-xs"
+                                  className="text-xs max-md:hidden"
                                 >
                                   {podcast.status === 'processing' ? 'Processing' : podcast.status}
                                 </Badge>
                               )}
                             </div>
-                            <p className="text-xs text-muted-foreground truncate">
+                            <p className="text-xs text-muted-foreground truncate max-md:hidden">
                               {podcast.rss_feed}
                             </p>
                             {podcast.description && (
-                              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                              <p className="text-xs text-muted-foreground mt-1 line-clamp-2 max-md:hidden">
                                 {podcast.description}
                               </p>
                             )}
@@ -711,7 +777,7 @@ const Settings = () => {
                         size="sm"
                         onClick={() => handleRemovePodcast(podcast.id)}
                         disabled={isDeletingPodcast}
-                        className="ml-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        className="flex-shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10"
                       >
                         {isDeletingPodcast ? (
                           <Loader2 className="h-4 w-4 animate-spin" />

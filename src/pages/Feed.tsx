@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAudioPlayer } from '@/contexts/AudioPlayerContext';
 import { Card, CardContent, CardDescription } from '@/components/ui/card';
@@ -23,6 +24,8 @@ import { safeStringify } from '@/lib/stringUtils';
 import CreateMicrocastDialog from '@/components/microcasts/CreateMicrocastDialog';
 import AppLayout from '@/components/layout/AppLayout';
 import EnhancedMarkdownRenderer from '@/components/chat/EnhancedMarkdownRenderer';
+import { OnboardingDialogue } from '@/components/ui/onboarding-dialogue';
+import { useOnboardingDialogue } from '@/hooks/useOnboardingDialogue';
 
 // Helper function to detect mobile synchronously on initial render
 const getInitialMobileState = (): boolean => {
@@ -581,6 +584,9 @@ const Feed = () => {
   const { playerState } = useAudioPlayer();
   const [viewMode, setViewMode] = useState<'list' | 'card'>(getInitialViewMode);
   const isMobile = useIsMobile();
+  
+  // Onboarding dialogue
+  const { isOpen: isOnboardingOpen, dismissDialogue, isUpdating: isOnboardingUpdating } = useOnboardingDialogue('feed_dialogue');
   
   // Feed sources state
   const [showAddSourceDialog, setShowAddSourceDialog] = useState(false);
@@ -1234,6 +1240,31 @@ const Feed = () => {
       >
         <Plus className="h-6 w-6" />
       </Button>
+
+      {/* Onboarding Dialogue */}
+      <OnboardingDialogue
+        open={isOnboardingOpen}
+        onOpenChange={() => {}}
+        title="Welcome to your feed!"
+        description="This is your personal content feed where all your saved content sources appear."
+        onConfirm={dismissDialogue}
+        isLoading={isOnboardingUpdating}
+      >
+        <div className="space-y-3 text-sm text-muted-foreground break-words">
+          <p>
+            <strong>Add sources:</strong> Click the + button to add web articles, PDFs, articles, or text content.
+          </p>
+          <p>
+            <strong>AI summaries:</strong> Each added source is AI-processed with generated summaries, key takeaways and assigned categories.
+          </p>
+          <p>
+            <strong>Create microcasts:</strong> Select up to 3 sources and have AI generate mini-podcasts summarizing your sources.
+          </p>
+          <p>
+            <strong>Update user settings:</strong> Go to <Link to="/settings" className="text-primary underline hover:text-primary/80">your settings</Link> next to configure required API keys, categories, and other settings.
+          </p>
+        </div>
+      </OnboardingDialogue>
       </main>
     </AppLayout>
   );

@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 export interface UserCategory {
   id: string;
@@ -21,13 +22,31 @@ export interface UpdateCategoryData {
   color?: string;
 }
 
-export const useUserCategories = () => {
+interface CategoriesContextType {
+  categories: UserCategory[];
+  isLoading: boolean;
+  isCreating: boolean;
+  isUpdating: boolean;
+  isDeleting: boolean;
+  fetchCategories: () => Promise<void>;
+  createCategory: (data: CreateCategoryData) => Promise<UserCategory | null>;
+  updateCategory: (id: string, data: UpdateCategoryData) => Promise<UserCategory | null>;
+  deleteCategory: (id: string) => Promise<boolean>;
+  getCategoryByName: (name: string) => UserCategory | undefined;
+  getCategoryById: (id: string) => UserCategory | undefined;
+  categoryNameExists: (name: string, excludeId?: string) => boolean;
+}
+
+const CategoriesContext = createContext<CategoriesContextType | undefined>(undefined);
+
+export const CategoriesProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [categories, setCategories] = useState<UserCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
+  const { isAuthenticated } = useAuth();
 
   // Fetch all user categories
   const fetchCategories = async () => {
@@ -228,23 +247,43 @@ export const useUserCategories = () => {
     );
   };
 
-  // Initialize categories on mount
+  // Initialize categories on mount when authenticated
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    if (isAuthenticated) {
+      fetchCategories();
+    } else {
+      setCategories([]);
+      setIsLoading(false);
+    }
+  }, [isAuthenticated]);
 
-  return {
-    categories,
-    isLoading,
-    isCreating,
-    isUpdating,
-    isDeleting,
-    fetchCategories,
-    createCategory,
-    updateCategory,
-    deleteCategory,
-    getCategoryByName,
-    getCategoryById,
-    categoryNameExists,
-  };
-}; 
+  return (
+    <CategoriesContext.Provider
+      value={{
+        categories,
+        isLoading,
+        isCreating,
+        isUpdating,
+        isDeleting,
+        fetchCategories,
+        createCategory,
+        updateCategory,
+        deleteCategory,
+        getCategoryByName,
+        getCategoryById,
+        categoryNameExists,
+      }}
+    >
+      {children}
+    </CategoriesContext.Provider>
+  );
+};
+
+export const useCategories = () => {
+  const context = useContext(CategoriesContext);
+  if (context === undefined) {
+    throw new Error('useCategories must be used within a CategoriesProvider');
+  }
+  return context;
+};
+

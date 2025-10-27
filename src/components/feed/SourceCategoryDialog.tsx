@@ -8,7 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Tag, Plus, X, Check, Settings, Loader2 } from 'lucide-react';
 import { useFeedSources } from '@/hooks/useFeedSources';
-import { useUserCategories } from '@/hooks/useUserCategories';
+import { useCategories } from '@/contexts/CategoriesContext';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 
@@ -36,7 +36,7 @@ const SourceCategoryDialog = ({ open, onOpenChange, source }: SourceCategoryDial
     isCreating, 
     createCategory,
     categoryNameExists
-  } = useUserCategories();
+  } = useCategories();
   const { toast } = useToast();
 
   // Initialize categories when source changes

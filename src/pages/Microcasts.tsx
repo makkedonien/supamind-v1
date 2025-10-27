@@ -8,12 +8,16 @@ import { useMicrocasts } from '@/hooks/useMicrocasts';
 
 import { useNavigate } from 'react-router-dom';
 import MicrocastCard from '@/components/microcasts/MicrocastCard';
+import { OnboardingDialogue } from '@/components/ui/onboarding-dialogue';
+import { useOnboardingDialogue } from '@/hooks/useOnboardingDialogue';
 
 const Microcasts = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { microcasts, isLoading, error } = useMicrocasts();
-
+  
+  // Onboarding dialogue
+  const { isOpen: isOnboardingOpen, dismissDialogue, isUpdating: isOnboardingUpdating } = useOnboardingDialogue('microcast_dialogue');
 
   const handleGoToFeed = () => {
     navigate('/');
@@ -92,6 +96,31 @@ const Microcasts = () => {
 
 
       </div>
+
+      {/* Onboarding Dialogue */}
+      <OnboardingDialogue
+        open={isOnboardingOpen}
+        onOpenChange={() => {}}
+        title="Welcome to Microcasts!"
+        description="Microcasts are AI-generated mini-podcasts created from your feed or podcast sources."
+        onConfirm={dismissDialogue}
+        isLoading={isOnboardingUpdating}
+      >
+        <div className="space-y-3 text-sm text-muted-foreground break-words">
+          <p>
+            <strong>Create from sources:</strong> Go to your Feed or Podcasts page and select up to 3 sources, then click the "Create Microcast" button.
+          </p>
+          <p>
+            <strong>AI conversations:</strong> The AI generates engaging podcast-style conversations between hosts summarizing and discussing your sources.
+          </p>
+          <p>
+            <strong>Audio playback:</strong> Listen to microcasts directly in the app with our audio player.
+          </p>
+          <p>
+            <strong>Processing time:</strong> Microcast generation typically takes up to 15 minutes depending on the content.
+          </p>
+        </div>
+      </OnboardingDialogue>
     </main>
   );
 };

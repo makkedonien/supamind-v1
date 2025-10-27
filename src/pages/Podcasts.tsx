@@ -24,6 +24,8 @@ import { safeStringify } from '@/lib/stringUtils';
 import CreateMicrocastDialog from '@/components/microcasts/CreateMicrocastDialog';
 import AppLayout from '@/components/layout/AppLayout';
 import EnhancedMarkdownRenderer from '@/components/chat/EnhancedMarkdownRenderer';
+import { OnboardingDialogue } from '@/components/ui/onboarding-dialogue';
+import { useOnboardingDialogue } from '@/hooks/useOnboardingDialogue';
 
 // Helper function to detect mobile synchronously on initial render
 const getInitialMobileState = (): boolean => {
@@ -582,6 +584,9 @@ const Podcasts = () => {
   const { playerState } = useAudioPlayer();
   const [viewMode, setViewMode] = useState<'list' | 'card'>(getInitialViewMode);
   const isMobile = useIsMobile();
+  
+  // Onboarding dialogue
+  const { isOpen: isOnboardingOpen, dismissDialogue, isUpdating: isOnboardingUpdating } = useOnboardingDialogue('podcast_dialogue');
   
   // Feed sources state
   const [showAddSourceDialog, setShowAddSourceDialog] = useState(false);
@@ -1229,6 +1234,28 @@ const Podcasts = () => {
         sources={allSources || []}
         onClearSelection={() => setSelectedSources(new Set())}
       />
+
+      {/* Onboarding Dialogue */}
+      <OnboardingDialogue
+        open={isOnboardingOpen}
+        onOpenChange={() => {}}
+        title="Welcome to your podcast feed!"
+        description="This page displays all your podcast episodes that have been automatically processed and summarized."
+        onConfirm={dismissDialogue}
+        isLoading={isOnboardingUpdating}
+      >
+        <div className="space-y-3 text-sm text-muted-foreground break-words">
+          <p>
+            <strong>Add podcast feeds:</strong> Go to Settings to add up to 10 podcast RSS feeds.
+          </p>
+          <p>
+            <strong>Automatic processing:</strong> Each day, new episodes are automatically transcribed and summarized with AI.
+          </p>
+          <p>
+            <strong>Create microcasts:</strong> Select multiple episodes to generate podcast-style summaries.
+          </p>
+        </div>
+      </OnboardingDialogue>
 
       </main>
     </AppLayout>

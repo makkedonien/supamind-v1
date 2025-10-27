@@ -17,7 +17,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Badge } from '@/components/ui/badge';
 import { useLogout } from '@/services/authService';
 import { useAuth } from '@/contexts/AuthContext';
-import { useUserCategories } from '@/hooks/useUserCategories';
+import { useCategories } from '@/contexts/CategoriesContext';
 import { useProfile } from '@/hooks/useProfile';
 import { usePodcastsWithCounts } from '@/hooks/usePodcastsWithCounts';
 import Logo from '@/components/ui/Logo';
@@ -52,7 +52,7 @@ const AppSidebar = ({ feedFilters, onFeedFiltersChange, feedSourceCounts, proces
   const location = useLocation();
   const { logout } = useLogout();
   const { user } = useAuth();
-  const { categories } = useUserCategories();
+  const { categories } = useCategories();
   const { profile } = useProfile();
   const { podcasts: podcastsWithCounts } = usePodcastsWithCounts();
 
