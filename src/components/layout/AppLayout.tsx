@@ -25,14 +25,9 @@ interface AppLayoutProps {
     copiedTexts: number;
     categoryCounts: Record<string, number>;
   };
-  processingSources?: {
-    id: string;
-    title: string;
-    processing_status: string;
-  }[];
 }
 
-const AppLayout = ({ children, feedFilters, onFeedFiltersChange, feedSourceCounts, processingSources }: AppLayoutProps) => {
+const AppLayout = ({ children, feedFilters, onFeedFiltersChange, feedSourceCounts }: AppLayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -68,7 +63,6 @@ const AppLayout = ({ children, feedFilters, onFeedFiltersChange, feedSourceCount
         feedFilters={feedFilters}
         onFeedFiltersChange={onFeedFiltersChange}
         feedSourceCounts={feedSourceCounts}
-        processingSources={processingSources}
       />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4 bg-background sticky top-0 z-10">
