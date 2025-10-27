@@ -286,6 +286,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          admin_approval: boolean
           avatar_url: string | null
           categorization_prompt: string | null
           created_at: string
@@ -299,8 +300,10 @@ export type Database = {
           summary_prompt: string | null
           transcript_key_vault_secret: string | null
           updated_at: string
+          user_role: string
         }
         Insert: {
+          admin_approval?: boolean
           avatar_url?: string | null
           categorization_prompt?: string | null
           created_at?: string
@@ -314,8 +317,10 @@ export type Database = {
           summary_prompt?: string | null
           transcript_key_vault_secret?: string | null
           updated_at?: string
+          user_role?: string
         }
         Update: {
+          admin_approval?: boolean
           avatar_url?: string | null
           categorization_prompt?: string | null
           created_at?: string
@@ -329,6 +334,7 @@ export type Database = {
           summary_prompt?: string | null
           transcript_key_vault_secret?: string | null
           updated_at?: string
+          user_role?: string
         }
         Relationships: []
       }

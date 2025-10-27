@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Key, Trash2, Plus, X, Loader2, Download, Chrome, Mail, Radio } from 'lucide-react';
+import { Key, Trash2, Plus, X, Loader2, Download, Chrome, Mail, Radio, CheckCircle, UserCheck } from 'lucide-react';
 import { useCategories } from '@/contexts/CategoriesContext';
 import { useProfile } from '@/hooks/useProfile';
 import { usePodcasts } from '@/hooks/usePodcasts';
@@ -17,7 +17,7 @@ import { useOnboardingDialogue } from '@/hooks/useOnboardingDialogue';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const Settings = () => {
-  const { user } = useAuth();
+  const { user, profile: authProfile } = useAuth();
   const isMobile = useIsMobile();
   const { 
     categories, 
@@ -65,6 +65,11 @@ const Settings = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [newPodcastRss, setNewPodcastRss] = useState('');
   const [podcastProcessingEnabled, setPodcastProcessingEnabled] = useState(false);
+  
+  // Admin state
+  const [unapprovedUsers, setUnapprovedUsers] = useState<any[]>([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  const [approvingUserId, setApprovingUserId] = useState<string | null>(null);
 
   // Load profile data into form when available
   useEffect(() => {
@@ -366,6 +371,58 @@ const Settings = () => {
     await dismissDialogue();
   };
 
+  // Admin functions
+  const fetchUnapprovedUsers = async () => {
+    try {
+      setIsLoadingUsers(true);
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, email, full_name, admin_approval')
+        .eq('admin_approval', false)
+        .order('created_at', { ascending: false }) as any;
+
+      if (error) {
+        console.error('Error fetching unapproved users:', error);
+        return;
+      }
+
+      setUnapprovedUsers(data || []);
+    } catch (error) {
+      console.error('Error fetching unapproved users:', error);
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  };
+
+  const handleApproveUser = async (userId: string) => {
+    try {
+      setApprovingUserId(userId);
+      const { error } = await supabase
+        .from('profiles')
+        .update({ admin_approval: true } as any)
+        .eq('id', userId);
+
+      if (error) {
+        console.error('Error approving user:', error);
+        return;
+      }
+
+      // Remove the approved user from the list
+      setUnapprovedUsers(prev => prev.filter(u => u.id !== userId));
+    } catch (error) {
+      console.error('Error approving user:', error);
+    } finally {
+      setApprovingUserId(null);
+    }
+  };
+
+  // Fetch unapproved users when component mounts if user is admin
+  useEffect(() => {
+    if (authProfile?.user_role === 'admin') {
+      fetchUnapprovedUsers();
+    }
+  }, [authProfile?.user_role]);
+
   return (
     <div className="container mx-auto px-4 py-6 max-w-4xl">
       <div className="mb-8">
@@ -466,6 +523,94 @@ const Settings = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Admin Section - Only visible to admins */}
+        {authProfile?.user_role === 'admin' && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl font-semibold flex items-center gap-2">
+                <UserCheck className="h-5 w-5" />
+                Admin - User Approval
+              </CardTitle>
+              <CardDescription>
+                Review and approve new user registrations. Users must be approved before they can access the application.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-base font-medium">Pending Approvals</Label>
+                  {isLoadingUsers ? (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Loading...
+                    </div>
+                  ) : (
+                    <span className="text-sm text-muted-foreground">
+                      {unapprovedUsers.length} user{unapprovedUsers.length !== 1 ? 's' : ''} pending
+                    </span>
+                  )}
+                </div>
+
+                {unapprovedUsers.length === 0 && !isLoadingUsers ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <CheckCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p className="text-sm">No pending user approvals</p>
+                    <p className="text-xs">All users have been approved</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {unapprovedUsers.map((user) => {
+                      const displayName = user.full_name || 'No name provided';
+                      const truncatedName = isMobile && displayName.length > 15
+                        ? `${displayName.slice(0, 12)}...`
+                        : displayName;
+                      const truncatedEmail = isMobile && user.email.length > 15
+                        ? `${user.email.slice(0, 12)}...`
+                        : user.email;
+                      
+                      return (
+                        <div
+                          key={user.id}
+                          className="flex items-center justify-between p-4 border rounded-lg gap-4"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-col gap-1">
+                              <div className="font-medium text-sm truncate">
+                                {truncatedName}
+                              </div>
+                              <div className="text-sm text-muted-foreground truncate">
+                                {truncatedEmail}
+                              </div>
+                            </div>
+                          </div>
+                          <Button
+                            onClick={() => handleApproveUser(user.id)}
+                            disabled={approvingUserId === user.id}
+                            size="sm"
+                            className="flex-shrink-0"
+                          >
+                            {approvingUserId === user.id ? (
+                              <>
+                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                Approving...
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle className="h-4 w-4 mr-2" />
+                                Approve
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* API Keys Section */}
         <Card>
