@@ -1176,7 +1176,7 @@ const Podcasts = () => {
               {filteredSources.map(source => (
                 <FeedSourceCard 
                   key={source.id} 
-                  source={source}
+                  source={source as any}
                   viewMode={viewMode}
                   onEdit={handleEditSource}
                   onCategorize={handleCategorizeSource}
