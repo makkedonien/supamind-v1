@@ -632,7 +632,7 @@ const Settings = () => {
               <a href="https://www.assemblyai.com/" target="_blank" rel="noopener noreferrer" className="text-primary underline hover:text-primary/80">
                 AssemblyAI
               </a>
-              .
+              . Without these API keys, podcast episode processing and microcast generation will not work.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
