@@ -26,3 +26,4 @@ CREATE INDEX IF NOT EXISTS idx_profiles_user_role ON public.profiles(user_role);
 COMMIT;
 
 
+

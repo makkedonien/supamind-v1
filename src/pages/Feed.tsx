@@ -1245,6 +1245,9 @@ const Feed = () => {
           <p>
             <strong>Update user settings:</strong> Go to <Link to="/settings" className="text-primary underline hover:text-primary/80">your settings</Link> next to configure required API keys, categories, and other settings.
           </p>
+          <p>
+            <strong>Optional:</strong> Watch this short <a href="https://www.loom.com/share/0584984dfbab4e95be385bd8b2967ee0" target="_blank" rel="noopener noreferrer" className="text-primary underline hover:text-primary/80">intro video</a> to get an overview of the app.
+          </p>
         </div>
       </OnboardingDialogue>
       </main>
